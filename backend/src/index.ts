@@ -27,60 +27,61 @@ const admin = require('firebase-admin');
 const serviceAccount = path.join(__dirname, '../..', 'keys', 'fb-key.json');
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(serviceAccount),
 });
-
 
 // returns all the user-id's
 app.get('/user', async (req, res) => {
-    const usersRef = admin.firestore().collection('users');
-    const querySnapshot = await usersRef.get();
-    
-    if (querySnapshot.empty) {
-      res.status(204).send('No users found');
-    } else {
-      const userids = querySnapshot.docs.map((doc: { id: any; }) => doc.id);
-      res.status(200).send(userids);
-    }
+  const usersRef = admin.firestore().collection('users');
+  const querySnapshot = await usersRef.get();
+
+  if (querySnapshot.empty) {
+    res.status(204).send('No users found');
+  } else {
+    const userids = querySnapshot.docs.map((doc: { id: any }) => doc.id);
+    res.status(200).send(userids);
+  }
 });
-  
 
 // returns data of a specific user
 app.get('/user/:idOrUsername', async (req, res) => {
-    const usersRef = admin.firestore().collection('users');
-    const snapshot = await usersRef.get();
-    const searchParam = req.params.idOrUsername;
-    
-    const user = snapshot.docs.find((doc: { id: string; }) => doc.id === searchParam) 
-      || (await Promise.all(snapshot.docs.map(async (doc: { id: string; }) => {
-        const userSnapshot = await usersRef.doc(doc.id).get();
-        return userSnapshot.data().username === searchParam ? userSnapshot : null;
-      }))).find(Boolean);
-  
-    if (user) {
-      res.status(200).send(user.data());
-    } else {
-      res.status(404).send('User not found');
-    }
-  });
-  
+  const usersRef = admin.firestore().collection('users');
+  const snapshot = await usersRef.get();
+  const searchParam = req.params.idOrUsername;
+
+  const user =
+    snapshot.docs.find((doc: { id: string }) => doc.id === searchParam) ||
+    (
+      await Promise.all(
+        snapshot.docs.map(async (doc: { id: string }) => {
+          const userSnapshot = await usersRef.doc(doc.id).get();
+          return userSnapshot.data().username === searchParam ? userSnapshot : null;
+        })
+      )
+    ).find(Boolean);
+
+  if (user) {
+    res.status(200).send(user.data());
+  } else {
+    res.status(404).send('User not found');
+  }
+});
 
 // create new user
 app.post('/user/create/:username', async (req, res) => {
-    const usersRef = admin.firestore().collection('users');
-    const querySnapshot = await usersRef.where('username', '==', req.params.username).get();
-    
-    if (!querySnapshot.empty) {
-      res.status(409).send('User already exists');
-    } else {
-      const newUserRef = await usersRef.add({
-        username: req.params.username,
-        highscore: 0,
-        games: 0,
-        wins: 0,
-        losses: 0,
-      });
-      res.status(201).send(newUserRef.id);
-    }
-  });
-  
+  const usersRef = admin.firestore().collection('users');
+  const querySnapshot = await usersRef.where('username', '==', req.params.username).get();
+
+  if (!querySnapshot.empty) {
+    res.status(409).send('User already exists');
+  } else {
+    const newUserRef = await usersRef.add({
+      username: req.params.username,
+      highscore: 0,
+      games: 0,
+      wins: 0,
+      losses: 0,
+    });
+    res.status(201).send(newUserRef.id);
+  }
+});

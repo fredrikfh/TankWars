@@ -18,5 +18,10 @@ The key is login details to a Firebase service account, needed to access the dat
 
 Run the following commands in your terminal:
 
-- yarn
-- yarn start
+- `yarn` last ned avhengigheter
+- `yarn start` start serveren
+
+## Nyttige kommandoer
+
+Formatere koden: `yarn prettier`
+Kjøre tester: `yarn test`
