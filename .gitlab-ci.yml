@@ -1,0 +1,32 @@
+stages:
+  - backend build
+  - frontend build
+  - backend test
+  - frontend test
+
+cache:
+  paths:
+    - .m2/repository/
+    - target/
+    - .yarn
+
+
+Prettier check:
+  image: node:16.3.0
+  stage: backend test
+  needs: []
+  script:
+    - cd backend
+    - yarn
+    - yarn prettier --check .
+  retry: 1
+
+Backend build:
+    image: node:16.3.0
+    stage: backend test
+    needs: []
+    script:
+        - cd backend
+        - yarn
+        - yarn tsc
+
