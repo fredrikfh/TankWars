@@ -19,3 +19,7 @@
 
 > - 409 User already exists
 > - 201 User created
+
+### GET /highscores
+> - 204 No highscores found 
+> - 200 List of users with highest score

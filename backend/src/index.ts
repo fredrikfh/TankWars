@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import { User } from '../types/User';
 
 const app = express();
 const port = 3000;
@@ -85,3 +86,18 @@ app.post('/user/create/:username', async (req, res) => {
     res.status(201).send(newUserRef.id);
   }
 });
+
+
+// returns users with top 10 highscore
+
+app.get('/highscores', async (req, res) => {
+  const usersRef = admin.firestore().collection('users');
+  const querySnapshot = await usersRef.orderBy('highscore', 'desc').limit(10).get();
+
+  if (querySnapshot.empty) {
+    res.status(204).send('No highscores found');
+  } else {
+    const users = querySnapshot.docs.map((doc: any) => doc.data() as User);
+    res.status(200).send(users);
+  }
+})
