@@ -23,10 +23,10 @@ public class TankWarsGame extends ApplicationAdapter {
 	@Override
 	public void render () {
 
-		if(Gdx.input.isKeyPressed(Input.Keys.D)) {
+		if(Gdx.input.isKeyPressed(Input.Keys.D) && !tank.detectCollisionRight()) {
 			tank.moveRight();
 		}
-		if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+		if(Gdx.input.isKeyPressed(Input.Keys.A) && !tank.detectCollisionLeft()) {
 			tank.moveLeft();
 		}
 

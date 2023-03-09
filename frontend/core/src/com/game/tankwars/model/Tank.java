@@ -1,5 +1,6 @@
 package com.game.tankwars.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -55,5 +56,12 @@ public class Tank {
         position.x -= TANK_MOVESPEED;
     }
 
+    public boolean detectCollisionLeft() {
+        return position.x < 0;
+    }
+
+    public boolean detectCollisionRight() {
+        return Gdx.graphics.getWidth() / 2.0f - bounds.getWidth() / 2.0f - 50 < position.x;
+    }
 
 }
