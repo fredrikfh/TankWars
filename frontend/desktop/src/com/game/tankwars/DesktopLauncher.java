@@ -8,6 +8,7 @@ import com.game.tankwars.TankWarsGame;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+		config.setWindowedMode(720, 1600);
 		config.setForegroundFPS(60);
 		config.setTitle("Tank Wars");
 		new Lwjgl3Application(new TankWarsGame(), config);
