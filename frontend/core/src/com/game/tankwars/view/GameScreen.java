@@ -19,6 +19,7 @@ import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.Box2dWorld;
 import com.game.tankwars.model.Bullet;
 import com.game.tankwars.model.Tank;
+import com.game.tankwars.model.Terrain;
 
 public class GameScreen implements Screen {
     final TankWarsGame tankWarsGame;
@@ -32,6 +33,7 @@ public class GameScreen implements Screen {
     private Tank tank;
     private Box2dWorld model;
     private World world;
+    private Terrain terrain;
 
     private OrthographicCamera cam;
     private Box2DDebugRenderer debugRenderer;
@@ -51,6 +53,9 @@ public class GameScreen implements Screen {
         tank = new Tank(tankPos, new Texture("tank-khaki.png"));
         horizontalScaling = Gdx.graphics.getWidth() / VIEWPORT_WIDTH;
         verticalScaling = Gdx.graphics.getHeight() / VIEWPORT_HEIGHT;
+
+        terrain = new Terrain();
+
     }
     @Override
     public void render(float delta) {
