@@ -44,4 +44,8 @@ public class Terrain {
 
         chainShape.dispose();
     }
+
+    public Vector2[] getVertices() {
+        return vertices;
+    }
 }

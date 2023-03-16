@@ -28,17 +28,17 @@ public class GameScreen implements Screen {
 
     int horizontalScaling;
     int verticalScaling;
-    private SpriteBatch batch;
+    SpriteBatch batch;
 
-    private Tank tank;
-    private Box2dWorld model;
-    private World world;
-    private Terrain terrain;
+    Tank tank;
+    Box2dWorld model;
+    World world;
+    Terrain terrain;
 
-    private OrthographicCamera cam;
-    private Box2DDebugRenderer debugRenderer;
+    OrthographicCamera cam;
+    Box2DDebugRenderer debugRenderer;
 
-    private Bullet bullet;
+    Bullet bullet;
 
     public GameScreen(final TankWarsGame tankWarsGame){
         this.tankWarsGame = tankWarsGame;
@@ -49,13 +49,13 @@ public class GameScreen implements Screen {
         cam.position.set(VIEWPORT_WIDTH/2, VIEWPORT_HEIGHT/2, 0);
         cam.update();
         debugRenderer = new Box2DDebugRenderer(true, true, true, true, true, true);
-        Vector2 tankPos = new Vector2(0, cam.position.y/2);
-        tank = new Tank(tankPos, new Texture("tank-khaki.png"));
-        horizontalScaling = Gdx.graphics.getWidth() / VIEWPORT_WIDTH;
-        verticalScaling = Gdx.graphics.getHeight() / VIEWPORT_HEIGHT;
 
         terrain = new Terrain();
 
+        int initPos = 50;
+        tank = new Tank(initPos, new Texture("tank-khaki.png"), terrain);
+        horizontalScaling = Gdx.graphics.getWidth() / VIEWPORT_WIDTH;
+        verticalScaling = Gdx.graphics.getHeight() / VIEWPORT_HEIGHT;
     }
     @Override
     public void render(float delta) {
@@ -64,14 +64,14 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         debugRenderer.render(world, cam.combined);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.D) && !tank.detectCollisionRight()) {
+        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
             tank.moveRight();
         }
-        else if(Gdx.input.isKeyPressed(Input.Keys.A) && !tank.detectCollisionLeft()) {
+        else if(Gdx.input.isKeyPressed(Input.Keys.A)) {
             tank.moveLeft();
-        } else {
-            tank.stop();
         }
+
+
         if(Gdx.input.justTouched()) {
             bullet = new Bullet(tank);
             System.out.println(tank.getPosition());
