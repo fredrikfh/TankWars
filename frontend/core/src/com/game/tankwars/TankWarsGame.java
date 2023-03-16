@@ -7,26 +7,40 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.game.tankwars.model.Box2dWorld;
+import com.game.tankwars.model.Bullet;
 import com.game.tankwars.model.Tank;
 import com.game.tankwars.view.MainMenuScreen;
 
 public class TankWarsGame extends Game {
 
-	private SpriteBatch batch;
+	public static int VIEWPORT_WIDTH = 80;
+	public static int VIEWPORT_HEIGHT = 50;
+
 	private BitmapFont font;
+	private SpriteBatch batch;
 	private OrthographicCamera camera;
 
 	@Override
 	public void create() {
-
-		batch = new SpriteBatch();
 		// Font from https://www.fontspace.com/roll-accurate-font-f32330
 		font = generateFontFromTTFFile("RollAccurate-mvrx.ttf");
 		// Camera size set to main menu dimensions: portrait mode

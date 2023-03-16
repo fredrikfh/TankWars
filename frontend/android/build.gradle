@@ -85,4 +85,5 @@ task run(type: Exec) {
     commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.game.tankwars/com.game.tankwars.AndroidLauncher'
 }
 
+
 eclipse.project.name = appName + "-android"
