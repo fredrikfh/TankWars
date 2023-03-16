@@ -41,6 +41,7 @@ public class TankWarsGame extends Game {
 
 	@Override
 	public void create() {
+		batch = new SpriteBatch();
 		// Font from https://www.fontspace.com/roll-accurate-font-f32330
 		font = generateFontFromTTFFile("RollAccurate-mvrx.ttf");
 		// Camera size set to main menu dimensions: portrait mode
