@@ -12,26 +12,30 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.game.tankwars.TankWarsGame;
+import com.game.tankwars.view.GameScreen;
 
 public class Tank {
 
     public static final int TANK_MOVESPEED = 10;
     public static final int TANK_WIDTH = 2;
     public static final int TANK_HEIGHT = 1;
-
     private Vector2 position;
-
     private Rectangle bounds;
-
     private Texture texture;
     private Sprite sprite;
     World world;
     Body body;
     BodyDef bodyDef = new BodyDef();
     FixtureDef fixtureDef = new FixtureDef();
+    Terrain terrain;
+    Vector2[] vertices;
+    int posInVertArr;
 
-    public Tank(Vector2 position, Texture texture) {
-        this.position = position;
+    public Tank(int posInVertArr, Texture texture, Terrain terrain) {
+        this.terrain = terrain;
+        vertices = terrain.getVertices();
+        this.posInVertArr = posInVertArr;
+        position = vertices[posInVertArr];
         this.bounds = new Rectangle(position.x, position.y, TANK_WIDTH, TANK_HEIGHT);
         this.texture = texture;
         sprite = new Sprite(texture);
@@ -39,7 +43,7 @@ public class Tank {
 
         world = Box2dWorld.getWorld();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
-        bodyDef.position.set(sprite.getX(), sprite.getY());
+        bodyDef.position.set(position.x, position.y);
         body = world.createBody(bodyDef);
         body.setUserData(sprite);
 
@@ -78,13 +82,33 @@ public class Tank {
 
 
     public void moveRight() {
-        body.setLinearVelocity(TANK_MOVESPEED, 0);
-        position = body.getPosition();
+        Vector2 curPos = vertices[posInVertArr];
+        Vector2 newPos = vertices[posInVertArr + 1];
+        float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
+
+        if (body.getPosition().x <= 80 - 0.075){
+            body.setTransform(newPos.x, newPos.y + 0.11f, angle);
+            position.set(newPos);
+            posInVertArr++;
+        }
+        else {
+            body.setTransform(curPos.x, curPos.y + 0.11f, angle);
+        }
     }
 
     public void moveLeft() {
-        body.setLinearVelocity(- TANK_MOVESPEED, 0);
-        position = body.getPosition();
+        Vector2 curPos = vertices[posInVertArr];
+        Vector2 newPos = vertices[posInVertArr - 1];
+        float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
+
+        if (body.getPosition().x >= 0 + 0.075){
+            body.setTransform(newPos.x, newPos.y + 0.11f, angle);
+            position.set(newPos);
+            posInVertArr--;
+        }
+        else {
+            body.setTransform(curPos.x, curPos.y + 0.11f, angle);
+        }
     }
 
     public void stop() {body.setLinearVelocity(0, 0);}
@@ -96,6 +120,4 @@ public class Tank {
     public boolean detectCollisionRight() {
         return TankWarsGame.VIEWPORT_WIDTH - TANK_WIDTH < position.x;
     }
-
-
 }

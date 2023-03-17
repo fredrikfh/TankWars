@@ -20,7 +20,7 @@ public class Bullet {
 
     public Bullet(Tank tank) {
         this.position = tank.getPosition();
-        position.y += 0.5;
+        position.y += 0.5f;
         this.tank = tank;
         world = Box2dWorld.getWorld();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
