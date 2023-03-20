@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.game.tankwars.TankWarsGame;
+import com.game.tankwars.controller.GameController;
 import com.game.tankwars.model.Box2dWorld;
 import com.game.tankwars.model.Bullet;
 import com.game.tankwars.model.Tank;
@@ -23,25 +24,26 @@ import com.game.tankwars.model.Terrain;
 
 public class GameScreen implements Screen {
     final TankWarsGame tankWarsGame;
-    public static int VIEWPORT_WIDTH = 80;
-    public static int VIEWPORT_HEIGHT = 50;
-
+    int VIEWPORT_WIDTH;
+    int VIEWPORT_HEIGHT;
     int horizontalScaling;
     int verticalScaling;
     SpriteBatch batch;
-
     Tank tank;
     Box2dWorld model;
     World world;
     Terrain terrain;
-
     OrthographicCamera cam;
     Box2DDebugRenderer debugRenderer;
-
     Bullet bullet;
+    GameController controller;
 
     public GameScreen(final TankWarsGame tankWarsGame){
         this.tankWarsGame = tankWarsGame;
+
+        VIEWPORT_HEIGHT = tankWarsGame.getViewportHeight();
+        VIEWPORT_WIDTH = tankWarsGame.getViewportWidth();
+
         batch = new SpriteBatch();
         model = new Box2dWorld();
         world = Box2dWorld.getWorld();
@@ -53,9 +55,11 @@ public class GameScreen implements Screen {
         terrain = new Terrain();
 
         int initPos = 50;
-        tank = new Tank(initPos, new Texture("tank-khaki.png"), terrain);
+        tank = new Tank(initPos, new Texture("tank-khaki.png"), terrain, tankWarsGame);
         horizontalScaling = Gdx.graphics.getWidth() / VIEWPORT_WIDTH;
         verticalScaling = Gdx.graphics.getHeight() / VIEWPORT_HEIGHT;
+
+        controller = new GameController(tank, tankWarsGame);
     }
     @Override
     public void render(float delta) {
@@ -64,19 +68,7 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         debugRenderer.render(world, cam.combined);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            tank.moveRight();
-        }
-        else if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            tank.moveLeft();
-        }
-
-
-        if(Gdx.input.justTouched()) {
-            bullet = new Bullet(tank);
-            System.out.println(tank.getPosition());
-            bullet.shoot();
-        }
+        controller.checkKeyInput();
 
         Array<Body> bodies = new Array<Body>();
         world.getBodies(bodies);
@@ -85,7 +77,8 @@ public class GameScreen implements Screen {
             Sprite s = (Sprite) b.getUserData();
 
             if (s != null) {
-                s.setPosition(b.getPosition().x * (float) horizontalScaling, b.getPosition().y * (float) verticalScaling);
+                s.setPosition(b.getPosition().x * (float) horizontalScaling - s.getWidth()/2 , b.getPosition().y * (float) verticalScaling);
+                s.setRotation(tank.getAngle());
             }
         }
 
@@ -120,6 +113,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        tank.getTexture().dispose();
+        batch.dispose();
     }
 }

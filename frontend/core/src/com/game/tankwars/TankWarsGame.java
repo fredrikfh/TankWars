@@ -69,6 +69,14 @@ public class TankWarsGame extends Game {
 		return font;
 	}
 
+	public int getViewportWidth(){
+		return VIEWPORT_WIDTH;
+	}
+
+	public int getViewportHeight(){
+		return VIEWPORT_HEIGHT;
+	}
+
 	@Override
 	public void render () {
 		super.render();
@@ -76,6 +84,7 @@ public class TankWarsGame extends Game {
 	
 	@Override
 	public void dispose () {
-
+		batch.dispose();
+		font.dispose();
 	}
 }
