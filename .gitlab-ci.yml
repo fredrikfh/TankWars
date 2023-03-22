@@ -3,6 +3,7 @@ stages:
   - frontend build
   - backend test
   - frontend test
+  - deploy
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -16,13 +17,13 @@ cache:
 
 variables:
   # Specify the SDK tools version and build tools version to use
-  ANDROID_COMPILE_SDK: 31
-  ANDROID_BUILD_TOOLS: 31.0.0
+  ANDROID_COMPILE_SDK: 33
+  ANDROID_BUILD_TOOLS: 33.0.0
   ANDROID_SDK_TOOLS: 7583922
   ANDROID_HOME: "/usr/local/android-sdk"
 
 
-Prettier check:
+Prettier:
   image: node:16.3.0
   stage: backend test
   needs: []
@@ -32,27 +33,42 @@ Prettier check:
     - yarn prettier --check .
   retry: 1
 
-Backend build:
-    image: node:16.3.0
-    stage: backend test
-    needs: []
-    script:
-        - cd backend
-        - yarn
-        - yarn tsc
+Typescript-compile:
+  image: node:16.3.0
+  stage: backend test
+  needs: []
+  script:
+      - cd backend
+      - yarn
+      - yarn tsc
 
-Frontend build:
-    image: gradle:7.5.0-jdk11
-    stage: backend test
-    needs: []
-    script:
-        # Restore Android SDK from cache
-    - if [ -d android-sdk ]; then mv android-sdk/* $ANDROID_HOME/; fi
-    # Download and install Android SDK
-    - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
-    - unzip -q android-sdk.zip -d android-sdk
-    - echo y | android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-${ANDROID_COMPILE_SDK}" "build-tools;${ANDROID_BUILD_TOOLS}"
-    - cd frontend
-    - ./gradlew clean
-    - ./gradlew build --refresh-dependencies
-    - gradle build
+Gradle-build:
+  image: gradle:7.5.0-jdk11
+  stage: frontend test
+  needs: []
+  script:
+      # Restore Android SDK from cache
+  #- if [ -d android-sdk ]; then mv android-sdk/* $ANDROID_HOME/; fi
+  # Download and install Android SDK
+  - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
+  - unzip -q -o android-sdk.zip -d android-sdk
+  - rm -rf $ANDROID_HOME/platforms/android-33
+  - echo y | android-sdk/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-${ANDROID_COMPILE_SDK}" "build-tools;${ANDROID_BUILD_TOOLS}"
+  - cd frontend
+  - ./gradlew clean
+  - ./gradlew build --refresh-dependencies
+  - gradle build
+
+Backend (NTNU-VM):
+  image: node:16.3.0
+  stage: deploy
+  needs: [Typescript-compile]
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo "$NTNU_VM_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan 10.212.26.72 >> ~/.ssh/known_hosts
+    - ssh-keygen -p -f ~/.ssh/id_rsa
+
+  script:
+    - ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@10.212.26.72 -p 22 "bash /home/git/tdt4240-tank-wars/backend/vm.sh </dev/null >/dev/null 2>&1"

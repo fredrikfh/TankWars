@@ -25,3 +25,11 @@ Run the following commands in your terminal:
 
 Formatere koden: `yarn prettier`
 Kjøre tester: `yarn test`
+
+## VM Deployment
+
+The backend runs on NTNU VM.
+IP: 10.212.26.72
+Port: 80
+
+`vm.sh` defines the code that is needed to boot the vm (after CI connectes to the VM with SSH)

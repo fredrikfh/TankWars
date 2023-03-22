@@ -4,7 +4,7 @@ import { User } from '../types/User';
 import { GameHandler } from './gameHandler';
 
 const app = express();
-const port = 3000;
+const port = 80;
 
 const gameHandler = new GameHandler(); // singleton ;)
 
@@ -22,9 +22,10 @@ app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server started on port ${port}`);
 });
+
 
 // establish connection to firebase
 const admin = require('firebase-admin');
