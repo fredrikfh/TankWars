@@ -23,6 +23,13 @@ public class GameController {
             tank.moveLeft();
         }
 
+        if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
+            tank.rotateCannonLeft();
+        }
+        else if (Gdx.input.isKeyPressed(Input.Keys.E)) {
+            tank.rotateCannonRight();
+        }
+
         if(Gdx.input.justTouched()) {
             bullet = new Bullet(tank);
             System.out.println(tank.getPosition());
