@@ -1,6 +1,5 @@
 package com.game.tankwars.model;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
@@ -10,29 +9,36 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.game.tankwars.TankWarsGame;
-import com.game.tankwars.view.GameScreen;
 
 public class Tank {
     TankWarsGame tankWarsGame;
     public static final int TANK_WIDTH = 2;
     public static final int TANK_HEIGHT = 1;
+    public static final float CANNON_WIDTH = 0.4f;
+    public static final float CANNON_HEIGHT = 1;
     int VIEWPORT_WIDTH;
     int VIEWPORT_HEIGHT;
     private Vector2 position;
     private Rectangle bounds;
-    private Texture texture;
-    private Sprite sprite;
+    private Texture chassisTexture;
+    private Texture cannonTexture;
+    private Sprite chassisSprite;
+    private Sprite cannonSprite;
     World world;
-    Body body;
+    Body chassis;
+    Body cannon;
     BodyDef bodyDef = new BodyDef();
     FixtureDef fixtureDef = new FixtureDef();
+    RevoluteJoint joint;
     Terrain terrain;
     Vector2[] vertices;
     int posInVertArr;
+    float cannonAngle = 90;
 
-    public Tank(int posInVertArr, Texture texture, Terrain terrain, TankWarsGame tankWarsGame) {
+    public Tank(int posInVertArr, Texture chassisTexture, Texture cannonTexture, Terrain terrain, TankWarsGame tankWarsGame) {
         VIEWPORT_HEIGHT = tankWarsGame.getViewportHeight();
         VIEWPORT_WIDTH = tankWarsGame.getViewportWidth();
 
@@ -44,21 +50,35 @@ public class Tank {
 
         this.bounds = new Rectangle(position.x, position.y, TANK_WIDTH, TANK_HEIGHT);
 
-        this.texture = texture;
-        sprite = new Sprite(texture);
-        sprite.setPosition(VIEWPORT_WIDTH/2, VIEWPORT_HEIGHT/2 + TANK_HEIGHT);
-        sprite.setRotation(0);
+        this.chassisTexture = chassisTexture;
+        chassisSprite = new Sprite(chassisTexture);
+        chassisSprite.scale(0.4f);
+
+        this.cannonTexture = cannonTexture;
+        cannonSprite = new Sprite(cannonTexture);
+        cannonSprite.scale(-0.1f);
 
         world = Box2dWorld.getWorld();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
         bodyDef.position.set(position.x, position.y);
-        body = world.createBody(bodyDef);
-        body.setUserData(sprite);
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(TANK_WIDTH, TANK_HEIGHT);
         fixtureDef.shape = shape;
-        body.createFixture(fixtureDef);
+
+        //Chassis
+        chassis = world.createBody(bodyDef);
+        chassis.setUserData(chassisSprite);
+        chassis.createFixture(fixtureDef);
+
+        //Cannon
+        shape.setAsBox(CANNON_WIDTH, CANNON_HEIGHT);
+
+        cannonSprite.setOrigin(0, cannonSprite.getHeight()/2);
+        cannon = world.createBody(bodyDef);
+        cannon.setUserData(cannonSprite);
+
+
         shape.dispose();
     }
 
@@ -67,14 +87,15 @@ public class Tank {
         Vector2 newPos = vertices[posInVertArr + 1];
         float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
 
-        if (body.getPosition().x <= VIEWPORT_WIDTH - TANK_WIDTH){
-            body.setTransform(newPos.x, newPos.y + 0.11f, angle);
-            sprite.setRotation(angle);
+        if (chassis.getPosition().x <= VIEWPORT_WIDTH - TANK_WIDTH){
+            chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
+            chassisSprite.setRotation(angle);
             position.set(newPos);
+            updateCannonPos();
             posInVertArr++;
         }
         else {
-            body.setTransform(curPos.x, curPos.y + 0.11f, angle);
+            chassis.setTransform(curPos.x, curPos.y + 0.11f, angle);
         }
     }
 
@@ -83,14 +104,15 @@ public class Tank {
         Vector2 newPos = vertices[posInVertArr - 1];
         float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
 
-        if (body.getPosition().x >= TANK_WIDTH){
-            body.setTransform(newPos.x, newPos.y + 0.11f, angle);
-            sprite.setRotation(angle);
+        if (chassis.getPosition().x >= TANK_WIDTH){
+            chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
+            chassisSprite.setRotation(angle);
             position.set(newPos);
+            updateCannonPos();
             posInVertArr--;
         }
         else {
-            body.setTransform(curPos.x, curPos.y + 0.11f, angle);
+            chassis.setTransform(curPos.x, curPos.y + 0.11f, angle);
         }
     }
 
@@ -100,6 +122,27 @@ public class Tank {
         return new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleDeg();
     }
 
+    public void updateCannonPos(){
+        Vector2 chassisPos = chassis.getPosition();
+        chassisPos.add(0, 1);
+        cannon.setTransform(chassisPos, cannon.getAngle());
+    }
+
+    public void rotateCannonRight(){
+        if(cannonAngle > -90) {
+            cannonAngle--;
+        }
+    }
+
+    public void rotateCannonLeft(){
+        if(cannonAngle < 90) {
+            cannonAngle++;
+        }
+    }
+
+    public float getCannonAngle(){
+        return cannonAngle;
+    }
     public Vector2 getPosition() {
         return position;
     }
@@ -108,11 +151,15 @@ public class Tank {
         return bounds;
     }
 
-    public Texture getTexture() {
-        return texture;
+    public Texture getChassisTexture() {
+        return chassisTexture;
+    }
+    public Texture getCannonTexture() {
+        return cannonTexture;
     }
 
-    public Sprite getSprite() {return sprite;}
+    public Sprite getChassisSprite() {return chassisSprite;}
+    public Sprite getCannonSprite() {return cannonSprite;}
 
     public void setPosition(Vector2 position) {
         this.position = position;
@@ -122,7 +169,10 @@ public class Tank {
         this.bounds = bounds;
     }
 
-    public void setTexture(Texture texture) {
-        this.texture = texture;
+    public void setChassisTexture(Texture texture) {
+        this.chassisTexture = texture;
+    }
+    public void setCannonTexture(Texture texture) {
+        this.cannonTexture = texture;
     }
 }

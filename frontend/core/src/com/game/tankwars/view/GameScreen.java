@@ -55,7 +55,7 @@ public class GameScreen implements Screen {
         terrain = new Terrain();
 
         int initPos = 50;
-        tank = new Tank(initPos, new Texture("tank-khaki.png"), terrain, tankWarsGame);
+        tank = new Tank(initPos, new Texture("tank-khaki.png"), new Texture("cannon.png"),terrain, tankWarsGame);
         horizontalScaling = Gdx.graphics.getWidth() / VIEWPORT_WIDTH;
         verticalScaling = Gdx.graphics.getHeight() / VIEWPORT_HEIGHT;
 
@@ -73,17 +73,25 @@ public class GameScreen implements Screen {
         Array<Body> bodies = new Array<Body>();
         world.getBodies(bodies);
 
+        //Rendering Bullet bodies
         for (Body b : bodies) {
             Sprite s = (Sprite) b.getUserData();
 
             if (s != null) {
                 s.setPosition(b.getPosition().x * (float) horizontalScaling - s.getWidth()/2 , b.getPosition().y * (float) verticalScaling);
-                s.setRotation(tank.getAngle());
+                if(s.equals(tank.getChassisSprite())){
+                    s.setRotation(tank.getAngle());
+                }
+                if(s.equals(tank.getCannonSprite())){
+                    s.setOrigin(s.getWidth()/2, 0);
+                    s.setRotation(tank.getCannonAngle());
+                }
             }
         }
 
         batch.begin();
-        tank.getSprite().draw(batch);
+        tank.getChassisSprite().draw(batch);
+        tank.getCannonSprite().draw(batch);
         batch.end();
     }
 
@@ -113,7 +121,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        tank.getTexture().dispose();
+        tank.getChassisTexture().dispose();
+        tank.getCannonTexture().dispose();
         batch.dispose();
     }
 }
