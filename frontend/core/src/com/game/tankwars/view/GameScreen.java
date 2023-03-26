@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -29,6 +31,7 @@ public class GameScreen implements Screen {
     int horizontalScaling;
     int verticalScaling;
     SpriteBatch batch;
+    ShapeRenderer shapeRender;
     Tank tank;
     Box2dWorld model;
     World world;
@@ -37,6 +40,7 @@ public class GameScreen implements Screen {
     Box2DDebugRenderer debugRenderer;
     Bullet bullet;
     GameController controller;
+    Mesh groundMesh;
 
     public GameScreen(final TankWarsGame tankWarsGame){
         this.tankWarsGame = tankWarsGame;
@@ -45,6 +49,7 @@ public class GameScreen implements Screen {
         VIEWPORT_WIDTH = tankWarsGame.getViewportWidth();
 
         batch = new SpriteBatch();
+        shapeRender = new ShapeRenderer();
         model = new Box2dWorld();
         world = Box2dWorld.getWorld();
         cam = new OrthographicCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
@@ -64,9 +69,10 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         model.logicStep(Gdx.graphics.getDeltaTime());
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1);
+        Gdx.gl.glClearColor(0, 0, 100, 100);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         debugRenderer.render(world, cam.combined);
+        shapeRender.setProjectionMatrix(cam.combined);
 
         controller.checkKeyInput();
 
@@ -78,16 +84,20 @@ public class GameScreen implements Screen {
             Sprite s = (Sprite) b.getUserData();
 
             if (s != null) {
-                s.setPosition(b.getPosition().x * (float) horizontalScaling - s.getWidth()/2 , b.getPosition().y * (float) verticalScaling);
-                if(s.equals(tank.getChassisSprite())){
+                s.setPosition(b.getPosition().x * (float) horizontalScaling - s.getWidth() / 2, (b.getPosition().y + 0.25f) * (float) verticalScaling);
+                if (s.equals(tank.getChassisSprite())) {
                     s.setRotation(tank.getAngle());
                 }
-                if(s.equals(tank.getCannonSprite())){
-                    s.setOrigin(s.getWidth()/2, 0);
+                if (s.equals(tank.getCannonSprite())) {
+                    s.setOrigin(s.getWidth() / 2, 0);
                     s.setRotation(tank.getCannonAngle());
                 }
             }
         }
+
+        shapeRender.begin(ShapeRenderer.ShapeType.Filled);
+        terrain.draw(shapeRender);
+        shapeRender.end();
 
         batch.begin();
         tank.getChassisSprite().draw(batch);
@@ -124,5 +134,6 @@ public class GameScreen implements Screen {
         tank.getChassisTexture().dispose();
         tank.getCannonTexture().dispose();
         batch.dispose();
+        shapeRender.dispose();
     }
 }

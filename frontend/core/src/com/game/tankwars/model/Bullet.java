@@ -12,19 +12,17 @@ public class Bullet {
 
     BodyDef bodyDef = new BodyDef();
     FixtureDef fixtureDef = new FixtureDef();
-
     World world;
     Body body;
     Tank tank;
-    Vector2 position;
+    private Vector2 position;
 
     public Bullet(Tank tank) {
-        this.position = tank.getPosition();
-        position.y += 0.5f;
         this.tank = tank;
+        //this.position = new Vector2(tank.getPosition().add(0, 1f));
         world = Box2dWorld.getWorld();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(this.position);
+        bodyDef.position.set(new Vector2(tank.getPosition().add(0, 1f)));
         body = world.createBody(bodyDef);
 
         CircleShape shape = new CircleShape();
@@ -40,8 +38,12 @@ public class Bullet {
     }
 
     public void shoot() {
-        body.applyLinearImpulse(0.4f,  0.3f, position.x-1, position.y-2, true);
-        System.out.println(this.position);
+        body.applyLinearImpulse(
+                0.2f,
+                0.3f,
+                new Vector2(tank.getPosition()).x-1,
+                new Vector2(tank.getPosition()).y-2,
+                false);
     }
 
 }

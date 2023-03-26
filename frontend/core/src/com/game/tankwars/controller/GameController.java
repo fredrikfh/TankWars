@@ -6,6 +6,8 @@ import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.Bullet;
 import com.game.tankwars.model.Tank;
 
+import java.util.Arrays;
+
 public class GameController {
     TankWarsGame tankWarsGame;
     Tank tank;
@@ -32,7 +34,6 @@ public class GameController {
 
         if(Gdx.input.justTouched()) {
             bullet = new Bullet(tank);
-            System.out.println(tank.getPosition());
             bullet.shoot();
         }
     }

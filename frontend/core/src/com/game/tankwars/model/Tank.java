@@ -22,6 +22,7 @@ public class Tank {
     int VIEWPORT_WIDTH;
     int VIEWPORT_HEIGHT;
     private Vector2 position;
+    private Vector2 cannonPosition;
     private Rectangle bounds;
     private Texture chassisTexture;
     private Texture cannonTexture;
@@ -34,7 +35,7 @@ public class Tank {
     FixtureDef fixtureDef = new FixtureDef();
     RevoluteJoint joint;
     Terrain terrain;
-    Vector2[] vertices;
+    private Vector2[] vertices;
     int posInVertArr;
     float cannonAngle = 90;
 
@@ -78,19 +79,18 @@ public class Tank {
         cannon = world.createBody(bodyDef);
         cannon.setUserData(cannonSprite);
 
-
         shape.dispose();
     }
 
     public void moveRight() {
-        Vector2 curPos = vertices[posInVertArr];
-        Vector2 newPos = vertices[posInVertArr + 1];
+        Vector2 curPos = new Vector2(vertices[posInVertArr]);
+        Vector2 newPos = new Vector2(vertices[posInVertArr + 1]);
         float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
 
         if (chassis.getPosition().x <= VIEWPORT_WIDTH - TANK_WIDTH){
+            setPosition(newPos);
             chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
             chassisSprite.setRotation(angle);
-            position.set(newPos);
             updateCannonPos();
             posInVertArr++;
         }
@@ -100,14 +100,14 @@ public class Tank {
     }
 
     public void moveLeft() {
-        Vector2 curPos = vertices[posInVertArr];
-        Vector2 newPos = vertices[posInVertArr - 1];
+        Vector2 curPos = new Vector2(vertices[posInVertArr]);
+        Vector2 newPos = new Vector2(vertices[posInVertArr - 1]);
         float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
 
         if (chassis.getPosition().x >= TANK_WIDTH){
+            setPosition(newPos);
             chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
             chassisSprite.setRotation(angle);
-            position.set(newPos);
             updateCannonPos();
             posInVertArr--;
         }
@@ -144,20 +144,18 @@ public class Tank {
         return cannonAngle;
     }
     public Vector2 getPosition() {
-        return position;
+        return new Vector2(position);
     }
-
+    public Vector2 getCannonPosition(){ return new Vector2(cannonPosition); }
     public Rectangle getBounds() {
         return bounds;
     }
-
     public Texture getChassisTexture() {
         return chassisTexture;
     }
     public Texture getCannonTexture() {
         return cannonTexture;
     }
-
     public Sprite getChassisSprite() {return chassisSprite;}
     public Sprite getCannonSprite() {return cannonSprite;}
 
