@@ -25,7 +25,6 @@ public class MainMenuScreen extends InputAdapter implements Screen {
     private final BitmapFont font;
     private final Viewport viewport;
     private final MainMenuController controller;
-
     private final Sprite logo;
     private final Texture welcomeBox;
     private final Texture background;
