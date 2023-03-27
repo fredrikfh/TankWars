@@ -1,0 +1,46 @@
+{
+  "com.badlogic.gdx.graphics.Color": {
+    "white": {
+      "r": 1, "g": 1, "b": 1, "a": 1
+    },
+    "black": {
+      "r": 0, "g": 0, "b": 0, "a": 1
+    }
+  },
+  "BitmapFont": {
+    "default": {
+      "file": "Roboto-Regular.ttf",
+      "size": 18
+    },
+    "header": {
+      "file": "Roboto-Regular.ttf",
+      "size": 26
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+    "default": {
+      "font": "default",
+      "fontColor": "black"
+    },
+    "header": {
+      "font": "header",
+      "fontColor": "white"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+    "default": {
+      "font": "default",
+      "fontColor": "white",
+      "up": "dark-rounded-button",
+      "down": "dark-rounded-button-down"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
+    "default": {
+      "font": "default",
+      "fontColor": "black",
+      "background": "dark-stroked-input-field",
+      "cursor": "typing-cursor"
+    }
+  }
+}

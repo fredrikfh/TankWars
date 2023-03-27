@@ -1,0 +1,75 @@
+
+menu-textures.png
+size: 1024, 1024
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+camo-background-landscape
+  rotate: false
+  xy: 2, 530
+  size: 640, 480
+  orig: 640, 480
+  offset: 0, 0
+  index: -1
+camo-background-portrait
+  rotate: false
+  xy: 2, 28
+  size: 224, 500
+  orig: 224, 500
+  offset: 0, 0
+  index: -1
+dark-menu-header
+  rotate: false
+  xy: 228, 433
+  size: 629, 95
+  orig: 629, 95
+  offset: 0, 0
+  index: -1
+dark-rounded-button
+  rotate: false
+  xy: 228, 397
+  size: 246, 34
+  orig: 246, 34
+  offset: 0, 0
+  index: -1
+dark-rounded-button-down
+  rotate: false
+  xy: 644, 927
+  size: 246, 34
+  orig: 246, 34
+  offset: 0, 0
+  index: -1
+dark-stroked-input-field
+  rotate: false
+  xy: 644, 963
+  size: 261, 47
+  orig: 261, 47
+  offset: 0, 0
+  index: -1
+logo
+  rotate: false
+  xy: 228, 355
+  size: 134, 40
+  orig: 134, 40
+  offset: 0, 0
+  index: -1
+typing-cursor
+  rotate: false
+  xy: 2, 2
+  size: 24, 24
+  orig: 24, 24
+  offset: 0, 0
+  index: -1
+
+menu-textures2.png
+size: 512, 1024
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+camo-background-portrait-blurred
+  rotate: false
+  xy: 2, 2
+  size: 383, 628
+  orig: 383, 628
+  offset: 0, 0
+  index: -1
