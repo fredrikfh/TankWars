@@ -26,7 +26,6 @@ app.listen(port, '0.0.0.0', () => {
   console.log(`Server started on port ${port}`);
 });
 
-
 // establish connection to firebase
 const admin = require('firebase-admin');
 const serviceAccount = path.join(__dirname, '../..', 'keys', 'fb-key.json');
@@ -99,7 +98,10 @@ app.get('/highscores', async (req, res) => {
   if (querySnapshot.empty) {
     res.status(204).send('No highscores found');
   } else {
-    const users = querySnapshot.docs.map((doc: any) => doc.data() as User);
+    const users = querySnapshot.docs.map((doc: any) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
     res.status(200).send(users);
   }
 });
