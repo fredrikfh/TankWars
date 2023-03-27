@@ -41,7 +41,10 @@ public class MainMenuController {
                 touchPos.y >= menuButton.getY() && touchPos.y <= menuButton.getY() + menuButton.getHeight()) {
 
                 switch (i) {
-                    case 0: tankWarsGame.setScreen(new GameScreen(tankWarsGame)); break;
+                    case 0:
+                        // TODO: Clear resource manager
+                        tankWarsGame.setScreen(new GameScreen(tankWarsGame));
+                        break;
                     case 1: System.out.println("Leaderboard button: Not yet functional"); break;
                     case 2: System.out.println("Settings button: Not yet functional"); break;
                     case 3: System.out.println("Log out button: Not yet functional"); break;
