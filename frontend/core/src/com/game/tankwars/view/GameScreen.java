@@ -32,7 +32,8 @@ public class GameScreen implements Screen {
     int verticalScaling;
     SpriteBatch batch;
     ShapeRenderer shapeRender;
-    Tank tank;
+    Tank myTank;
+    Tank opponentTank;
     Box2dWorld model;
     World world;
     Terrain terrain;
@@ -50,6 +51,7 @@ public class GameScreen implements Screen {
 
         batch = new SpriteBatch();
         shapeRender = new ShapeRenderer();
+
         model = new Box2dWorld();
         world = Box2dWorld.getWorld();
         cam = new OrthographicCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
@@ -59,12 +61,24 @@ public class GameScreen implements Screen {
 
         terrain = new Terrain();
 
-        int initPos = 50;
-        tank = new Tank(initPos, new Texture("tank-khaki.png"), new Texture("cannon.png"),terrain, tankWarsGame);
+        int myPos = 50;
+        int opponentPos = terrain.getVertices().length - 150;
+
+        myTank = new Tank(myPos,
+                new Texture("tank-khaki.png"),
+                new Texture("cannon.png"),
+                terrain,
+                tankWarsGame, true);
+        opponentTank = new Tank(opponentPos,
+                new Texture("tank-khaki.png"),
+                new Texture("cannon.png"),
+                terrain,
+                tankWarsGame, false);
+
         horizontalScaling = Gdx.graphics.getWidth() / VIEWPORT_WIDTH;
         verticalScaling = Gdx.graphics.getHeight() / VIEWPORT_HEIGHT;
 
-        controller = new GameController(tank, tankWarsGame);
+        controller = new GameController(myTank, tankWarsGame);
     }
     @Override
     public void render(float delta) {
@@ -74,7 +88,7 @@ public class GameScreen implements Screen {
         debugRenderer.render(world, cam.combined);
         shapeRender.setProjectionMatrix(cam.combined);
 
-        controller.checkKeyInput();
+        controller.checkKeyInput(myTank);
 
         Array<Body> bodies = new Array<Body>();
         world.getBodies(bodies);
@@ -85,12 +99,19 @@ public class GameScreen implements Screen {
 
             if (s != null) {
                 s.setPosition(b.getPosition().x * (float) horizontalScaling - s.getWidth() / 2, (b.getPosition().y + 0.25f) * (float) verticalScaling);
-                if (s.equals(tank.getChassisSprite())) {
-                    s.setRotation(tank.getAngle());
+                if (s.equals(myTank.getChassisSprite())) {
+                    s.setRotation(myTank.getAngle());
                 }
-                if (s.equals(tank.getCannonSprite())) {
+                if (s.equals(opponentTank.getChassisSprite())) {
+                    s.setRotation(opponentTank.getAngle());
+                }
+                if (s.equals(myTank.getCannonSprite())) {
                     s.setOrigin(s.getWidth() / 2, 0);
-                    s.setRotation(tank.getCannonAngle());
+                    s.setRotation(myTank.getCannonAngle());
+                }
+                if (s.equals(opponentTank.getCannonSprite())) {
+                    s.setOrigin(s.getWidth() / s.getWidth(), 0);
+                    s.setRotation(opponentTank.getCannonAngle());
                 }
             }
         }
@@ -100,8 +121,10 @@ public class GameScreen implements Screen {
         shapeRender.end();
 
         batch.begin();
-        tank.getChassisSprite().draw(batch);
-        tank.getCannonSprite().draw(batch);
+        myTank.getChassisSprite().draw(batch);
+        myTank.getCannonSprite().draw(batch);
+        opponentTank.getChassisSprite().draw(batch);
+        opponentTank.getCannonSprite().draw(batch);
         batch.end();
     }
 
@@ -131,8 +154,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        tank.getChassisTexture().dispose();
-        tank.getCannonTexture().dispose();
+        myTank.getChassisTexture().dispose();
+        myTank.getCannonTexture().dispose();
         batch.dispose();
         shapeRender.dispose();
     }
