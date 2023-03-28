@@ -17,7 +17,7 @@ public class GameController {
         this.tankWarsGame = tankWarsGame;
     }
 
-    public void checkKeyInput(){
+    public void checkKeyInput(Tank tank){
         if(Gdx.input.isKeyPressed(Input.Keys.D)) {
             tank.moveRight();
         }

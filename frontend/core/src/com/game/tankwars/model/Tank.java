@@ -33,13 +33,13 @@ public class Tank {
     Body cannon;
     BodyDef bodyDef = new BodyDef();
     FixtureDef fixtureDef = new FixtureDef();
-    RevoluteJoint joint;
     Terrain terrain;
     private Vector2[] vertices;
     int posInVertArr;
     float cannonAngle = 90;
+    boolean directionLeft;
 
-    public Tank(int posInVertArr, Texture chassisTexture, Texture cannonTexture, Terrain terrain, TankWarsGame tankWarsGame) {
+    public Tank(int posInVertArr, Texture chassisTexture, Texture cannonTexture, Terrain terrain, TankWarsGame tankWarsGame, boolean directionLeft) {
         VIEWPORT_HEIGHT = tankWarsGame.getViewportHeight();
         VIEWPORT_WIDTH = tankWarsGame.getViewportWidth();
 
@@ -80,6 +80,14 @@ public class Tank {
         cannon.setUserData(cannonSprite);
 
         shape.dispose();
+        updateCannonPos();
+        moveLeft();
+        if(directionLeft){
+            moveRight();
+        }
+        else{
+            moveLeft();
+        }
     }
 
     public void moveRight() {
@@ -87,6 +95,10 @@ public class Tank {
         Vector2 newPos = new Vector2(vertices[posInVertArr + 1]);
         float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
 
+        if(directionLeft){
+            chassisSprite.flip(true, false);
+            directionLeft = false;
+        }
         if (chassis.getPosition().x <= VIEWPORT_WIDTH - TANK_WIDTH){
             setPosition(newPos);
             chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
@@ -103,6 +115,11 @@ public class Tank {
         Vector2 curPos = new Vector2(vertices[posInVertArr]);
         Vector2 newPos = new Vector2(vertices[posInVertArr - 1]);
         float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
+
+        if(!directionLeft){
+            chassisSprite.flip(true, false);
+            directionLeft = true;
+        }
 
         if (chassis.getPosition().x >= TANK_WIDTH){
             setPosition(newPos);
