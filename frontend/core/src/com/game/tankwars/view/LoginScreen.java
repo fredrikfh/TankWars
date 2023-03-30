@@ -2,25 +2,15 @@ package com.game.tankwars.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.Value;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -37,7 +27,6 @@ import com.game.tankwars.controller.LoginController;
 public class LoginScreen implements Screen {
     private final TankWarsGame tankWarsGame;
     private Stage stage;
-    private TextField usernameField;
 
     public LoginScreen(final TankWarsGame tankWarsGame) {
         this.tankWarsGame = tankWarsGame;
@@ -45,7 +34,7 @@ public class LoginScreen implements Screen {
 
     @Override
     public void show() {
-        stage = new Stage(new ExtendViewport(320, 240), new SpriteBatch());
+        stage = new Stage(new ExtendViewport(tankWarsGame.getViewportWidth(), tankWarsGame.getViewportHeight()), new SpriteBatch());
         Gdx.input.setInputProcessor(stage);
 
         Skin skin = ResourceManager.getInstance().loadAndGetMenuAssets();
@@ -60,7 +49,7 @@ public class LoginScreen implements Screen {
         Label loginLabel = new Label("Log in", skin.get("header", Label.LabelStyle.class));
         Label usernameLabel = new Label("Username", skin.get("default", Label.LabelStyle.class));
 
-        usernameField = new TextField("",
+        TextField usernameField = new TextField("",
                         skin.get("default", TextField.TextFieldStyle.class));
         usernameField.setAlignment(Align.center);
         TextButton loginButton = new TextButton("Log in",
@@ -126,6 +115,7 @@ public class LoginScreen implements Screen {
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
+        dispose();
     }
 
 

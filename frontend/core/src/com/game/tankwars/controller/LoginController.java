@@ -6,9 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.game.tankwars.ResourceManager;
 import com.game.tankwars.TankWarsGame;
-import com.game.tankwars.view.GameScreen;
+import com.game.tankwars.view.MainMenuScreen;
 
 /**
  * Todo: Login user on backend
@@ -24,7 +23,7 @@ public class LoginController {
     private final TextButton loginButton;
     private final TextField usernameField;
 
-    public LoginController(final TankWarsGame tankWarsGame, final TextButton loginButton, final TextField usernameField, final Stage stage) {
+    public LoginController(final TankWarsGame tankWarsGame, TextButton loginButton, TextField usernameField, Stage stage) {
         this.tankWarsGame = tankWarsGame;
         this.loginButton = loginButton;
         this.usernameField = usernameField;
@@ -34,6 +33,10 @@ public class LoginController {
     }
 
     public void setEventListeners() {
+        /*
+         * Calls the handleInput method when the login button is pressed,
+         * passing the username typed in the username field as an argument.
+         */
         loginButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -42,11 +45,11 @@ public class LoginController {
             }
         });
 
+        /*
+         * Unfocus text field and remove keyboard when enter is pressed,
+         * and move camera back to original position.
+         */
         usernameField.addListener(new InputListener() {
-            /**
-             * Unfocus text field and remove keyboard when enter is pressed,
-             * and move camera back to original position.
-             */
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 super.keyDown(event, keycode);
@@ -60,11 +63,11 @@ public class LoginController {
             }
         });
 
+        /*
+         * Move camera down when text field is clicked
+         * to make the field appear above the keyboard.
+         */
         usernameField.addListener(new ClickListener() {
-            /**
-             * Move camera down when text field is clicked
-             * to make the field appear above the keyboard.
-             */
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
@@ -77,9 +80,7 @@ public class LoginController {
     public void handleInput(String username) {
         System.out.println(username);
 
-        // TODO: Move clear line to MainMenuController when the main menu is operational
-        ResourceManager.getInstance().clear();
-        tankWarsGame.setScreen(new GameScreen(tankWarsGame));
+        tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
     }
 
 }
