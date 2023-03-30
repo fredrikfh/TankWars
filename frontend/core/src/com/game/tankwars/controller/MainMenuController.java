@@ -1,64 +1,84 @@
 package com.game.tankwars.controller;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.game.tankwars.ResourceManager;
 import com.game.tankwars.TankWarsGame;
-import com.game.tankwars.model.MenuButton;
 import com.game.tankwars.view.GameScreen;
 import com.game.tankwars.view.LeaderboardScreen;
+import com.game.tankwars.view.LoginScreen;
 
+/**
+ * Sets the event listeners for the buttons
+ * on the MainMenuScreen
+ */
 public class MainMenuController {
 
     private final TankWarsGame tankWarsGame;
-    private String username;
-    private final Array<MenuButton> menuButtons;
+    private final TextButton findGameButton, highScoreButton, settingsButton, logoutButton;
 
-
-    public MainMenuController(final TankWarsGame tankWarsGame, final BitmapFont font) {
+    public MainMenuController(final TankWarsGame tankWarsGame, TextButton findGameButton,
+                              TextButton highScoreButton, TextButton settingsButton,
+                              TextButton logoutButton) {
         this.tankWarsGame = tankWarsGame;
+        this.findGameButton = findGameButton;
+        this.highScoreButton = highScoreButton;
+        this.settingsButton = settingsButton;
+        this.logoutButton = logoutButton;
 
-        fetchUser();
-
-        this.menuButtons = new Array<>();
+        setEventListeners();
     }
 
-    public Array<MenuButton> setMenuButtons(Texture buttonTexture, BitmapFont font) {
-        this.menuButtons.add(new MenuButton(buttonTexture, font, "Find Game"));
-        this.menuButtons.add(new MenuButton(buttonTexture, font,  "Leaderboard"));
-        this.menuButtons.add(new MenuButton(buttonTexture, font, "Settings"));
-        this.menuButtons.add(new MenuButton(buttonTexture, font,  "Log out"));
-
-        return menuButtons;
-    }
-
-
-    public void handleInput(Vector3 touchPos) {
-
-        for (int i = 0; i < menuButtons.size; i++) {
-            MenuButton menuButton = menuButtons.get(i);
-            if (touchPos.x >= menuButton.getX() && touchPos.x <= menuButton.getX() + menuButton.getWidth() &&
-                touchPos.y >= menuButton.getY() && touchPos.y <= menuButton.getY() + menuButton.getHeight()) {
-
-                switch (i) {
-                    case 0: tankWarsGame.setScreen(new GameScreen(tankWarsGame)); break;
-                    case 1: tankWarsGame.setScreen(new LeaderboardScreen(tankWarsGame)); break;
-                    case 2: System.out.println("Settings button: Not yet functional"); break;
-                    case 3: System.out.println("Log out button: Not yet functional"); break;
-                }
+    private void setEventListeners() {
+        /*
+         * Transition to GameScreen
+         * Clear Resource Manager to dispose all menu-related textures
+         * TODO: Transition to FindGameScreen and then no longer clear ResourceManager
+         */
+        findGameButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().clear();
+                tankWarsGame.setScreen(new GameScreen(tankWarsGame));
+                return true;
             }
-        }
-    }
+        });
 
-    /**
-     * TODO: Fetch user from backend. For now it only creates a dummy username to pass to the screen
-     */
-    private void fetchUser() {
-        this.username = "Commander";
-    }
+        /*
+         * Transition to LeaderboardScreen
+         */
+        highScoreButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                tankWarsGame.setScreen(new LeaderboardScreen(tankWarsGame));
+                return true;
+            }
+        });
 
-    public String getUsername() {
-        return username;
+        /*
+         * Transition to SettingsScreen (Dummy button for now)
+         * TODO: Implement the SettingsScreen class and add the transition
+         */
+        settingsButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                System.out.println("Settings screen: yet to be implemented");
+                return true;
+            }
+        });
+
+        /*
+         * Transition to LoginScreen
+         * Log out the user
+         * TODO: Log out the user - must be done after login functionality is implemented
+         */
+        logoutButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                tankWarsGame.setScreen(new LoginScreen(tankWarsGame));
+                return true;
+            }
+        });
     }
 }

@@ -53,6 +53,13 @@ logo
   orig: 134, 40
   offset: 0, 0
   index: -1
+transparent-white-box
+  rotate: false
+  xy: 907, 1009
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
 typing-cursor
   rotate: false
   xy: 2, 2
