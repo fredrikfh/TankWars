@@ -1,13 +1,24 @@
 package com.game.tankwars.controller;
 
+import static com.game.tankwars.model.CurrentUser.getCurrentUser;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Net;
+import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Json;
+import com.game.tankwars.Callback;
+import com.game.tankwars.ReceiverHandler;
 import com.game.tankwars.TankWarsGame;
+import com.game.tankwars.model.CurrentUser;
+import com.game.tankwars.model.User;
 import com.game.tankwars.view.MainMenuScreen;
+
 
 /**
  * Todo: Login user on backend
@@ -22,13 +33,16 @@ public class LoginController {
     private final Stage stage;
     private final TextButton loginButton;
     private final TextField usernameField;
+    private int retries = 0;
+    private boolean failed = false;
+    CurrentUser currentUser;
 
     public LoginController(final TankWarsGame tankWarsGame, TextButton loginButton, TextField usernameField, Stage stage) {
         this.tankWarsGame = tankWarsGame;
         this.loginButton = loginButton;
         this.usernameField = usernameField;
         this.stage = stage;
-
+        currentUser = getCurrentUser();
         setEventListeners();
     }
 
@@ -78,9 +92,41 @@ public class LoginController {
     }
 
     public void handleInput(String username) {
-        System.out.println(username);
-
-        tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
+        retries = 0;
+        failed = false;
+        fetchUser(username);
+        while (getCurrentUser().getUser() == null && !failed){
+        }
+        if (!failed)
+            tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
     }
 
+    public void fetchUser(final String username) {
+        Callback callback = new Callback() {
+            @Override
+            public void onResult(String result) {
+                Json json = new Json();
+                User user = json.fromJson(User.class, result);
+                currentUser.setUser(user);
+            }
+
+            @Override
+            public void onFailed(Throwable t) {
+                retries += 1;
+                if (retries < ReceiverHandler.MAX_RETRIES) {
+                    fetchUser(username);
+                } else {
+                    failed = true;
+                }
+            }
+        };
+
+        String url = String.format("http://localhost:80/user/create/%s", username);
+        Net.HttpRequest httpRequest = new HttpRequestBuilder()
+                .newRequest()
+                .method(Net.HttpMethods.POST)
+                .url(url)
+                .build();
+        Gdx.net.sendHttpRequest(httpRequest, new ReceiverHandler(callback));
+    }
 }

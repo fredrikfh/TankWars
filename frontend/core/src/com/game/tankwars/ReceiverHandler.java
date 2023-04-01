@@ -17,6 +17,7 @@ public class ReceiverHandler implements Net.HttpResponseListener {
 
     // Declare a Callback instance to handle the different responses
     private final Callback callback;
+    public static final int MAX_RETRIES = 5;
 
     // Constructor to initialize the Callback instance
     public ReceiverHandler(Callback callback) {
