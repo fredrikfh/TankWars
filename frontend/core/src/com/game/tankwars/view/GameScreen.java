@@ -1,5 +1,7 @@
 package com.game.tankwars.view;
 
+import static com.game.tankwars.model.CurrentUser.getCurrentUser;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;

@@ -8,15 +8,6 @@ public class User {
     public String username;
     public String id;
 
-    public User(int games, float highscore, int losses, int wins, String username, String id) {
-        this.games = games;
-        this.highscore = highscore;
-        this.losses = losses;
-        this.wins = wins;
-        this.username = username;
-        this.id = id;
-    }
-
     public User() {
         // Initialize default values for the fields
         games = 0;

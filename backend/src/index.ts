@@ -74,10 +74,16 @@ app.get('/user/:idOrUsername', async (req, res) => {
 // create new user
 app.post('/user/create/:username', async (req, res) => {
   const usersRef = admin.firestore().collection('users');
-  const querySnapshot = await usersRef.where('username', '==', req.params.username).get();
+  const username = req.params.username;
+  const querySnapshot = await usersRef.where('username', '==', username).get();
 
   if (!querySnapshot.empty) {
-    res.status(409).send('User already exists');
+    const user: User[] = querySnapshot.docs.map((doc: any) => {
+      if (doc.data().username === username) {
+        return { id: doc.id, ...doc.data() };
+      }
+    });
+    res.status(409).send(user[0]);
   } else {
     const newUserRef = await usersRef.add({
       username: req.params.username,
@@ -86,7 +92,14 @@ app.post('/user/create/:username', async (req, res) => {
       wins: 0,
       losses: 0,
     });
-    res.status(201).send(newUserRef.id);
+    res.status(201).send({
+      username: req.params.username,
+      highscore: 0,
+      games: 0,
+      wins: 0,
+      losses: 0,
+      id: newUserRef.id,
+    } as User);
   }
 });
 
@@ -98,10 +111,13 @@ app.get('/highscores', async (req, res) => {
   if (querySnapshot.empty) {
     res.status(204).send('No highscores found');
   } else {
-    const users = querySnapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const users = querySnapshot.docs.map(
+      (doc: any) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as User)
+    );
     res.status(200).send(users);
   }
 });

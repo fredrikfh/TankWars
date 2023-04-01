@@ -4,4 +4,5 @@ export type User = {
   wins: number;
   losses: number;
   highscore: number;
+  games: number;
 };

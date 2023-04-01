@@ -18,11 +18,11 @@ public class LeaderboardController {
         Callback callback = new Callback() {
             // Method called if the response is successful
             @Override
-            public void onResult(String leaderboard) {
+            public void onResult(String result) {
                 // Create a new Json instance to parse the response body
                 Json json = new Json();
                 // Convert the response body to an Array of User objects using the Json instance
-                leaderboardUsers = json.fromJson(Array.class, User.class, leaderboard);
+                leaderboardUsers = json.fromJson(Array.class, User.class, result);
             }
             // Method called if the response fails
             @Override
