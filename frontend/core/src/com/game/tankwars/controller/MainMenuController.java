@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.game.tankwars.ResourceManager;
 import com.game.tankwars.TankWarsGame;
+import com.game.tankwars.view.FindGameScreen;
 import com.game.tankwars.view.GameScreen;
 import com.game.tankwars.view.LeaderboardScreen;
 import com.game.tankwars.view.LoginScreen;
@@ -32,15 +33,12 @@ public class MainMenuController {
 
     private void setEventListeners() {
         /*
-         * Transition to GameScreen
-         * Clear Resource Manager to dispose all menu-related textures
-         * TODO: Transition to FindGameScreen and then no longer clear ResourceManager
+         * Transition to FindGameScreen
          */
         findGameButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                ResourceManager.getInstance().clear();
-                tankWarsGame.setScreen(new GameScreen(tankWarsGame));
+                tankWarsGame.setScreen(new FindGameScreen(tankWarsGame));
                 return true;
             }
         });

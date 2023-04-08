@@ -21,8 +21,6 @@ import com.game.tankwars.view.MainMenuScreen;
 
 
 /**
- * Todo: Login user on backend
- *
  * Listens to the login button on the LoginScreen and logs in
  * the user with the username provided in the username text field.
  * Transitions to MainMenuScreen on login.

@@ -32,7 +32,13 @@
       "font": "default",
       "fontColor": "white",
       "up": "dark-rounded-button",
-      "down": "dark-rounded-button-down"
+      "down": "dark-rounded-button-down",
+      "disabled": "dark-rounded-button-disabled"
+    }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle": {
+    "default": {
+      "up": "dark-back-arrow-button"
     }
   },
   "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
