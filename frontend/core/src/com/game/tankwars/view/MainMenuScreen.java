@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -42,7 +43,7 @@ public class MainMenuScreen extends InputAdapter implements Screen {
 
         Skin skin = ResourceManager.getInstance().loadAndGetMenuAssets();
 
-        Drawable background = skin.getDrawable("camo-background-landscape");
+        Image background = new Image(skin.getDrawable("camo-background-landscape"));
 
         Image logo = new Image(skin.getDrawable("logo"));
         Drawable headerBox = skin.getDrawable("dark-menu-header");
@@ -82,12 +83,18 @@ public class MainMenuScreen extends InputAdapter implements Screen {
         panelTable.add(settingsButton).width(buttonWidth).expandX().height(buttonHeight);
         panelTable.add(logoutButton).width(buttonWidth).expandX().height(buttonHeight);
 
-        rootTable.background(background);
         rootTable.add(headerTable).fillX().height(2 * stage.getHeight() / 7f).top();
         rootTable.row().expandY();
         rootTable.add(panelTable).fillX().height(3 * stage.getHeight() / 7f).bottom();
 
-        stage.addActor(rootTable);
+        Group group = new Group();
+        group.setSize(stage.getWidth(), stage.getHeight());
+        background.setSize(stage.getWidth(), background.getHeight() / background.getWidth() * stage.getWidth());
+        background.setPosition(0, stage.getHeight() / 2f - background.getHeight() / 2f);
+        group.addActor(background);
+        group.addActor(rootTable);
+
+        stage.addActor(group);
         new MainMenuController(this.tankWarsGame, findGameButton, highScoreButton, settingsButton, logoutButton);
     }
 

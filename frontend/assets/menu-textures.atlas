@@ -18,6 +18,13 @@ camo-background-portrait
   orig: 224, 500
   offset: 0, 0
   index: -1
+dark-back-arrow-button
+  rotate: false
+  xy: 644, 900
+  size: 38, 38
+  orig: 38, 38
+  offset: 0, 0
+  index: -1
 dark-menu-header
   rotate: false
   xy: 228, 433
@@ -27,35 +34,42 @@ dark-menu-header
   index: -1
 dark-rounded-button
   rotate: false
-  xy: 228, 397
+  xy: 644, 940
   size: 246, 34
   orig: 246, 34
   offset: 0, 0
   index: -1
+dark-rounded-button-disabled
+  rotate: false
+  xy: 644, 976
+  size: 275, 34
+  orig: 275, 34
+  offset: 0, 0
+  index: -1
 dark-rounded-button-down
   rotate: false
-  xy: 644, 927
+  xy: 228, 348
   size: 246, 34
   orig: 246, 34
   offset: 0, 0
   index: -1
 dark-stroked-input-field
   rotate: false
-  xy: 644, 963
+  xy: 228, 384
   size: 261, 47
   orig: 261, 47
   offset: 0, 0
   index: -1
 logo
   rotate: false
-  xy: 228, 355
+  xy: 491, 391
   size: 134, 40
   orig: 134, 40
   offset: 0, 0
   index: -1
 transparent-white-box
   rotate: false
-  xy: 907, 1009
+  xy: 921, 1009
   size: 1, 1
   orig: 1, 1
   offset: 0, 0
