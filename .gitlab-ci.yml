@@ -21,6 +21,7 @@ variables:
   ANDROID_BUILD_TOOLS: 33.0.0
   ANDROID_SDK_TOOLS: 7583922
   ANDROID_HOME: "/usr/local/android-sdk"
+  GIT_STRATEGY: clone
 
 
 Prettier:
@@ -72,3 +73,7 @@ Backend (NTNU-VM):
 
   script:
     - ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@10.212.26.72 -p 22 "bash /home/git/tdt4240-tank-wars/backend/vm.sh </dev/null >/dev/null 2>&1"
+    
+  only:
+    refs:
+      - main
