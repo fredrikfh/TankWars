@@ -3,16 +3,48 @@ package com.game.tankwars.controller;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.net.HttpRequestBuilder;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.game.tankwars.Callback;
 import com.game.tankwars.ConfigReader;
 import com.game.tankwars.ReceiverHandler;
+import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.User;
+import com.game.tankwars.view.LeaderboardScreen;
+import com.game.tankwars.view.MainMenuScreen;
 
 public class LeaderboardController {
+
+    private final TankWarsGame tankWarsGame;
+    private final Button backButton;
+    private final LeaderboardScreen screen;
     Array<User> leaderboardUsers;
     private int retries = 0;
+
+    public LeaderboardController(final TankWarsGame tankWarsGame, Button backButton, LeaderboardScreen screen) {
+        this.tankWarsGame = tankWarsGame;
+        this.backButton = backButton;
+        this.screen = screen;
+
+        setEventListeners();
+        fetchLeaderboard();
+    }
+
+    private void setEventListeners() {
+        /*
+         * Transition back to main menu
+         */
+        backButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
+                return true;
+            }
+        });
+    }
 
     public void fetchLeaderboard() {
         // Create a new instance of the Callback interface to handle the response
@@ -32,9 +64,9 @@ public class LeaderboardController {
                 retries += 1;
             }
         };
+
         // Define the URL for the HTTP request
         String url = ConfigReader.getProperty("backend.url") + "/highscores";
-
         // Create a new HttpRequest using the HttpRequestBuilder class
         Net.HttpRequest httpRequest = new HttpRequestBuilder()
                 .newRequest()
