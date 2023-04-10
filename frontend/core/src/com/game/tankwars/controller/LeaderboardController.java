@@ -6,6 +6,7 @@ import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.game.tankwars.Callback;
+import com.game.tankwars.ConfigReader;
 import com.game.tankwars.ReceiverHandler;
 import com.game.tankwars.model.User;
 
@@ -32,7 +33,8 @@ public class LeaderboardController {
             }
         };
         // Define the URL for the HTTP request
-        String url = "http://localhost:3000/highscores";
+        String url = ConfigReader.getProperty("backend.url") + "/highscores";
+
         // Create a new HttpRequest using the HttpRequestBuilder class
         Net.HttpRequest httpRequest = new HttpRequestBuilder()
                 .newRequest()

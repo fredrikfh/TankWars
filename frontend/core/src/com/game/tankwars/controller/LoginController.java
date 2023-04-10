@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Json;
 import com.game.tankwars.Callback;
+import com.game.tankwars.ConfigReader;
 import com.game.tankwars.ReceiverHandler;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.CurrentUser;
@@ -119,7 +120,7 @@ public class LoginController {
             }
         };
 
-        String url = String.format("http://localhost:80/user/create/%s", username);
+        String url = ConfigReader.getProperty("backend.url") + "/user/create/" + username;
         Net.HttpRequest httpRequest = new HttpRequestBuilder()
                 .newRequest()
                 .method(Net.HttpMethods.POST)
