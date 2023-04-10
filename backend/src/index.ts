@@ -18,6 +18,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(express.json());
+
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
@@ -123,24 +125,41 @@ app.get('/highscores', async (req, res) => {
 });
 
 // join a lobby with specific id
-app.post('/lobby/:id', async (req, res) => {
-  if (gameHandler.getLobbyById(req.params.id)) {
-    const lobby = gameHandler.getLobbyById(req.params.id);
+app.post('/lobby/create', async (req, res) => {
+  // if lobby doesn't exist, create a new lobby
+  const lobby = gameHandler.createLobby();
+  lobby.addUser(req.body.userId);
+  res.status(201).send({ lobbyId: lobby.getId() });
+});
 
-    if (!lobby) {
-      res.status(404).send('Lobby not found');
-      return;
-    }
+// Inform client if requested lobby is full or not
+app.get('/lobby/:id/status', async (req, res) => {
+  const lobby = gameHandler.getLobbyById(req.params.id);
 
-    lobby.addUser(req.body.userId);
-    gameHandler.createGame(lobby); // start game since 2 players are in lobby
-    res.status(200).send(lobby.getId());
-  } else {
-    // if lobby doesn't exist, create a new lobby
-    const lobby = gameHandler.createLobby();
-    lobby.addUser(req.body.userId);
-    res.status(201).send(lobby.getId());
+  if (!lobby) {
+    res.status(404).send('Lobby not found');
+    return;
   }
+
+  if (lobby.isFull()) {
+    res.status(200).send({ isFull: true });
+  } else {
+    res.status(200).send({ isFull: false });
+  }
+});
+
+// join a lobby with specific id
+app.post('/lobby/:id/join', async (req, res) => {
+  const lobby = gameHandler.getLobbyById(req.params.id);
+
+  if (!lobby) {
+    res.status(404).send('Lobby not found');
+    return;
+  }
+
+  lobby.addUser(req.body.userId);
+  gameHandler.createGame(lobby); // start game since 2 players are in lobby
+  res.status(200).send({ lobbyId: lobby.getId() });
 });
 
 // leave a lobby with specific id
@@ -151,7 +170,7 @@ app.post('/lobby/:id/leave', async (req, res) => {
   if (lobby?.getUsers().length === 0) {
     gameHandler.removeLobby(lobby);
   }
-  res.status(200).send(lobby?.getId());
+  res.status(200).send({ lobbyId: lobby?.getId() });
 });
 
 // Polling endpoint to check if its your turn (sends username)

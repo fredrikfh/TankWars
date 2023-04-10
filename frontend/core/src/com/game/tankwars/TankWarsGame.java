@@ -4,6 +4,7 @@
 package com.game.tankwars;
 
 import com.badlogic.gdx.Game;
+import com.game.tankwars.view.FindGameScreen;
 import com.game.tankwars.view.LoginScreen;
 
 public class TankWarsGame extends Game {

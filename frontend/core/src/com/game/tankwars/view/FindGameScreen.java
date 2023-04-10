@@ -28,6 +28,8 @@ public class FindGameScreen implements Screen {
 
     private final TankWarsGame tankWarsGame;
     private Stage stage;
+    private Group layoutGroup;
+    private Table windowTable;
 
     public FindGameScreen(final TankWarsGame tankWarsGame) {
         this.tankWarsGame = tankWarsGame;
@@ -65,7 +67,7 @@ public class FindGameScreen implements Screen {
         float rw = stage.getWidth() - lw;
 
         Table rootTable = new Table();
-        rootTable.setFillParent(true);
+        rootTable.setBounds(0, 0, stage.getWidth(), stage.getHeight());
 
         Group leftGroup = new Group();
         leftGroup.setSize(lw, stage.getHeight());
@@ -96,9 +98,42 @@ public class FindGameScreen implements Screen {
 
         rootTable.add(leftGroup).width(lw).height(stage.getHeight());
         rootTable.add(rightTable).expandX().height(stage.getHeight());
-        stage.addActor(rootTable);
 
-        new FindGameController(tankWarsGame, gamePinField, joinLobbyButton, createLobbyButton, backButton, stage);
+        //--- Awaiting opponent window
+        windowTable = new Table();
+        float ww = 3 * stage.getWidth() / 5f;
+        float wh = 3 * stage.getHeight() / 5f;
+
+        windowTable.setBounds(stage.getWidth() / 2f - ww / 2f, stage.getHeight() / 2f - wh / 2f, ww, wh);
+
+        Drawable windowBackground = skin.getDrawable("semi-transparent-white-box");
+        Label waitingLabel = new Label("Awaiting opponent...", skin.get("default", Label.LabelStyle.class));
+        Label gamePinWaitingLabel = new Label("Game pin: ---", skin.get("default", Label.LabelStyle.class));
+        TextButton cancelButton = new TextButton("Cancel", skin.get("default", TextButton.TextButtonStyle.class));
+
+        windowTable.background(windowBackground);
+        windowTable.row().expand();
+        windowTable.add(waitingLabel);
+        windowTable.row().expand();
+        windowTable.add(gamePinWaitingLabel);
+        windowTable.row().expand();
+        windowTable.add(cancelButton).width(2 * ww / 3f).height(30);
+
+
+        layoutGroup = new Group();
+        layoutGroup.addActor(rootTable);
+
+        stage.addActor(layoutGroup);
+
+        new FindGameController(tankWarsGame, this, gamePinField,
+                joinLobbyButton, createLobbyButton,
+                backButton, cancelButton, gamePinWaitingLabel, stage);
+    }
+
+    public void showWaitingWindow() { layoutGroup.addActor(windowTable); }
+
+    public void hideWaitingWindow() {
+        layoutGroup.removeActor(windowTable);
     }
 
     @Override
