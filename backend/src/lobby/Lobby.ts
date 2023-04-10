@@ -44,4 +44,8 @@ export class Lobby implements ILobby {
   getUsers() {
     return this.users;
   }
+
+  isFull() {
+    return this.game != undefined;
+  }
 }

@@ -6,5 +6,6 @@ export interface ILobby {
   getUsers(): User[];
   id: string;
   getId(): string;
+  isFull(): boolean;
   // maybe add a relation to a game?
 }

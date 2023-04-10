@@ -19,6 +19,10 @@ public class ReceiverHandler implements Net.HttpResponseListener {
     private final Callback callback;
     public static final int MAX_RETRIES = 5;
 
+    public static final String PROTOCOL = "http";
+    public static final String HOST = "localhost";
+    public static final int PORT = 3000;
+
     // Constructor to initialize the Callback instance
     public ReceiverHandler(Callback callback) {
         this.callback = callback;
