@@ -96,5 +96,8 @@ project(":core") {
         implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
 
         implementation 'com.github.acanthite:freetype-skin:0.4'
+
+        implementation 'com.github.raeleus.stripe:freetype:1.4.5'
+
     }
 }

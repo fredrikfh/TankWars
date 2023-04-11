@@ -1,5 +1,6 @@
 package com.game.tankwars.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
@@ -37,6 +38,7 @@ public class Tank {
     private Vector2[] vertices;
     int posInVertArr;
     float cannonAngle = 90;
+    private int power;
     boolean directionLeft;
 
     public Tank(int posInVertArr, Texture chassisTexture, Texture cannonTexture, Terrain terrain, TankWarsGame tankWarsGame, boolean directionLeft) {
@@ -48,6 +50,8 @@ public class Tank {
 
         this.posInVertArr = posInVertArr;
         position = vertices[posInVertArr];
+
+        this.power = 25;
 
         this.bounds = new Rectangle(position.x, position.y, TANK_WIDTH, TANK_HEIGHT);
 
@@ -99,7 +103,7 @@ public class Tank {
             chassisSprite.flip(true, false);
             directionLeft = false;
         }
-        if (chassis.getPosition().x <= VIEWPORT_WIDTH - TANK_WIDTH){
+        if (chassis.getPosition().x <= TankWarsGame.GAMEPORT_WIDTH - TANK_WIDTH){
             setPosition(newPos);
             chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
             chassisSprite.setRotation(angle);
@@ -176,12 +180,20 @@ public class Tank {
     public Sprite getChassisSprite() {return chassisSprite;}
     public Sprite getCannonSprite() {return cannonSprite;}
 
+    public int getPower() {
+        return power;
+    }
+
     public void setPosition(Vector2 position) {
         this.position = position;
     }
 
     public void setBounds(Rectangle bounds) {
         this.bounds = bounds;
+    }
+
+    public void setPower(int power) {
+        this.power = power;
     }
 
     public void setChassisTexture(Texture texture) {
