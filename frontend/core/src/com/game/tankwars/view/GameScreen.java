@@ -18,7 +18,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.controller.GameController;
 import com.game.tankwars.model.Box2dWorld;
@@ -36,10 +36,12 @@ public class GameScreen implements Screen {
     ShapeRenderer shapeRender;
     Tank myTank;
     Tank opponentTank;
+    GameHud hud;
     Box2dWorld model;
     World world;
     Terrain terrain;
-    OrthographicCamera cam;
+    OrthographicCamera worldCam;
+    OrthographicCamera hudCam;
     Box2DDebugRenderer debugRenderer;
     Bullet bullet;
     GameController controller;
@@ -56,9 +58,16 @@ public class GameScreen implements Screen {
 
         model = new Box2dWorld();
         world = Box2dWorld.getWorld();
-        cam = new OrthographicCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
-        cam.position.set(VIEWPORT_WIDTH/2, VIEWPORT_HEIGHT/2, 0);
-        cam.update();
+
+        worldCam = new OrthographicCamera(scale(TankWarsGame.GAMEPORT_WIDTH), scale(TankWarsGame.GAMEPORT_HEIGHT));
+        worldCam.position.set(scale(TankWarsGame.GAMEPORT_WIDTH)/2, scale(TankWarsGame.GAMEPORT_HEIGHT)/2, 0);
+
+        hudCam = new OrthographicCamera(TankWarsGame.GAMEPORT_WIDTH, TankWarsGame.GAMEPORT_HEIGHT);
+        hudCam.position.set(TankWarsGame.GAMEPORT_WIDTH/2, TankWarsGame.GAMEPORT_HEIGHT/2, 0);
+
+        worldCam.update();
+        hudCam.update();
+
         debugRenderer = new Box2DDebugRenderer(true, true, true, true, true, true);
 
         terrain = new Terrain();
@@ -77,18 +86,23 @@ public class GameScreen implements Screen {
                 terrain,
                 tankWarsGame, false);
 
-        horizontalScaling = Gdx.graphics.getWidth() / VIEWPORT_WIDTH;
-        verticalScaling = Gdx.graphics.getHeight() / VIEWPORT_HEIGHT;
+        horizontalScaling = Gdx.graphics.getWidth() / TankWarsGame.GAMEPORT_WIDTH;
+        verticalScaling = Gdx.graphics.getHeight() / TankWarsGame.GAMEPORT_HEIGHT;
 
-        controller = new GameController(myTank, tankWarsGame);
+        hud = new GameHud(new FitViewport(TankWarsGame.GAMEPORT_WIDTH, TankWarsGame.GAMEPORT_HEIGHT, hudCam), batch);
+
+        controller = new GameController(myTank, tankWarsGame, hud);
+
+        Gdx.input.setInputProcessor(hud.getStage());
+        controller.handleHudEvents();
     }
     @Override
     public void render(float delta) {
         model.logicStep(Gdx.graphics.getDeltaTime());
         Gdx.gl.glClearColor(0, 0, 100, 100);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        debugRenderer.render(world, cam.combined);
-        shapeRender.setProjectionMatrix(cam.combined);
+        debugRenderer.render(world, worldCam.combined);
+        shapeRender.setProjectionMatrix(worldCam.combined);
 
         controller.checkKeyInput(myTank);
 
@@ -100,7 +114,7 @@ public class GameScreen implements Screen {
             Sprite s = (Sprite) b.getUserData();
 
             if (s != null) {
-                s.setPosition(b.getPosition().x * (float) horizontalScaling - s.getWidth() / 2, (b.getPosition().y + 0.25f) * (float) verticalScaling);
+                s.setPosition(b.getPosition().x * (float) TankWarsGame.SCALE - s.getWidth() / 2, (b.getPosition().y + 0.25f) * (float) TankWarsGame.SCALE);
                 if (s.equals(myTank.getChassisSprite())) {
                     s.setRotation(myTank.getAngle());
                 }
@@ -128,6 +142,9 @@ public class GameScreen implements Screen {
         opponentTank.getChassisSprite().draw(batch);
         opponentTank.getCannonSprite().draw(batch);
         batch.end();
+
+        batch.setProjectionMatrix(hud.getStage().getCamera().combined);
+        hud.getStage().draw();
     }
 
     @Override
@@ -158,7 +175,12 @@ public class GameScreen implements Screen {
     public void dispose() {
         myTank.getChassisTexture().dispose();
         myTank.getCannonTexture().dispose();
+        hud.getStage().dispose();
         batch.dispose();
         shapeRender.dispose();
+    }
+
+    private float scale(float value) {
+        return value / TankWarsGame.SCALE;
     }
 }

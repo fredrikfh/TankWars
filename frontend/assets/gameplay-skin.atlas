@@ -1,0 +1,96 @@
+
+gameplay-skin.png
+size: 256, 256
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+fire-button-light.9
+  rotate: false
+  xy: 67, 213
+  size: 32, 32
+  split: 1, 1, 1, 1
+  pad: 13, 13, 2, 2
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+fire-button.9
+  rotate: false
+  xy: 1, 1
+  size: 32, 32
+  split: 1, 1, 1, 1
+  pad: 13, 13, 1, 1
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+move-left-light.9
+  rotate: false
+  xy: 1, 35
+  size: 43, 43
+  split: 0, 0, 0, 0
+  orig: 43, 43
+  offset: 0, 0
+  index: -1
+move-left.9
+  rotate: false
+  xy: 1, 125
+  size: 43, 43
+  split: 0, 0, 0, 0
+  orig: 43, 43
+  offset: 0, 0
+  index: -1
+move-right-light.9
+  rotate: false
+  xy: 1, 80
+  size: 43, 43
+  split: 0, 0, 0, 0
+  orig: 43, 43
+  offset: 0, 0
+  index: -1
+move-right.9
+  rotate: false
+  xy: 1, 170
+  size: 43, 43
+  split: 0, 0, 0, 0
+  orig: 43, 43
+  offset: 0, 0
+  index: -1
+progress-background.9
+  rotate: false
+  xy: 101, 213
+  size: 32, 32
+  split: 3, 3, 3, 3
+  pad: 1, 1, 1, 1
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+progress-knob
+  rotate: false
+  xy: 169, 215
+  size: 30, 30
+  orig: 30, 30
+  offset: 0, 0
+  index: -1
+slider-background.9
+  rotate: false
+  xy: 135, 213
+  size: 32, 32
+  split: 1, 1, 1, 1
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+slider-knob-before.9
+  rotate: false
+  xy: 1, 215
+  size: 64, 30
+  split: 1, 1, 1, 1
+  orig: 64, 30
+  offset: 0, 0
+  index: -1
+slider-knob.9
+  rotate: false
+  xy: 46, 177
+  size: 10, 36
+  split: 1, 1, 1, 1
+  orig: 10, 36
+  offset: 0, 0
+  index: -1

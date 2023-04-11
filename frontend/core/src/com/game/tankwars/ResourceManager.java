@@ -2,15 +2,8 @@ package com.game.tankwars;
 
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.FileHandleResolver;
-import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
-import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.github.acanthite.gdx.graphics.g2d.FreeTypeSkinLoader;
 
@@ -29,6 +22,8 @@ public class ResourceManager {
             new AssetDescriptor<>("menu-textures.atlas", TextureAtlas.class);
     private final AssetDescriptor<Skin> MENU_SKIN =
             new AssetDescriptor<>("menu-textures.json", Skin.class);
+    private final AssetDescriptor<Skin> GAMEPLAY_SKIN =
+            new AssetDescriptor<>("gameplay-skin.json", Skin.class);
 
     public ResourceManager() {
         manager = new AssetManager();
@@ -60,6 +55,21 @@ public class ResourceManager {
             manager.finishLoading();
             manager.get(MENU_SKIN).addRegions(manager.get(MENU_ATLAS));
             return manager.get(MENU_SKIN);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Loads the Skin for the gameplay,
+     * @return loaded Skin object with JSON file, null on loading error
+     */
+    public Skin loadAndGetGameplayHudAssets() {
+        if (!manager.isLoaded(GAMEPLAY_SKIN)) manager.load(GAMEPLAY_SKIN);
+        try {
+            manager.finishLoading();
+            return manager.get(GAMEPLAY_SKIN);
         } catch(GdxRuntimeException error) {
             System.out.println(error.getMessage());
         }

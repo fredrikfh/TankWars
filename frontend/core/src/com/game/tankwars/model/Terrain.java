@@ -1,11 +1,6 @@
 package com.game.tankwars.model;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.VertexAttributes;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -26,8 +21,8 @@ public class Terrain {
 
         float xStart = -5;
         float xEnd = 100;
-        float yMin = 1f;
-        float yMax = 10;
+        float yMin = 5f;
+        float yMax = 15;
         int points = 10;
         int vertNumber = 1000;
 

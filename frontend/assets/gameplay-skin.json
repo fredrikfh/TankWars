@@ -1,0 +1,92 @@
+{
+com.badlogic.gdx.graphics.Color: {
+	black: {
+		r: 0
+		g: 0
+		b: 0
+		a: 1
+	}
+	yellow: {
+		r: 0.98039216
+		g: 1
+		b: 0
+		a: 1
+	}
+	red: {
+		r: 1
+		g: 0
+		b: 0
+		a: 1
+	}
+	white: {
+		r: 1
+		g: 1
+		b: 1
+		a: 1
+	}
+}
+BitmapFont: {
+	large: {
+		file: Roboto-Black.ttf
+		size: 28
+	}
+	largest: {
+		file: Roboto-Black.ttf
+		size: 30
+	}
+	default: {
+		file: Roboto-Regular.ttf
+		size: 16
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
+	move-right: {
+		up: move-right.9
+		down: move-right-light.9
+	}
+	move-left: {
+		up: move-left.9
+		down: move-left-light.9
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
+	default: {
+		font: default
+		fontColor: black
+	}
+	large-black: {
+		font: large
+		fontColor: black
+	}
+	large-white: {
+		font: large
+		fontColor: white
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
+	default-horizontal: {
+		background: progress-background.9
+		knobBefore: progress-knob
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
+	default-horizontal: {
+		background: slider-background.9
+		knob: slider-knob.9
+		knobBefore: slider-knob-before.9
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
+	default: {
+		font: largest
+		fontColor: yellow
+		up: fire-button.9
+		down: fire-button-light.9
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
+	default: {
+		label: default
+	}
+}
+}
