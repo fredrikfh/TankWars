@@ -7,5 +7,5 @@
     "strict": true,
     "sourceMap": true
   },
-  "include": ["src/**/*", "types/**/*", "keys/**/*"]
+  "include": ["src/**/*", "types/**/*", "keys/**/*", "src/models/Lobby.ts"]
 }

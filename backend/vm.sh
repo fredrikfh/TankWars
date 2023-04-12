@@ -4,7 +4,7 @@
 sudo kill $(sudo lsof -t -i:80)
 
 # Start the Express.js app
-cd /home/git/tdt4240-tank-wars/backend && sudo git pull && sudo npx yarn && sudo npx yarn start >/dev/null 2>&1 &
+cd /home/git/tdt4240-tank-wars/backend && sudo git pull && sudo npx yarn && sudo npx yarn start:prod >/dev/null 2>&1 &
 
 # Wait for the app to start and check the status
 BACKEND_PID=$!

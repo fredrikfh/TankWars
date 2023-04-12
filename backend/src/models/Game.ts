@@ -1,6 +1,8 @@
 // class for handling game logic
 
 import { User } from '../../types/User';
+import { checkProjectileHit } from '../functions/checkProjectileHit';
+import { log } from '../functions/console';
 import { IGame } from '../interfaces/IGame';
 import { ILobby } from '../interfaces/ILobby';
 import { IStats } from '../interfaces/IStats';
@@ -35,6 +37,11 @@ export class Game implements IGame {
     this.currentTurn = Math.round(Math.random());
 
     this.notifyUsers(); // TODO: implement this method
+    log('Game ' + this.gameId + ' created.');
+  }
+
+  getUsers(): [User, IStats][] {
+    return this.users;
   }
 
   setIsFinished(status: boolean): void {
@@ -42,7 +49,8 @@ export class Game implements IGame {
   }
 
   notifyUsers(): void {
-    throw new Error('Method not implemented.');
+    log('Notifying users... [TODO]');
+    // throw new Error('Method not implemented.');
   }
 
   setGameStatus(status: boolean): void {
@@ -89,8 +97,73 @@ export class Game implements IGame {
       return this.users[1][0];
     }
   }
-  calculateNextGameState(newGameStateJSON: string): void {
-    throw new Error('Method not implemented.');
+
+  calculateNextGameState(newGameState: IGame): void {
+    // verify that json is a valid IGame object
+
+    // compare the current game state with the new game state
+    if (newGameState.gameId !== this.gameId) {
+      log('Game ID mismatch');
+      return;
+    }
+
+    if (newGameState.gameStatus !== this.gameStatus) {
+      log('Game status mismatch');
+      return;
+    }
+
+    if (newGameState.users.length !== this.users.length) {
+      log('User length mismatch');
+      return;
+    }
+
+    // check if a projectile was fired (we assume that the projectile is always fired by the current user)
+    if (
+      true
+      // this.getUsers()[this.getCurrentTurn()][1].getAmmunition() !==
+      // newGameState.getUsers()[newGameState.getCurrentTurn()][1].getAmmunition()
+    ) {
+      // check if projectile hit a tank (use the turret angle and the tank position)
+      if (checkProjectileHit(newGameState)) {
+        // The user that was hit is the one not having the current turn
+        const hitUserIndex = newGameState.currentTurn === 0 ? 1 : 0;
+        const hitUserStats = newGameState.users[hitUserIndex][1];
+
+        // Decrease health by 1 of the user that was hit
+        const newHealth = hitUserStats.health - 1;
+        hitUserStats.health = newHealth;
+
+        // If health is 0, set health to 0 and set tank destroyed to true
+        const tankDestroyed = newHealth <= 0;
+        hitUserStats.health = tankDestroyed ? 0 : newHealth;
+
+        // Calculate new score
+        const shooterUserIndex = newGameState.currentTurn;
+        const shooterUserStats = newGameState.users[shooterUserIndex][1];
+        // const currentScore = shooterUserStats.getScore();
+
+        // TODO this will not be saved.
+        // If tank destroyed, add 100 points to the score
+        // If tank not destroyed, add 10 points to the score
+        // const scoreIncrease = tankDestroyed ? 100 : 10;
+        // shooterUserStats.setScore(currentScore + scoreIncrease);
+
+        // if tank is destroyed, end the game
+        if (tankDestroyed) {
+          newGameState.gameStatus = false;
+        }
+      }
+
+      this.setGameState(newGameState);
+      this.toggleTurn();
+    }
+    log('Game state updated for game ' + this.gameId);
+  }
+
+  // update the game state (does not update the current turn)
+  setGameState(gameState: IGame): void {
+    this.gameStatus = gameState.gameStatus;
+    this.users = gameState.users;
   }
 
   getGameState(): IGame {
@@ -105,6 +178,19 @@ export class Game implements IGame {
     return this.currentTurn;
   }
 
+  setCurrentTurn(turn: number): void {
+    // check if turn is 0 or 1
+    if (turn === 0 || turn === 1) {
+      this.currentTurn = turn; // TODO validate number
+    } else {
+      throw new Error('Invalid turn');
+    }
+  }
+
+  toggleTurn(): void {
+    this.currentTurn = this.currentTurn === 0 ? 1 : 0;
+  }
+
   getCurrentTurnUser(): User {
     return this.users[this.currentTurn][0];
   }
@@ -117,5 +203,10 @@ export class Game implements IGame {
       currentTurn: this.currentTurn,
       users: this.users,
     });
+  }
+
+  static getGameFromJSON(json: string): Game {
+    const game = JSON.parse(json) as Game;
+    return game;
   }
 }

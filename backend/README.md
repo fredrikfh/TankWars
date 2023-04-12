@@ -19,7 +19,8 @@ The key is login details to a Firebase service account, needed to access the dat
 Run the following commands in your terminal:
 
 - `yarn` last ned avhengigheter
-- `yarn start` start serveren
+- `yarn start:local` start serveren i lokal modus
+- `yarn start:prod` start serveren i produksjonsmodus
 
 ## Nyttige kommandoer
 
