@@ -14,10 +14,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Json;
 import com.game.tankwars.Callback;
 import com.game.tankwars.ConfigReader;
+import com.game.tankwars.HTTPRequestHandler;
 import com.game.tankwars.ReceiverHandler;
+import com.game.tankwars.ResourceManager;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.CurrentUser;
 import com.game.tankwars.model.User;
+import com.game.tankwars.view.GameScreen;
 import com.game.tankwars.view.MainMenuScreen;
 
 
@@ -32,9 +35,8 @@ public class LoginController {
     private final Stage stage;
     private final TextButton loginButton;
     private final TextField usernameField;
-    private int retries = 0;
-    private boolean failed = false;
     CurrentUser currentUser;
+    Runnable mainMenuScreenTransition;
 
     public LoginController(final TankWarsGame tankWarsGame, TextButton loginButton, TextField usernameField, Stage stage) {
         this.tankWarsGame = tankWarsGame;
@@ -43,6 +45,13 @@ public class LoginController {
         this.stage = stage;
         currentUser = getCurrentUser();
         setEventListeners();
+        mainMenuScreenTransition = new Runnable() {
+            @Override
+            public void run() {
+                ResourceManager.getInstance().clear();
+                tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
+            }
+        };
     }
 
     public void setEventListeners() {
@@ -91,41 +100,28 @@ public class LoginController {
     }
 
     public void handleInput(String username) {
-        retries = 0;
-        failed = false;
         fetchUser(username);
-        while (getCurrentUser().getUser() == null && !failed){
-        }
-        if (!failed)
-            tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
     }
 
     public void fetchUser(final String username) {
-        Callback callback = new Callback() {
+        new HTTPRequestHandler(new Callback() {
             @Override
             public void onResult(String result) {
                 Json json = new Json();
                 User user = json.fromJson(User.class, result);
                 currentUser.setUser(user);
+                Gdx.app.postRunnable(mainMenuScreenTransition);
             }
 
             @Override
             public void onFailed(Throwable t) {
-                retries += 1;
-                if (retries < ReceiverHandler.MAX_RETRIES) {
-                    fetchUser(username);
-                } else {
-                    failed = true;
-                }
+                System.err.println("Login request failed:\n" + t);
             }
-        };
-
-        String url = ConfigReader.getProperty("backend.url") + "/user/create/" + username;
-        Net.HttpRequest httpRequest = new HttpRequestBuilder()
+        }, new HttpRequestBuilder()
                 .newRequest()
                 .method(Net.HttpMethods.POST)
-                .url(url)
-                .build();
-        Gdx.net.sendHttpRequest(httpRequest, new ReceiverHandler(callback));
+                .url(ConfigReader.getProperty("backend.url") + "/user/create/" + username)
+                .build()
+        ).sendRequest();
     }
 }

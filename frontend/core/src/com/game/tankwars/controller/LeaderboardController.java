@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.game.tankwars.Callback;
 import com.game.tankwars.ConfigReader;
+import com.game.tankwars.HTTPRequestHandler;
 import com.game.tankwars.ReceiverHandler;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.User;
@@ -21,8 +22,6 @@ public class LeaderboardController {
     private final TankWarsGame tankWarsGame;
     private final Button backButton;
     private final LeaderboardScreen screen;
-    Array<User> leaderboardUsers;
-    private int retries = 0;
 
     public LeaderboardController(final TankWarsGame tankWarsGame, Button backButton, LeaderboardScreen screen) {
         this.tankWarsGame = tankWarsGame;
@@ -47,40 +46,27 @@ public class LeaderboardController {
     }
 
     public void fetchLeaderboard() {
-        // Create a new instance of the Callback interface to handle the response
-        Callback callback = new Callback() {
-            // Method called if the response is successful
-            @Override
-            public void onResult(String result) {
-                // Create a new Json instance to parse the response body
-                Json json = new Json();
-                // Convert the response body to an Array of User objects using the Json instance
-                leaderboardUsers = json.fromJson(Array.class, User.class, result);
-            }
-            // Method called if the response fails
-            @Override
-            public void onFailed(Throwable t){
-                // Increment the number of retries
-                retries += 1;
-            }
-        };
 
-        // Define the URL for the HTTP request
-        String url = ConfigReader.getProperty("backend.url") + "/highscores";
-        // Create a new HttpRequest using the HttpRequestBuilder class
-        Net.HttpRequest httpRequest = new HttpRequestBuilder()
-                .newRequest()
-                .method(Net.HttpMethods.GET)
-                .url(url)
-                .build();
-        // Send the HttpRequest and pass in the Callback instance to handle the response
-        Gdx.net.sendHttpRequest(httpRequest, new ReceiverHandler(callback));
-    }
+        new HTTPRequestHandler(
+                new Callback() {
+                    @Override
+                    public void onResult(String result) {
+                        Json json = new Json();
+                        // Convert the response body to an Array of User objects using the Json instance
+                        Array<User> leaderboardUsers = json.fromJson(Array.class, User.class, result);
+                        screen.setLeaderBoard(leaderboardUsers);
+                    }
 
-    public Array<User> getLeaderboard() {
-        if (retries < 5 && leaderboardUsers == null) {
-            fetchLeaderboard();
-        }
-        return leaderboardUsers;
+                    @Override
+                    public void onFailed(Throwable t) {
+                        screen.setLeaderBoard(null);
+                    }
+                },
+                new HttpRequestBuilder()
+                        .newRequest()
+                        .url(String.format("%s/highscores", ConfigReader.getProperty("backend.url")))
+                        .method(Net.HttpMethods.GET)
+                        .build())
+                .sendRequest();
     }
 }
