@@ -100,6 +100,10 @@ Backend (NTNU-VM):
     - ssh-keyscan 10.212.26.72 >> ~/.ssh/known_hosts
     - ssh-keygen -p -f ~/.ssh/id_rsa
 
+  environment:
+    name: production
+    url: http://10.212.26.72/
+
   script:
     - ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@10.212.26.72 -p 22 "bash /home/git/tdt4240-tank-wars/backend/vm.sh </dev/null >/dev/null 2>&1"
     
