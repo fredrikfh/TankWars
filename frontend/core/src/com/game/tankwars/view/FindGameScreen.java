@@ -58,8 +58,6 @@ public class FindGameScreen implements Screen {
         TextButton joinLobbyButton = new TextButton("Join lobby",
                 skin.get("default", TextButton.TextButtonStyle.class));
         joinLobbyButton.setDisabled(true);
-        TextButton createLobbyButton = new TextButton("Create lobby",
-                skin.get("default", TextButton.TextButtonStyle.class));
         Button backButton = new Button(skin.get("default", Button.ButtonStyle.class));
 
         //--- Layout
@@ -87,14 +85,12 @@ public class FindGameScreen implements Screen {
         headerTable.add(findGameLabel).expandX();
 
         rightTable.add(headerTable).fillX().height(stage.getHeight() / 4f);
-        rightTable.row().expand(1, 0);
-        rightTable.add(gamePinLabel).width(2 * rw / 3f).bottom().padLeft(10);
-        rightTable.row().expand(1, 2);
-        rightTable.add(gamePinField).width(2 * rw / 3f).height(42).top();
         rightTable.row().expand(1, 1);
-        rightTable.add(joinLobbyButton).width(2 * rw / 3f).height(28);
+        rightTable.add(gamePinLabel).width(2 * rw / 3f).bottom().padLeft(10);
+        rightTable.row().expand(1, 0);
+        rightTable.add(gamePinField).width(2 * rw / 3f).height(42).top();
         rightTable.row().expand(1, 4);
-        rightTable.add(createLobbyButton).width(2 * rw / 3f).height(28);
+        rightTable.add(joinLobbyButton).width(2 * rw / 3f).height(28);
 
         rootTable.add(leftGroup).width(lw).height(stage.getHeight());
         rootTable.add(rightTable).expandX().height(stage.getHeight());
@@ -126,8 +122,7 @@ public class FindGameScreen implements Screen {
         stage.addActor(layoutGroup);
 
         new FindGameController(tankWarsGame, this, gamePinField,
-                joinLobbyButton, createLobbyButton,
-                backButton, cancelButton, gamePinWaitingLabel, stage);
+                joinLobbyButton, backButton, cancelButton, gamePinWaitingLabel, stage);
     }
 
     public void showWaitingWindow() { layoutGroup.addActor(windowTable); }

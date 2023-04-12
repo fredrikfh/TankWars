@@ -3,6 +3,7 @@ package com.game.tankwars.controller;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.net.HttpRequestBuilder;
+import com.badlogic.gdx.net.HttpStatus;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -33,7 +34,7 @@ public class FindGameController {
     private final FindGameScreen screen;
     private final Stage stage;
     private final TextField gamePinField;
-    private final TextButton joinLobbyButton, createLobbyButton, cancelButton;
+    private final TextButton joinLobbyButton, cancelButton;
     private final Button backButton;
     private final Label gamePinWaitingLabel;
 
@@ -46,22 +47,19 @@ public class FindGameController {
 
 
     /**
-     * TODO: Ensure that user is logged in -> e.g. auth method in Auth/Utils class
      * Sets the event listeners of the buttons and the text field of the FindGameScreen,
      * and allows for transitioning to MainMenuScreen and to GameScreen. Handles communication
      * with server to create, join and leave a lobbies.
      */
     public FindGameController(final TankWarsGame tankWarsGame, FindGameScreen screen,
                               TextField gamePinField, TextButton joinLobbyButton,
-                              TextButton createLobbyButton, Button backButton,
-                              TextButton cancelButton, Label gamePinWaitingLabel,
-                              final Stage stage) {
+                              Button backButton, TextButton cancelButton,
+                              Label gamePinWaitingLabel, final Stage stage) {
         this.tankWarsGame = tankWarsGame;
         this.screen = screen;
 
         this.gamePinField = gamePinField;
         this.joinLobbyButton = joinLobbyButton;
-        this.createLobbyButton = createLobbyButton;
         this.backButton = backButton;
         this.cancelButton = cancelButton;
         this.gamePinWaitingLabel = gamePinWaitingLabel;
@@ -77,12 +75,26 @@ public class FindGameController {
             }
         };
 
-        defineEventListeners();
+        setGamePinFieldFilter();
+        defineEventListenersAndFilters();
         setMainListeners();
     }
 
-    private void defineEventListeners() {
+    /**
+     * Game pin field only allows for integers
+     * and the first integer must be greater than 0
+     */
+    private void setGamePinFieldFilter() {
+        gamePinField.setTextFieldFilter(new TextField.TextFieldFilter() {
+            @Override
+            public boolean acceptChar(TextField textField, char c) {
+                return Character.isDigit(c) &&
+                        (!textField.getText().isEmpty() || (textField.getText().isEmpty() && c != '0'));
+            }
+        });
+    }
 
+    private void defineEventListenersAndFilters() {
         /*
          * Transition back to MainMenuScreen
          */
@@ -142,17 +154,6 @@ public class FindGameController {
             }
         };
 
-        /*
-         * Create new lobby and display waiting window.
-         * Poll server for lobby status to know when to transition to game screen.
-         */
-        createLobbyButtonInputListener = new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                createLobby();
-                return true;
-            }
-        };
 
         /*
          * Exit from waiting window and render normal FindGameScreen
@@ -172,7 +173,6 @@ public class FindGameController {
         gamePinField.addListener(gamePinFieldInputListener);
         gamePinField.addListener(gamePinFieldClickListener);
         joinLobbyButton.addListener(joinLobbyButtonInputListener);
-        createLobbyButton.addListener(createLobbyButtonInputListener);
     }
 
     public void removeMainListeners() {
@@ -180,7 +180,6 @@ public class FindGameController {
         gamePinField.removeListener(gamePinFieldInputListener);
         gamePinField.removeListener(gamePinFieldClickListener);
         joinLobbyButton.removeListener(joinLobbyButtonInputListener);
-        createLobbyButton.removeListener(createLobbyButtonInputListener);
     }
 
     public void setWaitingWindowListeners() {
@@ -191,20 +190,20 @@ public class FindGameController {
         cancelButton.removeListener(cancelButtonInputListener);
     }
 
-
     /**
-     * Send HTTP request to create a new lobby.
-     * On success, a waiting window is shown, and polling for
-     * the lobby status is initiated.
+     * Send HTTP request to join a lobby using the game pin in the text field.
+     * On success, poll the server for the fill status of the lobby.
      */
-    private void createLobby() {
+    private void joinLobby() {
+        lobbyId = gamePinField.getText();
+
         new HTTPRequestHandler(new Callback() {
             @Override
-            public void onResult(String result) {
-                try {
-                    LobbyId lobbyIdClass = new Json().fromJson(LobbyId.class, result);
-                    lobbyId = lobbyIdClass.getLobbyId();
+            public void onResult(Net.HttpResponse response) {
+                HttpStatus status = response.getStatus();
 
+                if (status.getStatusCode() == HttpStatus.SC_CREATED ||
+                        status.getStatusCode() == HttpStatus.SC_OK) {
                     removeMainListeners();
                     setWaitingWindowListeners();
 
@@ -212,18 +211,19 @@ public class FindGameController {
                     screen.showWaitingWindow();
 
                     checkLobbyStatus();
-                } catch (SerializationException e) {
-                    System.err.println("Invalid HTTP response on create lobby");
+                } else {
+                    System.err.println("Join lobby request failed with status code " +
+                            status.getStatusCode());
                 }
             }
 
             @Override
             public void onFailed(Throwable t) {
-                System.err.println("Create lobby request failed:\n" + t);
+                System.err.println("Join lobby request failed:\n" + t);
             }
         }, new HttpRequestBuilder()
                 .newRequest()
-                .url(String.format("%s/lobby/create", ConfigReader.getProperty("backend.url")))
+                .url(String.format("%s/lobby/%s/join", ConfigReader.getProperty("backend.url"), lobbyId))
                 .method(Net.HttpMethods.POST)
                 .header("Content-Type", "application/json")
                 .content(String.format("{\"userId\": \"%s\"}", CurrentUser.getCurrentUser().getUser().id))
@@ -234,31 +234,29 @@ public class FindGameController {
     /**
      * Send HTTP request while waiting for lobby to fill,
      * polling for the lobby's fill status with a set backoff period between requests.
-     * Transition to game screen when lobby is full.
+     * Transition to game screen when lobby is full and set gameId in CurrentUser.
      */
     private void checkLobbyStatus() {
+        if (lobbyId == null) return;
+
         new HTTPRequestHandler(new Callback() {
             @Override
-            public void onResult(String result) {
-                try {
-                    LobbyStatus lobbyStatus = new Json().fromJson(LobbyStatus.class, result);
+            public void onResult(Net.HttpResponse response) {
+                HttpStatus status = response.getStatus();
 
-                    if (lobbyStatus.isFull()) {
-                        Gdx.app.postRunnable(gameScreenTransition);
-                    } else if (lobbyId != null) {
-                        System.out.println("Awaiting opponent...");
+                if (status.getStatusCode() == HttpStatus.SC_OK && !response.getResultAsString().isEmpty()) {
+                    CurrentUser.getCurrentUser().setGameId(response.getResultAsString());
+                    Gdx.app.postRunnable(gameScreenTransition);
+                } else {
+                    System.out.println("Awaiting opponent...");
 
-                        try {
-                            Thread.sleep(1500);
-                            if (lobbyId != null) checkLobbyStatus();
-                        } catch (InterruptedException e) {
-                            System.out.println(e.getMessage());
-                            exitLobby();
-                        }
+                    try {
+                        Thread.sleep(1500);
+                        if (lobbyId != null) checkLobbyStatus();
+                    } catch (InterruptedException e) {
+                        System.out.println(e.getMessage());
+                        exitLobby();
                     }
-                } catch (SerializationException e) {
-                    System.err.println("Invalid HTTP response on check lobby status");
-                    exitLobby();
                 }
             }
 
@@ -269,8 +267,7 @@ public class FindGameController {
             }
         }, new HttpRequestBuilder()
                 .newRequest()
-                .url(String.format("%s/lobby/%s/status",
-                        ConfigReader.getProperty("backend.url"), lobbyId))
+                .url(String.format("%s/game/%s", ConfigReader.getProperty("backend.url"), lobbyId))
                 .method(Net.HttpMethods.GET)
                 .build())
                 .sendRequest();
@@ -281,9 +278,11 @@ public class FindGameController {
      * is not yet full. Hide the waiting window.
      */
     private void exitLobby() {
+        if (lobbyId == null) return;
+
         new HTTPRequestHandler(new Callback() {
             @Override
-            public void onResult(String result) {
+            public void onResult(Net.HttpResponse response) {
                 removeWaitingWindowListeners();
                 setMainListeners();
 
@@ -302,40 +301,7 @@ public class FindGameController {
             }
         }, new HttpRequestBuilder()
                 .newRequest()
-                .url(String.format("%s/lobby/%s/leave",
-                        ConfigReader.getProperty("backend.url"), lobbyId))
-                .method(Net.HttpMethods.POST)
-                .header("Content-Type", "application/json")
-                .content(String.format("{\"userId\": \"%s\"}", CurrentUser.getCurrentUser().getUser().id))
-                .build())
-                .sendRequest();
-    }
-
-    /**
-     * Send HTTP request to join a lobby using the game pin in the text field.
-     * On success, transition to game screen.
-     */
-    private void joinLobby() {
-        new HTTPRequestHandler(new Callback() {
-            @Override
-            public void onResult(String result) {
-                try {
-                    new Json().fromJson(LobbyId.class, result);
-
-                    Gdx.app.postRunnable(gameScreenTransition);
-                } catch (SerializationException e) {
-                    System.out.println(result);
-                }
-            }
-
-            @Override
-            public void onFailed(Throwable t) {
-                System.err.println("Join lobby request failed:\n" + t);
-            }
-        }, new HttpRequestBuilder()
-                .newRequest()
-                .url(String.format("%s/lobby/%s/join",
-                        ConfigReader.getProperty("backend.url"), gamePinField.getText()))
+                .url(String.format("%s/lobby/%s/leave", ConfigReader.getProperty("backend.url"), lobbyId))
                 .method(Net.HttpMethods.POST)
                 .header("Content-Type", "application/json")
                 .content(String.format("{\"userId\": \"%s\"}", CurrentUser.getCurrentUser().getUser().id))

@@ -41,7 +41,7 @@ public class HTTPRequestHandler implements Net.HttpResponseListener {
      * @param httpResponse The {@link HttpResponse} with the HTTP response values.
      */
     public void handleHttpResponse(HttpResponse httpResponse) {
-        callback.onResult(httpResponse.getResultAsString());
+        callback.onResult(httpResponse);
     }
 
     /**

@@ -15,12 +15,10 @@ import com.badlogic.gdx.utils.Json;
 import com.game.tankwars.Callback;
 import com.game.tankwars.ConfigReader;
 import com.game.tankwars.HTTPRequestHandler;
-import com.game.tankwars.ReceiverHandler;
 import com.game.tankwars.ResourceManager;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.CurrentUser;
 import com.game.tankwars.model.User;
-import com.game.tankwars.view.GameScreen;
 import com.game.tankwars.view.MainMenuScreen;
 
 
@@ -106,9 +104,9 @@ public class LoginController {
     public void fetchUser(final String username) {
         new HTTPRequestHandler(new Callback() {
             @Override
-            public void onResult(String result) {
+            public void onResult(Net.HttpResponse response) {
                 Json json = new Json();
-                User user = json.fromJson(User.class, result);
+                User user = json.fromJson(User.class, response.getResultAsString());
                 currentUser.setUser(user);
                 Gdx.app.postRunnable(mainMenuScreenTransition);
             }
