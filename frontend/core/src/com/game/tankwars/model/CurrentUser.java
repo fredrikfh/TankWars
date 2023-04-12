@@ -2,8 +2,9 @@ package com.game.tankwars.model;
 
 public class CurrentUser {
 
-    User user;
+    private User user;
     private static CurrentUser INSTANCE;
+    private String gameId;
 
     private CurrentUser() {
     }
@@ -17,9 +18,13 @@ public class CurrentUser {
     public User getUser() {
         return user;
     }
+
+    public String getGameId() { return gameId; }
     public void setUser(User user) {
         this.user = user;
     }
+
+    public void setGameId(String gameId) { this.gameId = gameId; }
 
     @Override
     public String toString() {

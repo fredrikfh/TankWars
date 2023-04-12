@@ -1,6 +1,5 @@
 package com.game.tankwars.controller;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -11,7 +10,6 @@ import com.badlogic.gdx.utils.Json;
 import com.game.tankwars.Callback;
 import com.game.tankwars.ConfigReader;
 import com.game.tankwars.HTTPRequestHandler;
-import com.game.tankwars.ReceiverHandler;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.User;
 import com.game.tankwars.view.LeaderboardScreen;
@@ -50,10 +48,11 @@ public class LeaderboardController {
         new HTTPRequestHandler(
                 new Callback() {
                     @Override
-                    public void onResult(String result) {
+                    public void onResult(Net.HttpResponse response) {
                         Json json = new Json();
                         // Convert the response body to an Array of User objects using the Json instance
-                        Array<User> leaderboardUsers = json.fromJson(Array.class, User.class, result);
+                        Array<User> leaderboardUsers = json.fromJson(Array.class, User.class, response.getResultAsString());
+
                         screen.setLeaderBoard(leaderboardUsers);
                     }
 
@@ -64,7 +63,7 @@ public class LeaderboardController {
                 },
                 new HttpRequestBuilder()
                         .newRequest()
-                        .url(String.format("%s/highscores", ConfigReader.getProperty("backend.url")))
+                        .url(String.format("%s/highscore", ConfigReader.getProperty("backend.url")))
                         .method(Net.HttpMethods.GET)
                         .build())
                 .sendRequest();
