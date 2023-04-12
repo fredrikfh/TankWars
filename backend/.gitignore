@@ -1,5 +1,7 @@
 node_modules/
 npm-debug.log
 dist/
-keys/
+keys/fb-key.json
 .DS_Store
+cypress/videos/*
+cypress/screenshots/*

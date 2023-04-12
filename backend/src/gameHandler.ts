@@ -1,9 +1,9 @@
 // this module is responsible for handling the ongoing games.
 
-import { Game } from './game/Game';
+import { Game } from './models/Game';
 import { IGame } from './interfaces/IGame';
 import { ILobby } from './interfaces/ILobby';
-import { Lobby } from './lobby/Lobby';
+import { Lobby } from './models/Lobby';
 
 // this class is responsible for handling the ongoing games. and the lobbies.
 
@@ -32,6 +32,7 @@ export class GameHandler {
   createGame(lobby: ILobby) {
     const game = new Game(lobby);
     this.addGame(game);
+    lobby.setGameId(game.gameId);
     return game;
   }
 
@@ -59,12 +60,12 @@ export class GameHandler {
     return this.games.find((g) => g.gameId === gameId);
   }
 
-  getLobbyById(id: string) {
+  getLobbyById(id: number) {
     return this.lobbies.find((l) => l.id === id);
   }
 
-  createLobby() {
-    const lobby = new Lobby();
+  createLobby(id: number) {
+    const lobby = new Lobby(id);
     this.addLobby(lobby);
     return lobby;
   }

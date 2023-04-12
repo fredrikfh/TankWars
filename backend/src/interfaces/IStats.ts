@@ -1,7 +1,7 @@
 import { User } from '../../types/User';
 
 export interface IStats {
-  position: number[][];
+  position: number[];
   turretAngle: number;
   isMirrored: boolean;
   health: number;
@@ -10,8 +10,8 @@ export interface IStats {
   tankType: string;
   score: number;
 
-  getPosition(): number[][];
-  setPosition(position: number[][]): void;
+  getPosition(): number[];
+  setPosition(position: number[]): void;
   getTurretAngle(): number;
   setTurretAngle(turretAngle: number): void;
   getIsMirrored(): boolean;

@@ -1,11 +1,16 @@
 import { User } from '../../types/User';
 
 export interface ILobby {
+  id: number;
+  gameId: string | undefined;
+
   addUser(user: User): void;
   removeUser(user: User): void;
   getUsers(): User[];
-  id: string;
-  getId(): string;
-  isFull(): boolean;
+  getId(): number;
+  setId(id: number): void;
+  setGameId(gameId: string): void;
+  getGameId(): string | undefined;
+
   // maybe add a relation to a game?
 }

@@ -25,7 +25,7 @@ variables:
 
 
 Prettier:
-  image: node:16.3.0
+  image: node:16.10.0
   stage: backend test
   needs: []
   script:
@@ -35,13 +35,42 @@ Prettier:
   retry: 1
 
 Typescript-compile:
-  image: node:16.3.0
-  stage: backend test
+  image: node:16.10.0
+  stage: backend build
   needs: []
   script:
       - cd backend
       - yarn
       - yarn tsc
+
+API-test:
+  image: cypress/base:14.17.0
+  stage: backend test
+  needs: [Typescript-compile]
+  variables:
+    DISPLAY: ":99"
+  script:
+      - apt-get update && apt-get install -y xvfb
+      - Xvfb :99 -screen 0 1920x1080x24 &
+      - cd backend
+      - echo "FB_PRIV_KEY_JSON_ENCODED=$FB_PRIV_KEY_JSON_ENCODED" >> .env
+      # - echo "export FB_PRIV_KEY_JSON_ENCODED=$FB_PRIV_KEY_JSON_ENCODED"
+      - node keys/decode.js
+      - chmod 400 keys/fb-key.json
+      - yarn
+      - yarn start:local & sleep 10
+      - yarn test
+  retry: 1
+  artifacts:
+    paths:
+      - cypress/videos/*.mp4
+    expire_in: 1 week # Set the artifact expiration time according to your needs
+  only:
+    refs:
+      - main
+
+
+
 
 Gradle-build:
   image: gradle:7.5.0-jdk11
@@ -61,7 +90,7 @@ Gradle-build:
   - gradle build
 
 Backend (NTNU-VM):
-  image: node:16.3.0
+  image: node:16.10.0
   stage: deploy
   needs: [Typescript-compile]
   before_script:
