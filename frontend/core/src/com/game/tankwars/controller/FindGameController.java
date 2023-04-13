@@ -199,7 +199,9 @@ public class FindGameController {
 
         new HTTPRequestHandler(new Callback() {
             @Override
-            public void onResult(Net.HttpResponse response) {
+            public boolean onResult(Net.HttpResponse response) {
+                if (response.getStatus().getStatusCode() == -1) return false;
+
                 HttpStatus status = response.getStatus();
 
                 if (status.getStatusCode() == HttpStatus.SC_CREATED ||
@@ -211,10 +213,9 @@ public class FindGameController {
                     screen.showWaitingWindow();
 
                     checkLobbyStatus();
-                } else {
-                    System.err.println("Join lobby request failed with status code " +
-                            status.getStatusCode());
+                    return true;
                 }
+                return false;
             }
 
             @Override
@@ -241,23 +242,27 @@ public class FindGameController {
 
         new HTTPRequestHandler(new Callback() {
             @Override
-            public void onResult(Net.HttpResponse response) {
+            public boolean onResult(Net.HttpResponse response) {
+                if (response.getStatus().getStatusCode() == -1) return false;
+
                 HttpStatus status = response.getStatus();
 
                 if (status.getStatusCode() == HttpStatus.SC_OK && !response.getResultAsString().isEmpty()) {
                     CurrentUser.getCurrentUser().setGameId(response.getResultAsString());
                     Gdx.app.postRunnable(gameScreenTransition);
-                } else {
-                    System.out.println("Awaiting opponent...");
-
-                    try {
-                        Thread.sleep(1500);
-                        if (lobbyId != null) checkLobbyStatus();
-                    } catch (InterruptedException e) {
-                        System.out.println(e.getMessage());
-                        exitLobby();
-                    }
+                    return true;
                 }
+
+                System.out.println("Awaiting opponent...");
+
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    System.out.println(e.getMessage());
+                }
+
+                if (lobbyId != null) checkLobbyStatus();
+                return true;
             }
 
             @Override
@@ -282,22 +287,20 @@ public class FindGameController {
 
         new HTTPRequestHandler(new Callback() {
             @Override
-            public void onResult(Net.HttpResponse response) {
+            public boolean onResult(Net.HttpResponse response) {
+                if (response.getStatus().getStatusCode() == -1) return false;
+
                 removeWaitingWindowListeners();
                 setMainListeners();
 
                 lobbyId = null;
                 screen.hideWaitingWindow();
+                return true;
             }
 
             @Override
             public void onFailed(Throwable t) {
                 System.err.println("Exit lobby request failed:\n" + t);
-                removeWaitingWindowListeners();
-                setMainListeners();
-
-                lobbyId = null;
-                screen.hideWaitingWindow();
             }
         }, new HttpRequestBuilder()
                 .newRequest()

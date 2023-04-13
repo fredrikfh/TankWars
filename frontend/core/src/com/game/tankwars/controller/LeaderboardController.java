@@ -48,12 +48,15 @@ public class LeaderboardController {
         new HTTPRequestHandler(
                 new Callback() {
                     @Override
-                    public void onResult(Net.HttpResponse response) {
+                    public boolean onResult(Net.HttpResponse response) {
+                        if (response.getStatus().getStatusCode() == -1) return false;
+
                         Json json = new Json();
                         // Convert the response body to an Array of User objects using the Json instance
                         Array<User> leaderboardUsers = json.fromJson(Array.class, User.class, response.getResultAsString());
 
                         screen.setLeaderBoard(leaderboardUsers);
+                        return true;
                     }
 
                     @Override
