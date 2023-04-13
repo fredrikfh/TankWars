@@ -37,5 +37,4 @@ export interface IGame {
   getUsers(): [User, IStats][];
 
   getTerrain(): ITerrain;
-
 }
