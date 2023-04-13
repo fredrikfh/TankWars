@@ -72,8 +72,8 @@ public class GameScreen implements Screen {
 
         terrain = new Terrain();
 
-        int myPos = 50;
-        int opponentPos = terrain.getVertices().length - 150;
+        int myPos = 100;
+        int opponentPos = terrain.getVertices().length - 250;
 
         myTank = new Tank(myPos,
                 new Texture("tank-khaki.png"),
