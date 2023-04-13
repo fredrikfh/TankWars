@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 import com.game.tankwars.view.FindGameScreen;
+import com.game.tankwars.view.GameScreen;
 import com.game.tankwars.view.LoginScreen;
 
 public class TankWarsGame extends Game {
@@ -25,7 +26,7 @@ public class TankWarsGame extends Game {
 
 	@Override
 	public void create() {
-		this.setScreen(new LoginScreen(this));
+		this.setScreen(new GameScreen(this));
 	}
 
 	public int getViewportWidth(){
