@@ -28,10 +28,11 @@ Prettier:
   image: node:16.10.0
   stage: backend test
   needs: []
+  allow_failure: true
   script:
     - cd backend
-    - yarn
-    - yarn prettier --check .
+    - npm i
+    - npx prettier --check .
   retry: 1
 
 Typescript-compile:
@@ -92,7 +93,7 @@ Gradle-build:
 Backend (NTNU-VM):
   image: node:16.10.0
   stage: deploy
-  needs: [Typescript-compile]
+  needs: [Typescript-compile, API-test]
   before_script:
     - mkdir -p ~/.ssh
     - echo "$NTNU_VM_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa

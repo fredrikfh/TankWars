@@ -27,15 +27,18 @@ export class Game implements IGame {
     // insert the lobby users into the game and create a new stats object for each user
     this.users = lobby.getUsers().map((user) => [user, new Stats()]);
 
+    this.users[0][1].setPosition(100);
+    this.users[1][1].setPosition(900);
+
     // set the stats for the left and right user
     // todo add random tank type
     this.users[0][1].setTankType('M107');
     this.users[0][1].setTankDirection('left');
-    this.users[0][1].setIsMirrored(true); // this mirroring can also be done locally.
+    this.users[0][1].setIsMirrored(false); // this mirroring can also be done locally.
 
     this.users[1][1].setTankType('M1A2');
     this.users[1][1].setTankDirection('right');
-    this.users[1][1].setIsMirrored(false);
+    this.users[1][1].setIsMirrored(true);
 
     // make random number 0 or 1 to determine who starts
     this.currentTurn = Math.round(Math.random());

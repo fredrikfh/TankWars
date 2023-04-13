@@ -57,4 +57,4 @@ export const getTerrain = async (req: Request, res: Response): Promise<void> => 
   } else {
     res.status(404).send('Game not found');
   }
-}
+};
