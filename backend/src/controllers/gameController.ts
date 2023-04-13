@@ -49,3 +49,12 @@ export const currentTurn = async (req: Request, res: Response): Promise<void> =>
     res.status(404).send('Game not found (or not created yet because lack of opponent)');
   }
 };
+
+export const getTerrain = async (req: Request, res: Response): Promise<void> => {
+  const game = gameHandler.getGameById(req.params.gameid);
+  if (game) {
+    res.status(200).send(game.getTerrain().getYValues());
+  } else {
+    res.status(404).send('Game not found');
+  }
+}

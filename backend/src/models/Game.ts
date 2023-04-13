@@ -6,19 +6,23 @@ import { log } from '../functions/console';
 import { IGame } from '../interfaces/IGame';
 import { ILobby } from '../interfaces/ILobby';
 import { IStats } from '../interfaces/IStats';
+import { ITerrain } from '../interfaces/ITerrain';
 import { Stats } from './Stats';
+import { Terrain } from './Terrain';
 
 export class Game implements IGame {
   currentTurn: number;
   lobby: ILobby;
   gameStatus: boolean;
   gameId: string;
+  terrain: ITerrain;
   users: [User, IStats][]; // left [0] and right [1] user
 
   constructor(lobby: ILobby) {
     this.lobby = lobby;
     this.gameStatus = false; // game not finished
     this.gameId = Math.random().toString(36);
+    this.terrain = new Terrain();
 
     // insert the lobby users into the game and create a new stats object for each user
     this.users = lobby.getUsers().map((user) => [user, new Stats()]);
@@ -39,6 +43,9 @@ export class Game implements IGame {
     this.notifyUsers(); // TODO: implement this method
     log('Game ' + this.gameId + ' created.');
   }
+  getTerrain(): ITerrain {
+    return this.terrain;
+  }
 
   getUsers(): [User, IStats][] {
     return this.users;
@@ -49,8 +56,7 @@ export class Game implements IGame {
   }
 
   notifyUsers(): void {
-    log('Notifying users... [TODO]');
-    // throw new Error('Method not implemented.');
+    log('[TODO] Notifying users...');
   }
 
   setGameStatus(status: boolean): void {
