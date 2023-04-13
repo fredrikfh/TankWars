@@ -1,36 +1,38 @@
 # Backend
 
-This backend handles connection with the database and ongoing gameStates.
+The backend handles ongoing lobbies and games. Also communicates with the firebase database for persistance.
+The backend uses Node and is written in TypeScript with Express for routing.
 
-The backend uses the express framework to handle requests.
+## Documentation
 
-Implemation in Typescript.
+The API documentation is available at the root of the backend (http://localhost:4999/). The documentation is generated with Swagger.
 
-Package handler is Yarn.
+<img src="./assets/apidoc.png" width="400" alt="API-docs">
 
 ## Setup
 
-You must add a file in the following directory: `backend/keys/fb-key.json`
+To access database you must add firebase-key to the following directory: `backend/keys/fb-key.json`
 
-The key is login details to a Firebase service account, needed to access the database.
-
-## How to run
+## How to run the backend
 
 Run the following commands in your terminal:
 
-- `yarn` last ned avhengigheter
-- `yarn start:local` start serveren i lokal modus
-- `yarn start:prod` start serveren i produksjonsmodus
+- `yarn` download dependencies
+- `yarn start:local` start server in development mode on localhost:4999
+- `yarn start:prod` start server in production mode on {machine_ip}:80
 
-## Nyttige kommandoer
+## CD: Deployment to virtual machine
 
-Formatere koden: `yarn prettier`
-Kjøre tester: `yarn test`
+The backend is automatically deployed to a virtual machine when a commit is pushed to the main branch. The deployment is done by a Gitlab CI server that connects to the VM with SSH and runs the `vm.sh` script.
 
-## VM Deployment
-
-The backend runs on NTNU VM.
+The VM is hosted on NTNU (requires VPN) and can be accessed on the following address:
 IP: 10.212.26.72
 Port: 80
 
-`vm.sh` defines the code that is needed to boot the vm (after CI connectes to the VM with SSH)
+The VM utilizes Nodemon to automatically restart the server if a crash occurs.
+
+## CI: Testing
+
+The backend is automatically tested by a Gitlab CI server for each commit.
+Formatter: `yarn prettier`
+e2e tests: `yarn test`
