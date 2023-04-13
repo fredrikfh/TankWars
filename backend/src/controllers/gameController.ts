@@ -37,7 +37,7 @@ export const move = async (req: Request, res: Response): Promise<void> => {
 
 export const currentTurn = async (req: Request, res: Response): Promise<void> => {
   const game = gameHandler.getGameById(req.params.gameid);
-  const user = req.body.userName;
+  const user = req.body.username || req.body.userName;
   if (game) {
     if (user === game.getCurrentTurnUser().username) {
       // send the gamestate to the client

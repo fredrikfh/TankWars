@@ -3,18 +3,18 @@ import { GameHandler } from '../gameHandler';
 import { getUserById } from '../functions/getUserById';
 import { User } from '../../types/User';
 import admin from '../functions/firebaseAdmin';
+import { getUsers } from '../functions/firebaseCache';
+import { log } from '../functions/console';
 
 const gameHandler = GameHandler.getInstance();
 
 export const users = async (req: Request, res: Response): Promise<void> => {
-  // returns all the user-id's
-  const usersRef = admin.firestore().collection('users');
-  const querySnapshot = await usersRef.get();
+  const users = await getUsers();
 
-  if (querySnapshot.empty) {
+  if (users == null) {
     res.status(204).send('No users found');
   } else {
-    const userids = querySnapshot.docs.map((doc: { id: any }) => doc.id);
+    const userids = users.docs.map((doc: { id: any }) => doc.id);
     res.status(200).send(userids);
   }
 };
@@ -34,31 +34,22 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   const usersRef = admin.firestore().collection('users');
   const username = req.params.username;
-  const querySnapshot = await usersRef.where('username', '==', username).get();
+  log('firestore: quering for user with username: ' + username);
+  const user = await getUserById(username);
 
-  if (!querySnapshot.empty) {
-    const user: User[] = querySnapshot.docs.map((doc: any) => {
-      if (doc.data().username === username) {
-        return { id: doc.id, ...doc.data() };
-      }
-    });
-    res.status(409).send(user[0]);
+  if (user) {
+    res.status(409).send(user);
   } else {
-    const newUserRef = await usersRef.add({
+    const initialUserData = {
       username: req.params.username,
       highscore: 0,
       games: 0,
       wins: 0,
       losses: 0,
-    });
-    res.status(201).send({
-      username: req.params.username,
-      highscore: 0,
-      games: 0,
-      wins: 0,
-      losses: 0,
-      id: newUserRef.id,
-    } as User);
+    };
+    log('firestore: creating new user with username: ' + username);
+    const newUserRef = await usersRef.add(initialUserData);
+    res.status(201).send({ id: newUserRef.id, ...initialUserData } as User);
   }
 };
 
@@ -66,15 +57,16 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   const usersRef = admin.firestore().collection('users');
   const username = req.params.username;
+  log('firestore: quering for user with username: ' + username);
   const querySnapshot = await usersRef.where('username', '==', username).get();
   if (!querySnapshot.empty) {
     // delete user
-    const user: User[] = querySnapshot.docs.map((doc: any) => {
-      if (doc.data().username === username) {
-        return { id: doc.id, ...doc.data() };
-      }
-    });
-    await usersRef.doc(user[0].id).delete();
+    const userDoc = querySnapshot.docs[0];
+    const user: User = { id: userDoc.id, ...userDoc.data() };
+    log(
+      'firestore: deleting user with id: ' + user.id + ' and username: ' + user.username
+    );
+    await usersRef.doc(user.id).delete();
     res.status(204).send('User deleted');
   } else {
     res.status(404).send('User not found');

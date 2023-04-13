@@ -4,12 +4,18 @@
  * @param message The message to log
  * @returns void
  */
-export function log(message: string): void {
+export function log(message: string, status: string = 'info'): void {
   const time = new Date().toLocaleTimeString();
-  const file = new Error().stack?.split('at ')[2].split(' ')[0];
-  const maxLength = 20; // Set the desired maximum length for the file section
-  const paddedFile = file?.padEnd(maxLength, ' ');
-  console.log(time + ' | ' + paddedFile + '| ' + message);
+  const file = new Error().stack?.split('at ')[2].split('\n')[0].trim();
+  const maxLength = 25; // Set the desired maximum length for the file section
+  const paddedFile =
+    file?.split('/').pop()?.padEnd(maxLength, ' ') ?? ''.padEnd(maxLength, ' ');
+  // if status is info, log in default/black color. If warning use yellow, if danger use red
+  const statusColor =
+    status === 'info' ? '\x1b[0m' : status === 'warning' ? '\x1b[33m' : '\x1b[31m';
+  process.stdout.write(
+    statusColor + time + ' | ' + paddedFile + ' | ' + message + '\x1b[0m\n'
+  );
 }
 
 /**
