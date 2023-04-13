@@ -17,12 +17,14 @@ export class Game implements IGame {
   gameId: string;
   terrain: ITerrain;
   users: [User, IStats][]; // left [0] and right [1] user
+  lastActionTimeStamp: number;
 
   constructor(lobby: ILobby) {
     this.lobby = lobby;
     this.gameStatus = false; // game not finished
     this.gameId = Math.random().toString(36);
     this.terrain = new Terrain();
+    this.lastActionTimeStamp = Date.now();
 
     // insert the lobby users into the game and create a new stats object for each user
     this.users = lobby.getUsers().map((user) => [user, new Stats()]);
@@ -45,6 +47,9 @@ export class Game implements IGame {
 
     this.notifyUsers(); // TODO: implement this method
     log('Game ' + this.gameId + ' created.');
+  }
+  getLastActionTimeStamp(): number {
+    return this.lastActionTimeStamp;
   }
   getTerrain(): ITerrain {
     return this.terrain;
@@ -173,6 +178,7 @@ export class Game implements IGame {
   setGameState(gameState: IGame): void {
     this.gameStatus = gameState.gameStatus;
     this.users = gameState.users;
+    this.lastActionTimeStamp = Date.now();
   }
 
   getGameState(): IGame {
