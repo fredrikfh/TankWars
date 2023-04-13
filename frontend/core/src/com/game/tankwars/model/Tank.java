@@ -37,11 +37,13 @@ public class Tank {
     Terrain terrain;
     private Vector2[] vertices;
     int posInVertArr;
-    float cannonAngle = 90;
+    float cannonAngle;
     private int power;
     boolean directionLeft;
+    int fuel = 150;
+    int health = 100;
 
-    public Tank(int posInVertArr, Texture chassisTexture, Texture cannonTexture, Terrain terrain, TankWarsGame tankWarsGame, boolean directionLeft) {
+    public Tank(int posInVertArr, Texture chassisTexture, Texture cannonTexture, Terrain terrain, TankWarsGame tankWarsGame, boolean directionLeft, float cannonAngle) {
         VIEWPORT_HEIGHT = tankWarsGame.getViewportHeight();
         VIEWPORT_WIDTH = tankWarsGame.getViewportWidth();
 
@@ -52,16 +54,15 @@ public class Tank {
         position = vertices[posInVertArr];
 
         this.power = 25;
+        this.cannonAngle = cannonAngle;
 
         this.bounds = new Rectangle(position.x, position.y, TANK_WIDTH, TANK_HEIGHT);
 
         this.chassisTexture = chassisTexture;
         chassisSprite = new Sprite(chassisTexture);
-        chassisSprite.scale(0.4f);
 
         this.cannonTexture = cannonTexture;
         cannonSprite = new Sprite(cannonTexture);
-        cannonSprite.scale(-0.1f);
 
         world = Box2dWorld.getWorld();
         bodyDef.type = BodyDef.BodyType.KinematicBody;
@@ -75,11 +76,12 @@ public class Tank {
         chassis = world.createBody(bodyDef);
         chassis.setUserData(chassisSprite);
         chassis.createFixture(fixtureDef);
+        chassisSprite.scale(0.2f);
 
         //Cannon
         shape.setAsBox(CANNON_WIDTH, CANNON_HEIGHT);
 
-        cannonSprite.setOrigin(0, cannonSprite.getHeight()/2);
+        cannonSprite.setOrigin(1, cannonSprite.getHeight()/2);
         cannon = world.createBody(bodyDef);
         cannon.setUserData(cannonSprite);
 
@@ -103,12 +105,13 @@ public class Tank {
             chassisSprite.flip(true, false);
             directionLeft = false;
         }
-        if (chassis.getPosition().x <= TankWarsGame.GAMEPORT_WIDTH - TANK_WIDTH){
+        if (chassis.getPosition().x <= TankWarsGame.GAMEPORT_WIDTH/TankWarsGame.SCALE - TANK_WIDTH && fuel > 0){
             setPosition(newPos);
             chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
             chassisSprite.setRotation(angle);
             updateCannonPos();
             posInVertArr++;
+            fuel--;
         }
         else {
             chassis.setTransform(curPos.x, curPos.y + 0.11f, angle);
@@ -125,12 +128,13 @@ public class Tank {
             directionLeft = true;
         }
 
-        if (chassis.getPosition().x >= TANK_WIDTH){
+        if (chassis.getPosition().x >= TANK_WIDTH && fuel > 0){
             setPosition(newPos);
             chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
             chassisSprite.setRotation(angle);
             updateCannonPos();
             posInVertArr--;
+            fuel--;
         }
         else {
             chassis.setTransform(curPos.x, curPos.y + 0.11f, angle);
@@ -145,18 +149,18 @@ public class Tank {
 
     public void updateCannonPos(){
         Vector2 chassisPos = chassis.getPosition();
-        chassisPos.add(0, 1);
+        chassisPos.add(0, 0.35f);
         cannon.setTransform(chassisPos, cannon.getAngle());
     }
 
     public void rotateCannonRight(){
-        if(cannonAngle > -90) {
+        if(cannonAngle > 90) {
             cannonAngle--;
         }
     }
 
     public void rotateCannonLeft(){
-        if(cannonAngle < 90) {
+        if(cannonAngle < 270) {
             cannonAngle++;
         }
     }
@@ -179,23 +183,20 @@ public class Tank {
     }
     public Sprite getChassisSprite() {return chassisSprite;}
     public Sprite getCannonSprite() {return cannonSprite;}
-
     public int getPower() {
         return power;
     }
+    public int getFuel(){return fuel;}
 
     public void setPosition(Vector2 position) {
         this.position = position;
     }
-
     public void setBounds(Rectangle bounds) {
         this.bounds = bounds;
     }
-
     public void setPower(int power) {
         this.power = power;
     }
-
     public void setChassisTexture(Texture texture) {
         this.chassisTexture = texture;
     }

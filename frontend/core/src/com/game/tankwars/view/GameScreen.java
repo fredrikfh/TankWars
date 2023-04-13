@@ -26,6 +26,8 @@ import com.game.tankwars.model.Bullet;
 import com.game.tankwars.model.Tank;
 import com.game.tankwars.model.Terrain;
 
+import java.util.Arrays;
+
 public class GameScreen implements Screen {
     final TankWarsGame tankWarsGame;
     int VIEWPORT_WIDTH;
@@ -43,9 +45,7 @@ public class GameScreen implements Screen {
     OrthographicCamera worldCam;
     OrthographicCamera hudCam;
     Box2DDebugRenderer debugRenderer;
-    Bullet bullet;
     GameController controller;
-    Mesh groundMesh;
 
     public GameScreen(final TankWarsGame tankWarsGame){
         this.tankWarsGame = tankWarsGame;
@@ -72,19 +72,22 @@ public class GameScreen implements Screen {
 
         terrain = new Terrain();
 
-        int myPos = 100;
-        int opponentPos = terrain.getVertices().length - 250;
+        int myPos = 50;
+        int opponentPos = terrain.getVertices().length - 220;
 
         myTank = new Tank(myPos,
-                new Texture("tank-khaki.png"),
-                new Texture("cannon.png"),
+                new Texture("camo-tank-1.png"),
+                new Texture("camo-tank-barrel.png"),
                 terrain,
-                tankWarsGame, true);
+                tankWarsGame, true,
+                120);
         opponentTank = new Tank(opponentPos,
-                new Texture("tank-khaki.png"),
-                new Texture("cannon.png"),
+                new Texture("camo-tank-1.png"),
+                new Texture("camo-tank-barrel.png"),
                 terrain,
-                tankWarsGame, false);
+                tankWarsGame,
+                false,
+                225);
 
         horizontalScaling = Gdx.graphics.getWidth() / TankWarsGame.GAMEPORT_WIDTH;
         verticalScaling = Gdx.graphics.getHeight() / TankWarsGame.GAMEPORT_HEIGHT;
@@ -114,19 +117,22 @@ public class GameScreen implements Screen {
             Sprite s = (Sprite) b.getUserData();
 
             if (s != null) {
-                s.setPosition(b.getPosition().x * (float) TankWarsGame.SCALE - s.getWidth() / 2, (b.getPosition().y + 0.25f) * (float) TankWarsGame.SCALE);
+                s.setPosition(b.getPosition().x * (float) TankWarsGame.SCALE - s.getWidth() / 2,
+                        (b.getPosition().y * (float) TankWarsGame.SCALE) - s.getHeight()/2);
                 if (s.equals(myTank.getChassisSprite())) {
+                    s.setOrigin(s.getWidth() / 2, s.getHeight());
                     s.setRotation(myTank.getAngle());
                 }
                 if (s.equals(opponentTank.getChassisSprite())) {
+                    s.setOrigin(s.getWidth() / 2, s.getHeight());
                     s.setRotation(opponentTank.getAngle());
                 }
                 if (s.equals(myTank.getCannonSprite())) {
-                    s.setOrigin(s.getWidth() / 2, 0);
+                    s.setOrigin(s.getWidth() / 2, s.getHeight());
                     s.setRotation(myTank.getCannonAngle());
                 }
                 if (s.equals(opponentTank.getCannonSprite())) {
-                    s.setOrigin(s.getWidth() / s.getWidth(), 0);
+                    s.setOrigin(s.getWidth() / 2 , s.getHeight());
                     s.setRotation(opponentTank.getCannonAngle());
                 }
             }
