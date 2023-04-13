@@ -1,10 +1,18 @@
 import { User } from '../../types/User';
 import { ILobby } from './ILobby';
 import { IStats } from './IStats';
+import { ITerrain } from './ITerrain';
 
 // interface for a game instance
 
 export interface IGame {
+  users: [User, IStats][];
+  currentTurn: number;
+  lobby: ILobby;
+  gameStatus: boolean;
+  gameId: string;
+  terrain: ITerrain;
+
   notifyUsers(): void;
 
   setIsFinished(status: boolean): void;
@@ -28,9 +36,6 @@ export interface IGame {
 
   getUsers(): [User, IStats][];
 
-  users: [User, IStats][];
-  currentTurn: number;
-  lobby: ILobby;
-  gameStatus: boolean;
-  gameId: string;
+  getTerrain(): ITerrain;
+
 }
