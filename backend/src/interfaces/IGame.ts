@@ -12,6 +12,7 @@ export interface IGame {
   gameStatus: boolean;
   gameId: string;
   terrain: ITerrain;
+  lastActionTimeStamp: number;
 
   notifyUsers(): void;
 
@@ -37,4 +38,5 @@ export interface IGame {
   getUsers(): [User, IStats][];
 
   getTerrain(): ITerrain;
+  getLastActionTimeStamp(): number;
 }

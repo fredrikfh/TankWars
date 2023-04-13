@@ -5,8 +5,10 @@ import lobbyRoutes from './routes/lobbyRoutes';
 import userRoutes from './routes/userRoutes';
 import gameRoutes from './routes/gameRoutes';
 import highscoreRoutes from './routes/highscoreRoutes';
+import serverRoutes from './routes/serverRoutes';
 import { log } from './functions/console';
 import { welcome } from './functions/welcomeScreen';
+import { disposeInactiveGames } from './functions/disposeInactiveGames';
 
 new GameHandler(); // singleton ;)
 
@@ -23,6 +25,7 @@ app.use('/lobby', lobbyRoutes);
 app.use('/user', userRoutes);
 app.use('/game', gameRoutes);
 app.use('/highscore', highscoreRoutes);
+app.use('/server', serverRoutes);
 
 // in testing, we don't want to cache the results
 app.set('etag', false);
@@ -30,6 +33,10 @@ app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
   next();
 });
+
+setInterval(() => {
+  disposeInactiveGames();
+}, 60 * 1000);
 
 app.listen(port, () => {
   welcome();
