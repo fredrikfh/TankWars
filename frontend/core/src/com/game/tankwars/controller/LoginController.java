@@ -60,7 +60,7 @@ public class LoginController {
         loginButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                handleInput(usernameField.getText());
+                fetchUser(usernameField.getText());
                 return true;
             }
         });
@@ -97,18 +97,17 @@ public class LoginController {
         });
     }
 
-    public void handleInput(String username) {
-        fetchUser(username);
-    }
-
     public void fetchUser(final String username) {
         new HTTPRequestHandler(new Callback() {
             @Override
-            public void onResult(Net.HttpResponse response) {
+            public boolean onResult(Net.HttpResponse response) {
+                if (response.getStatus().getStatusCode() == -1) return false;
+
                 Json json = new Json();
                 User user = json.fromJson(User.class, response.getResultAsString());
                 currentUser.setUser(user);
                 Gdx.app.postRunnable(mainMenuScreenTransition);
+                return true;
             }
 
             @Override
