@@ -1,48 +1,28 @@
 describe('Game Test', () => {
-  const user1 = 'Cypress1' + Math.floor(Math.random() * 1000000);
-  const user2 = 'Cypress2' + Math.floor(Math.random() * 1000000);
-  const user3 = 'Cypress3' + Math.floor(Math.random() * 1000000);
+  const user1 = 'Cypress1';
+  const user2 = 'Cypress2';
+  const user3 = 'Cypress3';
   const lobby = Math.floor(Math.random() * 1000);
+  let gameId = 0;
 
   it('Can create a game', () => {
     cy.genericRequest('GET', `/game/${lobby}`, 404, '');
-    cy.createUser(user1);
-    cy.createUser(user2);
     cy.joinLobby(lobby, user1);
     cy.joinLobby(lobby, user2);
     cy.genericRequest('GET', `/game/${lobby}`, 200, '');
-    cy.genericRequest('POST', `/lobby/${lobby}/leave`, 200, { userId: user1 });
-    cy.genericRequest('POST', `/lobby/${lobby}/leave`, 200, { userId: user2 });
-    cy.deleteUser(user1);
-    cy.deleteUser(user2);
   });
 
   it('Can get currentTurn', () => {
-    cy.createUser(user1);
-    cy.createUser(user2);
-    cy.joinLobby(lobby, user1);
-    cy.joinLobby(lobby, user2);
     cy.request({
       method: 'GET',
       url: `${Cypress.config('baseUrl')}/game/${lobby}`,
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body).to.not.be.empty;
-      const gameId = response.body;
     });
-
-    cy.genericRequest('POST', `/lobby/${lobby}/leave`, 200, { userId: user1 });
-    cy.genericRequest('POST', `/lobby/${lobby}/leave`, 200, { userId: user2 });
-    cy.deleteUser(user1);
-    cy.deleteUser(user2);
   });
 
   it('Can send a valid move', () => {
-    let gameId = 0;
-    cy.createUser(user1);
-    cy.createUser(user2);
-    cy.joinLobby(lobby, user1);
-    cy.joinLobby(lobby, user2);
     cy.request({
       method: 'GET',
       url: `${Cypress.config('baseUrl')}/game/${lobby}`,
@@ -67,7 +47,7 @@ describe('Game Test', () => {
                 username: user1,
               },
               {
-                position: [0, 0],
+                position: 110,
                 turretAngle: 0,
                 health: 100,
                 ammunition: 100,
@@ -86,7 +66,7 @@ describe('Game Test', () => {
                 username: user2,
               },
               {
-                position: [10, 0],
+                position: 910,
                 turretAngle: 30,
                 health: 100,
                 ammunition: 100,
@@ -103,20 +83,9 @@ describe('Game Test', () => {
         expect(response.status).to.eq(200);
       });
     });
-
-    cy.genericRequest('POST', `/lobby/${lobby}/leave`, 200, { userId: user1 });
-    cy.genericRequest('POST', `/lobby/${lobby}/leave`, 200, { userId: user2 });
-
-    cy.deleteUser(user1);
-    cy.deleteUser(user2);
   });
 
-  it('Can send a invalid move', () => {
-    let gameId = 0;
-    cy.createUser(user1);
-    cy.createUser(user2);
-    cy.joinLobby(lobby, user1);
-    cy.joinLobby(lobby, user2);
+  it('Cant send a invalid move', () => {
     cy.request({
       method: 'GET',
       url: `${Cypress.config('baseUrl')}/game/${lobby}`,
@@ -171,7 +140,6 @@ describe('Game Test', () => {
         ],
       };
 
-      cy.log(gameId.toString());
       cy.request({
         method: 'POST',
         url: `${Cypress.config('baseUrl')}/game/${gameId}/move`,
@@ -180,11 +148,8 @@ describe('Game Test', () => {
         },
         failOnStatusCode: false,
       }).then((response) => {
-        expect(response.status).to.eq(404);
+        expect(response.status).to.eq(400);
       });
-
-      cy.deleteUser(user1);
-      cy.deleteUser(user2);
     });
   });
 });

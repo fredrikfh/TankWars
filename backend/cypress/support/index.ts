@@ -5,9 +5,9 @@ declare namespace Cypress {
     deleteUser(username: string): void;
     createUser(username: string): void;
     getGameByLobbyId(lobbyId: string): void;
-    getCurrentTurn(lobbyId: string, userId: string): void;
+    getCurrentTurn(lobbyId: string, username: string): void;
     sendMove(gameId: string, gameState: JSON): void;
-    joinLobby(lobbyId: number, userId: string): void;
+    joinLobby(lobbyId: number, username: string): void;
     getUser(username: string): void;
     genericRequest(
       method: string,

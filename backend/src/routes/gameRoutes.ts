@@ -25,7 +25,7 @@ router.get('/:lobbyId', gameController.gameId);
 
 /**
  * @swagger
- * /game/move:
+ * /game/{gameId}/move:
  *   post:
  *     tags: [Game]
  *     summary: Send a move.

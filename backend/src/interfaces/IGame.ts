@@ -22,7 +22,7 @@ export interface IGame {
   getLoser(): User;
   setScore(user: number, score: number): void;
   getScore(user: number): number;
-  calculateNextGameState(newGameState: IGame): void;
+  calculateNextGameState(newGameState: IGame): boolean;
 
   getGameState(): IGame;
   setGameState(gameState: IGame): void;

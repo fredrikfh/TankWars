@@ -112,23 +112,23 @@ export class Game implements IGame {
     }
   }
 
-  calculateNextGameState(newGameState: IGame): void {
+  calculateNextGameState(newGameState: IGame): boolean {
     // verify that json is a valid IGame object
 
     // compare the current game state with the new game state
     if (newGameState.gameId !== this.gameId) {
       log('Game ID mismatch');
-      return;
+      return false;
     }
 
     if (newGameState.gameStatus !== this.gameStatus) {
       log('Game status mismatch');
-      return;
+      return false;
     }
 
     if (newGameState.users.length !== this.users.length) {
       log('User length mismatch');
-      return;
+      return false;
     }
 
     // check if a projectile was fired (we assume that the projectile is always fired by the current user)
@@ -172,6 +172,7 @@ export class Game implements IGame {
       this.toggleTurn();
     }
     log('Game state updated for game ' + this.gameId);
+    return true;
   }
 
   // update the game state (does not update the current turn)

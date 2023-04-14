@@ -5,6 +5,7 @@ import { getUserById } from '../functions/getUserById';
 import { User } from '../../types/User';
 import admin from '../functions/firebaseAdmin';
 import { IGame } from '../interfaces/IGame';
+import { validateGameStateJSON } from '../functions/validateGameStateJSON';
 
 const gameHandler = GameHandler.getInstance();
 
@@ -27,9 +28,11 @@ export const move = async (req: Request, res: Response): Promise<void> => {
     //   return;
     // }
 
-    game.calculateNextGameState(req.body as IGame);
-
-    res.status(200).send('Move made');
+    if (game.calculateNextGameState(req.body as IGame)) {
+      res.status(200).send('Move made');
+    } else {
+      res.status(400).send('Invalid move');
+    }
   } else {
     res.status(404).send('Game not found');
   }
