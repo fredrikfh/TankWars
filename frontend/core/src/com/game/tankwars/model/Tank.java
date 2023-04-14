@@ -3,8 +3,10 @@ package com.game.tankwars.model;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -71,6 +73,8 @@ public class Tank {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(TANK_WIDTH, TANK_HEIGHT);
         fixtureDef.shape = shape;
+        fixtureDef.isSensor = true;
+        cannonPosition = new Vector2(bodyDef.position.add(1, -1));
 
         //Chassis
         chassis = world.createBody(bodyDef);
@@ -80,11 +84,15 @@ public class Tank {
 
         //Cannon
         shape.setAsBox(CANNON_WIDTH, CANNON_HEIGHT);
+        FixtureDef canonFixture = new FixtureDef();
+        canonFixture.shape = shape;
+        canonFixture.isSensor = true;
+        bodyDef.position.set(cannonPosition);
 
         cannonSprite.setOrigin(1, cannonSprite.getHeight()/2);
         cannon = world.createBody(bodyDef);
         cannon.setUserData(cannonSprite);
-
+        cannon.createFixture(canonFixture);
         shape.dispose();
         updateCannonPos();
         moveLeft();
@@ -151,6 +159,7 @@ public class Tank {
         Vector2 chassisPos = chassis.getPosition();
         chassisPos.add(0, 0.35f);
         cannon.setTransform(chassisPos, cannon.getAngle());
+        cannonPosition.set(cannon.getPosition());
     }
 
     public void rotateCannonRight(){
@@ -202,5 +211,7 @@ public class Tank {
     }
     public void setCannonTexture(Texture texture) {
         this.cannonTexture = texture;
+
     }
+
 }

@@ -47,6 +47,8 @@ public class GameScreen implements Screen {
     Box2DDebugRenderer debugRenderer;
     GameController controller;
 
+    private Bullet bullet;
+
     public GameScreen(final TankWarsGame tankWarsGame){
         this.tankWarsGame = tankWarsGame;
 
@@ -109,8 +111,11 @@ public class GameScreen implements Screen {
 
         controller.checkKeyInput(myTank);
 
+        //controller.handleTouchInput(worldCam);
+
         Array<Body> bodies = new Array<Body>();
         world.getBodies(bodies);
+
 
         //Rendering Bullet bodies
         for (Body b : bodies) {
@@ -137,12 +142,15 @@ public class GameScreen implements Screen {
                 }
             }
         }
-
         shapeRender.begin(ShapeRenderer.ShapeType.Filled);
         terrain.draw(shapeRender);
         shapeRender.end();
+        updateBullet();
 
         batch.begin();
+        if (bullet != (null)) {
+            bullet.getBulletSprite().draw(batch);
+        }
         myTank.getChassisSprite().draw(batch);
         myTank.getCannonSprite().draw(batch);
         opponentTank.getChassisSprite().draw(batch);
@@ -188,5 +196,12 @@ public class GameScreen implements Screen {
 
     private float scale(float value) {
         return value / TankWarsGame.SCALE;
+    }
+
+    private void updateBullet() {
+        Bullet bullet = controller.getBullet();
+        if (bullet != (null)) {
+            this.bullet = bullet;
+        }
     }
 }
