@@ -1,6 +1,7 @@
 package com.game.tankwars.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -38,7 +39,11 @@ public class GameHud {
 
     private Button moveLeft;
     private Button moveRight;
+
+    private Button aimUp;
+    private Button aimDown;
     private HorizontalGroup moveContainer;
+    private HorizontalGroup aimContainer;
 
     public GameHud(Viewport viewport, SpriteBatch batch) {
         this.viewport = viewport;
@@ -86,7 +91,23 @@ public class GameHud {
         moveContainer.addActor(moveLeft);
         moveContainer.addActor(moveRight);
 
+
+        aimUp = new Button(skin.get("move-right", Button.ButtonStyle.class));
+        aimDown = new Button(skin.get("move-left", Button.ButtonStyle.class));
+        aimUp.setTransform(true);
+        aimDown.setTransform(true);
+        aimUp.setOrigin(aimUp.getWidth() / 2, aimUp.getHeight() / 2);
+        aimUp.setRotation(90);
+        aimDown.setOrigin(aimDown.getWidth() / 2, aimDown.getHeight() / 2);
+        aimDown.setRotation(90);
+
+        aimContainer = new HorizontalGroup().space(10);
+        moveContainer.addActor(aimUp);
+        moveContainer.addActor(aimDown);
+
+
         table.add(moveContainer).expand().bottom().right().padBottom(10).padRight(10);
+        table.add(aimContainer).expand().bottom().padBottom(10);
 
     }
 
@@ -117,6 +138,10 @@ public class GameHud {
     public Button getMoveRight() {
         return moveRight;
     }
+
+    public Button getAimUp() { return aimUp; }
+
+    public Button getAimDown() { return aimDown; }
 
     /**
      * Set visible health of player
