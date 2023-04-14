@@ -38,8 +38,8 @@
 
 Cypress.Commands.add('deleteUser', (username: string) => {
   cy.request({
-    method: 'POST',
-    url: `${Cypress.config('baseUrl')}/user/delete/${username}`,
+    method: 'DELETE',
+    url: `${Cypress.config('baseUrl')}/user/${username}`,
     failOnStatusCode: false,
   }).then((response) => {
     expect(response.status).to.be.oneOf([204, 404]);
@@ -49,7 +49,7 @@ Cypress.Commands.add('deleteUser', (username: string) => {
 Cypress.Commands.add('createUser', (username: string) => {
   cy.request({
     method: 'POST',
-    url: `${Cypress.config('baseUrl')}/user/create/${username}`,
+    url: `${Cypress.config('baseUrl')}/user/${username}`,
     failOnStatusCode: false,
   }).then((response) => {
     expect(response.status).to.eq(201);
@@ -66,13 +66,13 @@ Cypress.Commands.add('getUser', (username: string) => {
   });
 });
 
-Cypress.Commands.add('joinLobby', (lobbyId: number, userId: string) => {
+Cypress.Commands.add('joinLobby', (lobbyId: number, username: string) => {
   cy.request({
     method: 'POST',
     url: `${Cypress.config('baseUrl')}/lobby/${lobbyId}/join`,
     failOnStatusCode: false,
     body: {
-      userId: userId,
+      username: username,
     },
   }).then((response) => {
     expect(response.status).to.be.oneOf([200, 201, 409]);
@@ -90,12 +90,12 @@ Cypress.Commands.add('getGameByLobbyId', (lobbyId: string) => {
   });
 });
 
-Cypress.Commands.add('getCurrentTurn', (lobbyId: string, userId: string) => {
+Cypress.Commands.add('getCurrentTurn', (gameId: string, username: string) => {
   cy.request({
     method: 'GET',
-    url: `${Cypress.config('baseUrl')}/game/${lobbyId}`,
+    url: `${Cypress.config('baseUrl')}/game/${gameId}/currentTurn`,
     body: {
-      userName: userId,
+      username: username,
     },
   }).then((response) => {
     expect(response.status).to.eq(200);

@@ -9,7 +9,7 @@ const gameHandler = GameHandler.getInstance();
 export const leaveLobby = async (req: Request, res: Response): Promise<void> => {
   const id = parseInt(req.params.id);
   const lobby = gameHandler.getLobbyById(id);
-  const user = (await getUserById(req.body.userId)) as User;
+  const user = (await getUserById(req.body.username)) as User;
   lobby?.removeUser(user);
   // if lobby is empty, dispose
   if (lobby?.getUsers().length === 0) {
@@ -23,7 +23,7 @@ export const leaveLobby = async (req: Request, res: Response): Promise<void> => 
 export const joinLobby = async (req: Request, res: Response): Promise<void> => {
   // join a lobby with specific id
   const id = parseInt(req.params.id);
-  const user = (await getUserById(req.body.userId)) as User;
+  const user = (await getUserById(req.body.username)) as User;
 
   if (gameHandler.getLobbyById(id)) {
     const lobby = gameHandler.getLobbyById(id);
