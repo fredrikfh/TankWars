@@ -97,11 +97,8 @@ public class Tank {
         shape.dispose();
         updateCannonPos();
         moveLeft();
-        if(directionLeft){
-            moveRight();
-        }
-        else{
-            moveLeft();
+        if(!directionLeft){
+            chassisSprite.flip(true, false);
         }
     }
 
@@ -110,10 +107,6 @@ public class Tank {
         Vector2 newPos = new Vector2(vertices[posInVertArr + 1]);
         float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
 
-        if(directionLeft){
-            chassisSprite.flip(true, false);
-            directionLeft = false;
-        }
         if (chassis.getPosition().x <= TankWarsGame.GAMEPORT_WIDTH/TankWarsGame.SCALE - TANK_WIDTH && fuel > 0){
             setPosition(newPos);
             chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
@@ -131,11 +124,6 @@ public class Tank {
         Vector2 curPos = new Vector2(vertices[posInVertArr]);
         Vector2 newPos = new Vector2(vertices[posInVertArr - 1]);
         float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
-
-        if(!directionLeft){
-            chassisSprite.flip(true, false);
-            directionLeft = true;
-        }
 
         if (chassis.getPosition().x >= TANK_WIDTH && fuel > 0){
             setPosition(newPos);
