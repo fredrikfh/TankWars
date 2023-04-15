@@ -1,8 +1,10 @@
 package com.game.tankwars.view;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
@@ -13,9 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.game.tankwars.ResourceManager;
-import com.ray3k.stripe.FreeTypeSkin;
 
 public class GameHud {
 
@@ -30,6 +32,11 @@ public class GameHud {
     private ProgressBar healthProgressBarPlayer;
     private ProgressBar healthProgressBarOpponent;
 
+    private Label turnLabel;
+    private Label turnInformationLabel;
+    private Container turnContainer;
+    private Container turnInformationContainer;
+    private Table turnTable;
 
     private TextButton fireButton;
 
@@ -42,7 +49,7 @@ public class GameHud {
 
     private Button aimUp;
     private Button aimDown;
-    private HorizontalGroup moveContainer;
+    private HorizontalGroup movementContainer;
     private HorizontalGroup aimContainer;
 
     public GameHud(Viewport viewport, SpriteBatch batch) {
@@ -67,8 +74,29 @@ public class GameHud {
         HpOpponentWrapper.setOrigin(HpOpponentWrapper.getPrefWidth() / 2, HpOpponentWrapper.getPrefHeight() / 2);
         HpOpponentWrapper.setRotation(180);
 
+        turnLabel = new Label("It's your turn!", skin.get("large-white", Label.LabelStyle.class));
+        turnInformationLabel = new Label("Touch screen to start your turn.", skin.get("regular-white", Label.LabelStyle.class));
+
         table.add(healthProgressBarPlayer).expand().top().left().padTop(10).padLeft(10);
         table.add(HpOpponentWrapper).colspan(2).top().right().padTop(10).padRight(10);
+
+        table.row();
+
+        turnContainer = new Container(turnLabel);
+        turnInformationContainer = new Container(turnInformationLabel);
+
+        Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGB565);
+        bgPixmap.setColor(Color.GRAY);
+        bgPixmap.fill();
+        TextureRegionDrawable textureRegionDrawableBg = new TextureRegionDrawable(new TextureRegion(new Texture(bgPixmap)));
+        turnContainer.setBackground(textureRegionDrawableBg);
+
+        turnTable = new Table();
+        turnTable.add(turnContainer).prefWidth(1000).height(100);
+        turnTable.row();
+        turnTable.add(turnInformationContainer).padTop(20);
+
+        table.add(turnTable).prefWidth(1000).height(300).colspan(3);
 
         table.row();
 
@@ -87,9 +115,8 @@ public class GameHud {
         moveLeft = new Button(skin.get("move-left", Button.ButtonStyle.class));
         moveRight = new Button(skin.get("move-right", Button.ButtonStyle.class));
 
-        moveContainer = new HorizontalGroup().space(10);
-        moveContainer.addActor(moveLeft);
-        moveContainer.addActor(moveRight);
+        movementContainer = new HorizontalGroup().space(10);
+
 
 
         aimUp = new Button(skin.get("move-right", Button.ButtonStyle.class));
@@ -101,13 +128,12 @@ public class GameHud {
         aimDown.setOrigin(aimDown.getWidth() / 2, aimDown.getHeight() / 2);
         aimDown.setRotation(90);
 
-        aimContainer = new HorizontalGroup().space(10);
-        moveContainer.addActor(aimUp);
-        moveContainer.addActor(aimDown);
+        movementContainer.addActor(moveLeft);
+        movementContainer.addActor(moveRight);
+        movementContainer.addActor(aimUp);
+        movementContainer.addActor(aimDown);
 
-
-        table.add(moveContainer).expand().bottom().right().padBottom(10).padRight(10);
-        table.add(aimContainer).expand().bottom().padBottom(10);
+        table.add(movementContainer).expand().bottom().right().padBottom(10).padRight(10);
 
     }
 
@@ -157,5 +183,55 @@ public class GameHud {
      */
     public void setOpponentHealth(int health) {
         healthProgressBarOpponent.setValue(health);
+    }
+
+    public boolean isTurnContainerVisible() {
+        return turnContainer.isVisible();
+    }
+
+    public void removeTurnContainer() {
+        if(turnContainer.isVisible()) {
+            turnContainer.setVisible(false);
+        }
+    }
+
+    public void showTurnContainer() {
+        if (!turnContainer.isVisible()) {
+            turnContainer.setVisible(true);
+        }
+    }
+
+    public void removeTurnInformationContainer() {
+        if(turnInformationContainer.isVisible()) {
+            turnInformationContainer.setVisible(false);
+        }
+    }
+
+    public void showTurnInformationContainer() {
+        if (!turnInformationContainer.isVisible()) {
+            turnInformationContainer.setVisible(true);
+        }
+    }
+
+    public void showYourTurnLabel() {
+        turnLabel.setText("It's your turn!");
+        turnInformationLabel.setText("Touch screen to start your turn.");
+        showTurnContainer();
+        showTurnInformationContainer();
+    }
+    public void showOpponentTurnLabel() {
+        turnLabel.setText("Waiting for opponent...");
+        showTurnContainer();
+        removeTurnInformationContainer();
+    }
+
+    public void showWinBanner() {
+        turnLabel.setText("You won!");
+        removeTurnInformationContainer();
+    }
+
+    public void showLoserBanner() {
+        turnLabel.setText("Game Over!");
+        removeTurnInformationContainer();
     }
 }

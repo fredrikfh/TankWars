@@ -39,6 +39,9 @@ public class GameController {
         this.tank = tank;
         this.tankWarsGame = tankWarsGame;
         this.touchPos = new Vector3();
+
+        hud.removeTurnContainer();
+        hud.removeTurnInformationContainer();
     }
 
     public void checkKeyInput(Tank tank){
@@ -55,6 +58,15 @@ public class GameController {
         else if(moveLeftTouched) {
             tank.moveLeft();
         }
+
+        // TODO: remove turn container when it is your turn and have clicked screen
+        /*if(Gdx.input.isTouched() && !hud.isTurnContainerVisible()) {
+            hud.showTurnContainer();
+        }
+
+        if(Gdx.input.isTouched() && hud.isTurnContainerVisible()) {
+            hud.removeTurnContainer();
+        }*/
     }
 
     public void handleHudEvents() {
