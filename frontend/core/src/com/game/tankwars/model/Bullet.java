@@ -24,6 +24,7 @@ public class Bullet {
     private Sprite bulletSprite;
 
     private float angle;
+    private boolean collision = false;
 
     public Bullet(Tank tank) {
         this.tank = tank;
@@ -40,6 +41,7 @@ public class Bullet {
         fixtureDef.restitution = 0.0f;
         fixtureDef.friction = 1f;
         body.createFixture(fixtureDef);
+        body.getFixtureList().get(0).setUserData(new FixtureData("bullet"));
 
 
         shape.dispose();
@@ -82,6 +84,12 @@ public class Bullet {
 
     public Body getBody() { return body; }
 
+    public boolean collision() {
+        return collision;
+    }
 
+    public void setCollision() {
+        collision = true;
+    }
 
 }
