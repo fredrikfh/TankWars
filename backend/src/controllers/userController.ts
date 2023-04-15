@@ -84,3 +84,43 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
     res.status(404).send('User not found');
   }
 };
+
+// update highscore
+export const updateHighscore = async (req: Request, res: Response): Promise<void> => {
+  const usersRef = admin.firestore().collection('users');
+  const username = req.params.username;
+  const requestBody = req.body;
+
+  // check if request body is a valid User object
+  if (
+    requestBody.username === undefined ||
+    requestBody.highscore === undefined ||
+    requestBody.games === undefined ||
+    requestBody.wins === undefined ||
+    requestBody.losses === undefined
+  ) {
+    res.status(400).send('Invalid request body');
+  }
+
+  if (username === undefined || username === '') {
+    res.status(400).send('No username provided');
+  }
+
+  const user = await getUserById(username);
+
+  if (user) {
+    // update highscore
+    const newUserData: Partial<User> = {
+      highscore: requestBody.highscore,
+      games: requestBody.games,
+      wins: requestBody.wins,
+      losses: requestBody.losses,
+    };
+
+    log('firestore: sending request to update score of ' + user.username);
+    await usersRef.doc(user.id).update(newUserData);
+    res.status(200).send('Highscore updated');
+  } else {
+    res.status(404).send('User not found');
+  }
+};

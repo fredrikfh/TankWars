@@ -113,4 +113,45 @@ router.post('/:username', userController.createUser);
  */
 router.delete('/:username', userController.deleteUser);
 
+/**
+ * @swagger
+ * /user/{username}/highscore:
+ *   post:
+ *     tags: [User]
+ *     summary: Update the users stats.
+ *     description: Update the users stats.
+ *     parameters:
+ *       - name: username
+ *         in: query
+ *         required: true
+ *         description: Username of the user to update.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               wins:
+ *                 type: integer
+ *               losses:
+ *                 type: integer
+ *               highscore:
+ *                 type: integer
+ *               games:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Score updated.
+ *       400:
+ *         description: Invalid request.
+ *       404:
+ *         description: User not found.
+ */
+router.post('/:username/highscore', userController.updateHighscore);
+
 export default router;
