@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /lobby/{id}/leave:
+ * /lobby/{lobbyId}/leave:
  *   post:
  *     tags: [Lobby]
  *     summary: Leaves a lobby.
@@ -30,7 +30,7 @@ router.post('/:id/leave', lobbyController.leaveLobby);
 
 /**
  * @swagger
- * /lobby/{id}/join:
+ * /lobby/{lobbyId}/join:
  *   post:
  *     tags: [Lobby]
  *     summary: Joins a lobby.

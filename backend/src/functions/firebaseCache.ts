@@ -58,17 +58,13 @@ export async function getUsersIds(): Promise<any> {
  *
  * @returns a list of users
  */
-export async function getTopUsers(): Promise<any> {
+export async function getTopUsers(): Promise<User[] | null> {
   const usersRef: CollectionReference = admin.firestore().collection('users');
   const querySnapshot: Query = usersRef.orderBy('highscore', 'desc').limit(10);
   const cacheKey = 'topUsers';
   const responseMapper = (firestoreResponse: QueryDocumentSnapshot[]) => {
     return firestoreResponse.map((doc) => {
-      return {
-        id: doc.id,
-        username: doc.data().username,
-        highscore: doc.data().highscore,
-      };
+      return { ...doc.data } as User;
     });
   };
   return retrieveFromCache(querySnapshot, queryCache, cacheKey, responseMapper);
