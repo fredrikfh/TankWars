@@ -39,4 +39,4 @@ e2e tests: `yarn test`
 
 ## Restrictions
 
-The backend will only allow 15 requests per minute from the same IP address. This is to prevent abuse of the API.
+The backend will only allow 30 requests per minute from the same IP address. This is to prevent abuse of the API.
