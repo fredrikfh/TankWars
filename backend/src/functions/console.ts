@@ -7,9 +7,10 @@
 export function log(message: string, status: string = 'info'): void {
   const time = new Date().toLocaleTimeString();
   const file = new Error().stack?.split('at ')[2].split('\n')[0].trim();
+  const cleanFile = file?.replace(/[()]/g, '');
   const maxLength = 25; // Set the desired maximum length for the file section
   const paddedFile =
-    file?.split('/').pop()?.padEnd(maxLength, ' ') ?? ''.padEnd(maxLength, ' ');
+    cleanFile?.split('/').pop()?.padEnd(maxLength, ' ') ?? ''.padEnd(maxLength, ' ');
   // if status is info, log in default/black color. If warning use yellow, if danger use red
   const statusColor =
     status === 'info' ? '\x1b[0m' : status === 'warning' ? '\x1b[33m' : '\x1b[31m';

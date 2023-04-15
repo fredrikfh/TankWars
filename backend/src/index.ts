@@ -12,6 +12,7 @@ import { disposeInactiveGames } from './functions/disposeInactiveGames';
 import swaggerJsdoc from 'swagger-jsdoc';
 import path from 'path';
 import { firebaseLogger } from './middleware/firebaseLogger';
+import { rateLimiter } from './middleware/rateLimiter';
 
 new GameHandler(); // singleton ;)
 
@@ -22,6 +23,8 @@ const port = process.env.NODE_ENV === 'production' ? 80 : 4999;
 // middleware
 app.use(express.json()); // for parsing application/json
 app.use(expressLogger); // for request logging
+app.set('trust proxy', 1); // required for rate limiting testing
+app.use(rateLimiter); // for rate limiting
 
 // routes
 app.use('/lobby', lobbyRoutes);
