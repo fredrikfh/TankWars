@@ -2,6 +2,7 @@ package com.game.tankwars.controller;
 
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.net.HttpRequestBuilder;
+import com.badlogic.gdx.net.HttpStatus;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -49,14 +50,21 @@ public class LeaderboardController {
                 new Callback() {
                     @Override
                     public boolean onResult(Net.HttpResponse response) {
-                        if (response.getStatus().getStatusCode() == -1) return false;
+                        HttpStatus status = response.getStatus();
 
-                        Json json = new Json();
-                        // Convert the response body to an Array of User objects using the Json instance
-                        Array<User> leaderboardUsers = json.fromJson(Array.class, User.class, response.getResultAsString());
+                        if (status.getStatusCode() == 200) {
+                            Json json = new Json();
+                            // Convert the response body to an Array of User objects using the Json instance
+                            Array<User> leaderboardUsers = json.fromJson(Array.class, User.class, response.getResultAsString());
+                            screen.setLeaderBoard(leaderboardUsers);
+                            return true;
+                        } else if (status.getStatusCode() == 204) {
+                            Array<User> leaderboardUsers = new Array<>();
+                            screen.setLeaderBoard(leaderboardUsers);
+                            return true;
+                        }
 
-                        screen.setLeaderBoard(leaderboardUsers);
-                        return true;
+                        return false;
                     }
 
                     @Override
@@ -66,7 +74,7 @@ public class LeaderboardController {
                 },
                 new HttpRequestBuilder()
                         .newRequest()
-                        .url(String.format("%s/highscore", ConfigReader.getProperty("backend.url")))
+                        .url(String.format("%s/highscore/top10", ConfigReader.getProperty("backend.url")))
                         .method(Net.HttpMethods.GET)
                         .build())
                 .sendRequest();

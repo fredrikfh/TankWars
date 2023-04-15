@@ -200,12 +200,9 @@ public class FindGameController {
         new HTTPRequestHandler(new Callback() {
             @Override
             public boolean onResult(Net.HttpResponse response) {
-                if (response.getStatus().getStatusCode() == -1) return false;
-
                 HttpStatus status = response.getStatus();
 
-                if (status.getStatusCode() == HttpStatus.SC_CREATED ||
-                        status.getStatusCode() == HttpStatus.SC_OK) {
+                if (status.getStatusCode() == 200 || status.getStatusCode() == 201) {
                     removeMainListeners();
                     setWaitingWindowListeners();
 
@@ -214,7 +211,17 @@ public class FindGameController {
 
                     checkLobbyStatus();
                     return true;
+                } else if (status.getStatusCode() == 409) {
+                    removeMainListeners();
+                    setWaitingWindowListeners();
+
+                    gamePinWaitingLabel.setText("Game pin: " + lobbyId);
+                    screen.showWaitingWindow();
+                    return true;
+                } else if (status.getStatusCode() == 404 || status.getStatusCode() == 429) {
+                    System.err.println(response.getResultAsString());
                 }
+
                 return false;
             }
 
@@ -227,7 +234,7 @@ public class FindGameController {
                 .url(String.format("%s/lobby/%s/join", ConfigReader.getProperty("backend.url"), lobbyId))
                 .method(Net.HttpMethods.POST)
                 .header("Content-Type", "application/json")
-                .content(String.format("{\"userId\": \"%s\"}", CurrentUser.getCurrentUser().getUser().id))
+                .content(String.format("{\"username\": \"%s\"}", CurrentUser.getCurrentUser().getUser().username))
                 .build())
                 .sendRequest();
     }
@@ -243,26 +250,27 @@ public class FindGameController {
         new HTTPRequestHandler(new Callback() {
             @Override
             public boolean onResult(Net.HttpResponse response) {
-                if (response.getStatus().getStatusCode() == -1) return false;
-
                 HttpStatus status = response.getStatus();
 
-                if (status.getStatusCode() == HttpStatus.SC_OK && !response.getResultAsString().isEmpty()) {
+                if (status.getStatusCode() == 200 && !response.getResultAsString().isEmpty()) {
                     CurrentUser.getCurrentUser().setGameId(response.getResultAsString());
                     Gdx.app.postRunnable(gameScreenTransition);
                     return true;
+                } else if (status.getStatusCode() == 404) {
+
+                    System.out.println("Awaiting opponent...");
+
+                    try {
+                        Thread.sleep(1500);
+                    } catch (InterruptedException e) {
+                        System.out.println(e.getMessage());
+                    }
+
+                    if (lobbyId != null) checkLobbyStatus();
+                    return true;
                 }
 
-                System.out.println("Awaiting opponent...");
-
-                try {
-                    Thread.sleep(1500);
-                } catch (InterruptedException e) {
-                    System.out.println(e.getMessage());
-                }
-
-                if (lobbyId != null) checkLobbyStatus();
-                return true;
+                return false;
             }
 
             @Override
@@ -288,14 +296,16 @@ public class FindGameController {
         new HTTPRequestHandler(new Callback() {
             @Override
             public boolean onResult(Net.HttpResponse response) {
-                if (response.getStatus().getStatusCode() == -1) return false;
+                if (response.getStatus().getStatusCode() == 200) {
+                    removeWaitingWindowListeners();
+                    setMainListeners();
 
-                removeWaitingWindowListeners();
-                setMainListeners();
+                    lobbyId = null;
+                    screen.hideWaitingWindow();
+                    return true;
+                }
 
-                lobbyId = null;
-                screen.hideWaitingWindow();
-                return true;
+                return false;
             }
 
             @Override
@@ -307,7 +317,7 @@ public class FindGameController {
                 .url(String.format("%s/lobby/%s/leave", ConfigReader.getProperty("backend.url"), lobbyId))
                 .method(Net.HttpMethods.POST)
                 .header("Content-Type", "application/json")
-                .content(String.format("{\"userId\": \"%s\"}", CurrentUser.getCurrentUser().getUser().id))
+                .content(String.format("{\"username\": \"%s\"}", CurrentUser.getCurrentUser().getUser().username))
                 .build())
                 .sendRequest();
     }

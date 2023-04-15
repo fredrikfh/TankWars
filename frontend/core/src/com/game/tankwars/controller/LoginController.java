@@ -5,6 +5,7 @@ import static com.game.tankwars.model.CurrentUser.getCurrentUser;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.net.HttpRequestBuilder;
+import com.badlogic.gdx.net.HttpStatus;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -101,13 +102,20 @@ public class LoginController {
         new HTTPRequestHandler(new Callback() {
             @Override
             public boolean onResult(Net.HttpResponse response) {
-                if (response.getStatus().getStatusCode() == -1) return false;
+                HttpStatus status = response.getStatus();
 
-                Json json = new Json();
-                User user = json.fromJson(User.class, response.getResultAsString());
-                currentUser.setUser(user);
-                Gdx.app.postRunnable(mainMenuScreenTransition);
-                return true;
+                if (status.getStatusCode() == 201 || status.getStatusCode() == 409) {
+                    Json json = new Json();
+                    User user = json.fromJson(User.class, response.getResultAsString());
+
+                    if (user == null) return false;
+
+                    currentUser.setUser(user);
+                    Gdx.app.postRunnable(mainMenuScreenTransition);
+                    return true;
+                }
+
+                return false;
             }
 
             @Override
@@ -117,7 +125,7 @@ public class LoginController {
         }, new HttpRequestBuilder()
                 .newRequest()
                 .method(Net.HttpMethods.POST)
-                .url(ConfigReader.getProperty("backend.url") + "/user/create/" + username)
+                .url(ConfigReader.getProperty("backend.url") + "/user/" + username)
                 .build()
         ).sendRequest();
     }
