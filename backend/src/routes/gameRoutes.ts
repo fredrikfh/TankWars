@@ -107,7 +107,7 @@ router.post('/:gameid/move', gameController.move);
 
 /**
  * @swagger
- * /game/{id}/currentTurn:
+ * /game/{gameId}/gameState:
  *   post:
  *     tags: [Game]
  *     summary: Check current turn.
@@ -171,7 +171,7 @@ router.post('/:gameid/move', gameController.move);
  *                             tankType:
  *                               type: string
  */
-router.get('/:gameid/currentTurn', gameController.currentTurn);
+router.get('/:gameid/gameState', gameController.currentTurn);
 
 /**
  * @swagger
