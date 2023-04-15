@@ -43,6 +43,7 @@ public class Terrain {
 
         body = world.createBody(bodyDef);
         body.createFixture(fixtureDef);
+        body.getFixtureList().get(0).setUserData(new FixtureData("terrain"));
 
         chainShape.dispose();
     }

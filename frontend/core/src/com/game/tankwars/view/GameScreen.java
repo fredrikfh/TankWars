@@ -19,10 +19,12 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.game.tankwars.CollisionDetection;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.controller.GameController;
 import com.game.tankwars.model.Box2dWorld;
 import com.game.tankwars.model.Bullet;
+import com.game.tankwars.model.FixtureData;
 import com.game.tankwars.model.Tank;
 import com.game.tankwars.model.Terrain;
 
@@ -46,8 +48,10 @@ public class GameScreen implements Screen {
     OrthographicCamera hudCam;
     Box2DDebugRenderer debugRenderer;
     GameController controller;
+    CollisionDetection collisionDetection;
 
     private Bullet bullet;
+    private boolean bulletToDestroy = false;
 
     public GameScreen(final TankWarsGame tankWarsGame){
         this.tankWarsGame = tankWarsGame;
@@ -60,6 +64,9 @@ public class GameScreen implements Screen {
 
         model = new Box2dWorld();
         world = Box2dWorld.getWorld();
+
+        collisionDetection = new CollisionDetection();
+        world.setContactListener(collisionDetection);
 
         worldCam = new OrthographicCamera(scale(TankWarsGame.GAMEPORT_WIDTH), scale(TankWarsGame.GAMEPORT_HEIGHT));
         worldCam.position.set(scale(TankWarsGame.GAMEPORT_WIDTH)/2, scale(TankWarsGame.GAMEPORT_HEIGHT)/2, 0);
@@ -82,14 +89,16 @@ public class GameScreen implements Screen {
                 new Texture("camo-tank-barrel.png"),
                 terrain,
                 tankWarsGame, true,
-                120);
+                120,
+                "userTank");
         opponentTank = new Tank(opponentPos,
                 new Texture("camo-tank-1.png"),
                 new Texture("camo-tank-barrel.png"),
                 terrain,
                 tankWarsGame,
                 false,
-                225);
+                225,
+                "opponentTank");
 
         horizontalScaling = Gdx.graphics.getWidth() / TankWarsGame.GAMEPORT_WIDTH;
         verticalScaling = Gdx.graphics.getHeight() / TankWarsGame.GAMEPORT_HEIGHT;
@@ -104,6 +113,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         model.logicStep(Gdx.graphics.getDeltaTime());
+        model.destroyDeadBodies();
         Gdx.gl.glClearColor(0, 0, 100, 100);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         debugRenderer.render(world, worldCam.combined);
@@ -146,10 +156,17 @@ public class GameScreen implements Screen {
         terrain.draw(shapeRender);
         shapeRender.end();
         updateBullet();
+        if (checkBulletCollision()) {
+            Body body = this.bullet.getBody();
+            bullet.getBulletSprite().getTexture().dispose();
+            this.bullet = null;
+            model.addDeadBody(body);
+            System.out.println("Destroy body!");
+        }
 
         batch.begin();
-        if (bullet != (null)) {
-            bullet.getBulletSprite().draw(batch);
+        if (this.bullet != (null)) {
+            this.bullet.getBulletSprite().draw(batch);
         }
         myTank.getChassisSprite().draw(batch);
         myTank.getCannonSprite().draw(batch);
@@ -203,5 +220,18 @@ public class GameScreen implements Screen {
         if (bullet != (null)) {
             this.bullet = bullet;
         }
+    }
+
+    private boolean checkBulletCollision() {
+        if (this.bullet == null) {
+            return false;
+        }
+        try {
+            FixtureData data = (FixtureData) bullet.getBody().getFixtureList().get(0).getUserData();
+            return data.isHit();
+        } catch (IndexOutOfBoundsException e){
+            return false;
+        }
+
     }
 }

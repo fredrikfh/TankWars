@@ -45,7 +45,7 @@ public class Tank {
     int fuel = 150;
     int health = 100;
 
-    public Tank(int posInVertArr, Texture chassisTexture, Texture cannonTexture, Terrain terrain, TankWarsGame tankWarsGame, boolean directionLeft, float cannonAngle) {
+    public Tank(int posInVertArr, Texture chassisTexture, Texture cannonTexture, Terrain terrain, TankWarsGame tankWarsGame, boolean directionLeft, float cannonAngle, String id) {
         VIEWPORT_HEIGHT = tankWarsGame.getViewportHeight();
         VIEWPORT_WIDTH = tankWarsGame.getViewportWidth();
 
@@ -80,6 +80,7 @@ public class Tank {
         chassis = world.createBody(bodyDef);
         chassis.setUserData(chassisSprite);
         chassis.createFixture(fixtureDef);
+        chassis.getFixtureList().get(0).setUserData(new FixtureData(id));
         chassisSprite.scale(0.2f);
 
         //Cannon
