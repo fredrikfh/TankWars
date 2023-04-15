@@ -111,3 +111,25 @@ Backend (NTNU-VM):
   only:
     refs:
       - main
+
+VM Heartbeat:
+  stage: deploy
+  needs: [Backend (NTNU-VM)]
+  image: alpine
+  script:
+    - apk add --no-cache curl
+    - |
+      for i in {1..18}; do
+        sleep 10
+        response=$(curl --silent --write-out "%{http_code}" --connect-timeout 5 --max-time 10 http://10.212.26.72/server/heartbeat)
+        echo "Response: $response"
+        if [ "$response" -eq 200 ]; then
+          echo "Server is alive"
+          exit 0
+        fi
+      done
+      echo "Server did not respond with 200 OK after 3 minutes"
+      exit 1
+  only:
+    refs:
+      - main
