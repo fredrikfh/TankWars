@@ -90,7 +90,7 @@ Gradle-build:
   - ./gradlew build --refresh-dependencies
   - gradle build
 
-Backend (NTNU-VM):
+VM Deploy:
   image: node:16.10.0
   stage: deploy
   needs: [Typescript-compile, API-test]
@@ -114,14 +114,14 @@ Backend (NTNU-VM):
 
 VM Heartbeat:
   stage: deploy
-  needs: [Backend (NTNU-VM)]
+  needs: [VM Deploy]
   image: alpine
   script:
     - apk add --no-cache curl
     - |
       for i in {1..18}; do
         sleep 10
-        response=$(curl --silent --write-out "%{http_code}" --connect-timeout 5 --max-time 10 http://10.212.26.72/server/heartbeat)
+        response=$(curl --silent --write-out "%{http_code}\n" --output /dev/null --connect-timeout 5 --max-time 10 http://10.212.26.72/server/heartbeat)
         echo "Response: $response"
         if [ "$response" -eq 200 ]; then
           echo "Server is alive"
