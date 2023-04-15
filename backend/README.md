@@ -36,3 +36,7 @@ The VM utilizes Nodemon to automatically restart the server if a crash occurs.
 The backend is automatically tested by a Gitlab CI server for each commit.
 Formatter: `yarn prettier`
 e2e tests: `yarn test`
+
+## Restrictions
+
+The backend will only allow 15 requests per minute from the same IP address. This is to prevent abuse of the API.
