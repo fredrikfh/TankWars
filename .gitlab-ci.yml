@@ -10,6 +10,7 @@ cache:
   paths:
     - .m2/repository/
     - target/
+    - backend/node_modules/
     - .yarn
     - android-sdk/
     - .gradle/wrapper
@@ -34,6 +35,8 @@ Prettier:
     - npm i
     - npx prettier --check .
   retry: 1
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
 
 Typescript-compile:
   image: node:16.10.0
@@ -41,8 +44,10 @@ Typescript-compile:
   needs: []
   script:
       - cd backend
-      - yarn
+      - yarn --cache-folder ../.yarn
       - yarn tsc
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
 
 API-test:
   image: cypress/base:14.17.0
@@ -58,7 +63,7 @@ API-test:
       # - echo "export FB_PRIV_KEY_JSON_ENCODED=$FB_PRIV_KEY_JSON_ENCODED"
       - node keys/decode.js
       - chmod 400 keys/fb-key.json
-      - yarn
+      - yarn --cache-folder ../.yarn
       - yarn start:local & sleep 10
       - yarn test
   retry: 1
@@ -66,11 +71,9 @@ API-test:
     paths:
       - cypress/videos/*.mp4
     expire_in: 1 week # Set the artifact expiration time according to your needs
-  only:
-    refs:
-      - main
-
-
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_VM_HEARTBEAT == "true"'
 
 
 Gradle-build:
@@ -89,6 +92,8 @@ Gradle-build:
   - ./gradlew clean
   - ./gradlew build --refresh-dependencies
   - gradle build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "schedule"'
 
 VM Deploy:
   image: node:16.10.0
@@ -100,17 +105,14 @@ VM Deploy:
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan 10.212.26.72 >> ~/.ssh/known_hosts
     - ssh-keygen -p -f ~/.ssh/id_rsa
-
   environment:
     name: production
     url: http://10.212.26.72/
-
   script:
     - ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@10.212.26.72 -p 22 "bash /home/git/tdt4240-tank-wars/backend/vm.sh </dev/null >/dev/null 2>&1"
-    
-  only:
-    refs:
-      - main
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_VM_HEARTBEAT == "true"'
 
 VM Heartbeat:
   stage: deploy
