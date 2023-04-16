@@ -121,15 +121,16 @@ VM Heartbeat:
     - |
       for i in {1..18}; do
         sleep 10
-        response=$(curl --silent --write-out "%{http_code}\n" --output /dev/null --connect-timeout 5 --max-time 10 http://10.212.26.72/server/heartbeat)
-        echo "Response: $response"
-        if [ "$response" -eq 200 ]; then
-          echo "Server is alive"
+        response_code=$(curl --silent --write-out "%{http_code}\n" --output response.txt --connect-timeout 5 --max-time 10 http://10.212.26.72/server/heartbeat)
+        response_body=$(cat response.txt)
+        echo "Response code: $response_code"
+        echo "Response body: $response_body"
+        if [ "$response_code" -eq 200 ]; then
           exit 0
         fi
       done
       echo "Server did not respond with 200 OK after 3 minutes"
       exit 1
-  only:
-    refs:
-      - main
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_VM_HEARTBEAT == "true"'
