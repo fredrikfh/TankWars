@@ -276,7 +276,6 @@ public class FindGameController {
             @Override
             public void onFailed(Throwable t) {
                 System.err.println("Check lobby status request failed:\n" + t);
-                exitLobby();
             }
         }, new HttpRequestBuilder()
                 .newRequest()
