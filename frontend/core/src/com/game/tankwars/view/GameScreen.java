@@ -22,12 +22,14 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.game.tankwars.CollisionDetection;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.controller.GameController;
+import com.game.tankwars.controller.TerrainController;
 import com.game.tankwars.model.Box2dWorld;
 import com.game.tankwars.model.Bullet;
 import com.game.tankwars.model.FixtureData;
 import com.game.tankwars.model.Tank;
 import com.game.tankwars.model.Terrain;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GameScreen implements Screen {
@@ -49,6 +51,7 @@ public class GameScreen implements Screen {
     Box2DDebugRenderer debugRenderer;
     GameController controller;
     CollisionDetection collisionDetection;
+    TerrainController terrainController;
 
     private Bullet bullet;
     private boolean bulletToDestroy = false;
@@ -79,7 +82,7 @@ public class GameScreen implements Screen {
 
         debugRenderer = new Box2DDebugRenderer(true, true, true, true, true, true);
 
-        terrain = new Terrain();
+        terrainController = new TerrainController(this);
 
         int myPos = 50;
         int opponentPos = terrain.getVertices().length - 220;
@@ -176,6 +179,10 @@ public class GameScreen implements Screen {
 
         batch.setProjectionMatrix(hud.getStage().getCamera().combined);
         hud.getStage().draw();
+    }
+
+    public void setTerrain(Terrain terrain) {
+        this.terrain = terrain;
     }
 
     @Override

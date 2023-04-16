@@ -8,30 +8,34 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
+import com.game.tankwars.TankWarsGame;
+import com.game.tankwars.controller.TerrainController;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Terrain {
     World world;
     Body body;
-    final Vector2[] vertices;
-    Vector2 position;
+    TerrainController terrainController;
+    Vector2[] vertices;
+    ArrayList<Integer> seedArray;
 
-    public Terrain() {
+    public Terrain(ArrayList<Integer> seed) {
+        this.seedArray = seed;
 
         float xStart = -5;
         float xEnd = 100;
         float yMin = 5f;
         float yMax = 15;
-        int points = 10;
+        int points = seedArray.size();
         int vertNumber = 1000;
 
         this.world = Box2dWorld.getWorld();
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody;
 
-
-        vertices = new TerrainGenerator(xStart, xEnd, yMin, yMax, points).generateVertices(vertNumber);
+        vertices = new TerrainGenerator(xStart, xEnd, yMin, yMax, points, seedArray).generateVertices(vertNumber);
 
         ChainShape chainShape = new ChainShape();
         chainShape.createChain(vertices);
