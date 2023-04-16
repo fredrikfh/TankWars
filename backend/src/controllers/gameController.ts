@@ -12,7 +12,7 @@ const gameHandler = GameHandler.getInstance();
 // endpoint to get current gameId of a lobby
 export const gameId = async (req: Request, res: Response): Promise<void> => {
   const lobby = gameHandler.getLobbyById(parseInt(req.params.lobbyId));
-  if (lobby) {
+  if (lobby?.getGameId()) {
     res.status(200).send(lobby.getGameId());
   } else {
     res.status(404).send('Lobby does not have ongoing game');
