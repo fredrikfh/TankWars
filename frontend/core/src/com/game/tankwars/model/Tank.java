@@ -16,6 +16,8 @@ import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.game.tankwars.TankWarsGame;
 
+import java.util.Random;
+
 public class Tank {
     TankWarsGame tankWarsGame;
     public static final int TANK_WIDTH = 2;
@@ -31,6 +33,7 @@ public class Tank {
     private Texture cannonTexture;
     private Sprite chassisSprite;
     private Sprite cannonSprite;
+    private FixtureData fixtureData;
     World world;
     Body chassis;
     Body cannon;
@@ -80,7 +83,9 @@ public class Tank {
         chassis = world.createBody(bodyDef);
         chassis.setUserData(chassisSprite);
         chassis.createFixture(fixtureDef);
-        chassis.getFixtureList().get(0).setUserData(new FixtureData(id));
+
+        fixtureData = new FixtureData(id);
+        chassis.getFixtureList().get(0).setUserData(fixtureData);
         chassisSprite.scale(0.2f);
 
         //Cannon
@@ -94,6 +99,7 @@ public class Tank {
         cannon = world.createBody(bodyDef);
         cannon.setUserData(cannonSprite);
         cannon.createFixture(canonFixture);
+        cannon.getFixtureList().get(0).setUserData(new FixtureData("cannon"));
         shape.dispose();
         updateCannonPos();
         moveLeft();
@@ -161,6 +167,29 @@ public class Tank {
         if(cannonAngle < 270) {
             cannonAngle++;
         }
+    }
+
+        public boolean hasBeenHit() {
+            if (fixtureData.isHit()) {
+                System.out.println("Time to reduce points");
+                reduceHealth();
+                return true;
+            }
+            else  {
+                return false;
+            }
+        }
+
+    private void reduceHealth() {
+        Random random = new Random();
+        int reduction = random.nextInt(31) + 10;
+        this.health -= reduction;
+        fixtureData.resetHit();
+        System.out.println(health);
+    }
+
+    public int getHealth() {
+        return health;
     }
 
     public float getCannonAngle(){

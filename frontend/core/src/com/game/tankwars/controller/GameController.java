@@ -153,6 +153,15 @@ public class GameController {
 
     }
 
+    public boolean isGameOver() {
+        if (tank.getHealth() <= 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
 
     public boolean endPlayerTurn() {
         //System.out.println(tank.getPower());

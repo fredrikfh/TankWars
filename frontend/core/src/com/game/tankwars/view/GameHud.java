@@ -169,6 +169,14 @@ public class GameHud {
 
     public Button getAimDown() { return aimDown; }
 
+    public ProgressBar getHealthProgressBarOpponent() {
+        return healthProgressBarOpponent;
+    }
+
+    public ProgressBar getHealthProgressBarPlayer() {
+        return healthProgressBarPlayer;
+    }
+
     /**
      * Set visible health of player
      * @param health new health of player

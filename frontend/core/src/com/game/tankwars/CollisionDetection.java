@@ -34,12 +34,16 @@ public class CollisionDetection implements ContactListener {
         else if (dataA.getId().equals("opponentTank") && dataB.getId().equals("bullet")) {
             System.out.println("The bullet has hit the opponent's tank");
             dataB.hasCollided();
+            dataA.hasCollided();
         }
 
         else if (dataA.getId().equals("terrain") && dataB.getId().equals("bullet")) {
             System.out.println("The bullet has hit the ground!");
             dataB.hasCollided();
 
+        }
+        else {
+            return;
         }
     }
 
