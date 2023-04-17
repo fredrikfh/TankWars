@@ -252,8 +252,9 @@ public class FindGameController {
             public boolean onResult(Net.HttpResponse response) {
                 HttpStatus status = response.getStatus();
 
-                if (status.getStatusCode() == 200 && !response.getResultAsString().isEmpty()) {
-                    CurrentUser.getCurrentUser().setGameId(response.getResultAsString());
+                String gameIdResponse = response.getResultAsString();
+                if (status.getStatusCode() == 200 && !gameIdResponse.isEmpty()) {
+                    CurrentUser.getCurrentUser().setGameId(gameIdResponse);
                     Gdx.app.postRunnable(gameScreenTransition);
                     return true;
                 } else if (status.getStatusCode() == 404) {

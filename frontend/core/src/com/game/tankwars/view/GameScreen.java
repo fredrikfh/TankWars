@@ -110,7 +110,7 @@ public class GameScreen implements Screen {
 
         controller = new GameController(myTank, tankWarsGame, hud);
 
-        Gdx.input.setInputProcessor(hud.getStage());
+
         controller.handleHudEvents();
     }
     @Override
@@ -187,7 +187,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(hud.getStage());
     }
     @Override
     public void resize(int width, int height) {
@@ -206,7 +206,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void hide() {
-
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override

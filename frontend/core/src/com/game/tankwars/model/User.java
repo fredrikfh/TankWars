@@ -1,21 +1,63 @@
 package com.game.tankwars.model;
 
 public class User {
-    int games;
-    float highscore;
-    int losses;
-    public int wins;
+    public Integer games;
+    public Float highscore;
+    public Integer losses;
+    public Integer wins;
     public String username;
-    public String id;
+    private String id;
 
     public User() {
         // Initialize default values for the fields
-        games = 0;
-        highscore = 0.0f;
-        losses = 0;
-        wins = 0;
-        username = null;
-        id = null;
+    }
+
+    public Integer getGames() {
+        return games;
+    }
+
+    public void setGames(Integer games) {
+        this.games = games;
+    }
+
+    public Float getHighscore() {
+        return highscore;
+    }
+
+    public void setHighscore(Float highscore) {
+        this.highscore = highscore;
+    }
+
+    public Integer getLosses() {
+        return losses;
+    }
+
+    public void setLosses(Integer losses) {
+        this.losses = losses;
+    }
+
+    public Integer getWins() {
+        return wins;
+    }
+
+    public void setWins(Integer wins) {
+        this.wins = wins;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override

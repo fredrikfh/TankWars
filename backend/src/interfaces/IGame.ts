@@ -6,7 +6,7 @@ import { ITerrain } from './ITerrain';
 // interface for a game instance
 
 export interface IGame {
-  users: [User, IStats][];
+  users: Array<{ user: User; stats: IStats }>;
   currentTurn: number;
   lobby: ILobby;
   gameStatus: boolean;
@@ -35,7 +35,7 @@ export interface IGame {
   setGameStatus(status: boolean): void;
   toggleTurn(): void;
 
-  getUsers(): [User, IStats][];
+  getUsers(): Array<{ user: User; stats: IStats }>;
 
   getTerrain(): ITerrain;
   getLastActionTimeStamp(): number;

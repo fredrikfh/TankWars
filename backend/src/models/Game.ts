@@ -16,7 +16,7 @@ export class Game implements IGame {
   gameStatus: boolean;
   gameId: string;
   terrain: ITerrain;
-  users: [User, IStats][]; // left [0] and right [1] user
+  users: Array<{ user: User; stats: IStats }>; // left [0] and right [1] user
   lastActionTimeStamp: number;
 
   constructor(lobby: ILobby) {
@@ -27,20 +27,22 @@ export class Game implements IGame {
     this.lastActionTimeStamp = Date.now();
 
     // insert the lobby users into the game and create a new stats object for each user
-    this.users = lobby.getUsers().map((user) => [user, new Stats()]);
+    this.users = lobby.getUsers().map((user) => {
+      return { user: user, stats: new Stats() };
+    });
 
-    this.users[0][1].setPosition(100);
-    this.users[1][1].setPosition(900);
+    this.users[0].stats.setPosition(100);
+    this.users[1].stats.setPosition(900);
 
     // set the stats for the left and right user
     // todo add random tank type
-    this.users[0][1].setTankType('M107');
-    this.users[0][1].setTankDirection('left');
-    this.users[0][1].setIsMirrored(false); // this mirroring can also be done locally.
+    this.users[0].stats.setTankType('M107');
+    this.users[0].stats.setTankDirection('left');
+    this.users[0].stats.setIsMirrored(false); // this mirroring can also be done locally.
 
-    this.users[1][1].setTankType('M1A2');
-    this.users[1][1].setTankDirection('right');
-    this.users[1][1].setIsMirrored(true);
+    this.users[1].stats.setTankType('M1A2');
+    this.users[1].stats.setTankDirection('right');
+    this.users[1].stats.setIsMirrored(true);
 
     // make random number 0 or 1 to determine who starts
     this.currentTurn = Math.round(Math.random());
@@ -55,7 +57,7 @@ export class Game implements IGame {
     return this.terrain;
   }
 
-  getUsers(): [User, IStats][] {
+  getUsers(): Array<{ user: User; stats: IStats }> {
     return this.users;
   }
 
@@ -79,14 +81,14 @@ export class Game implements IGame {
     if (!this.isValidUserNumber(user)) {
       throw new Error('Unable to update score. Invalid userID.');
     }
-    this.users[user][1].setScore(score);
+    this.users[user].stats.setScore(score);
   }
 
   getScore(user: number): number {
     if (!this.isValidUserNumber(user)) {
       throw new Error('Unable to get score. Invalid userID.');
     }
-    return this.users[user][1].getScore();
+    return this.users[user].stats.getScore();
   }
 
   getWinner(): User {
@@ -95,9 +97,9 @@ export class Game implements IGame {
       throw new Error('Game is not finished');
     }
     if (this.getScore(0) > this.getScore(1)) {
-      return this.users[0][0];
+      return this.users[0].user;
     } else {
-      return this.users[1][0];
+      return this.users[1].user;
     }
   }
   getLoser(): User {
@@ -106,9 +108,9 @@ export class Game implements IGame {
       throw new Error('Game is not finished');
     }
     if (this.getScore(0) < this.getScore(1)) {
-      return this.users[0][0];
+      return this.users[0].user;
     } else {
-      return this.users[1][0];
+      return this.users[1].user;
     }
   }
 
@@ -141,7 +143,7 @@ export class Game implements IGame {
       if (checkProjectileHit(newGameState)) {
         // The user that was hit is the one not having the current turn
         const hitUserIndex = newGameState.currentTurn === 0 ? 1 : 0;
-        const hitUserStats = newGameState.users[hitUserIndex][1];
+        const hitUserStats = newGameState.users[hitUserIndex].stats;
 
         // Decrease health by 1 of the user that was hit
         const newHealth = hitUserStats.health - 1;
@@ -153,7 +155,7 @@ export class Game implements IGame {
 
         // Calculate new score
         const shooterUserIndex = newGameState.currentTurn;
-        const shooterUserStats = newGameState.users[shooterUserIndex][1];
+        const shooterUserStats = newGameState.users[shooterUserIndex].stats;
         // const currentScore = shooterUserStats.getScore();
 
         // TODO this will not be saved.
@@ -208,7 +210,7 @@ export class Game implements IGame {
   }
 
   getCurrentTurnUser(): User {
-    return this.users[this.currentTurn][0];
+    return this.users[this.currentTurn].user;
   }
 
   // make json object of the game state (to send to clients)

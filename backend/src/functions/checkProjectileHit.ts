@@ -8,15 +8,15 @@ export function checkProjectileHit(gameState: any): boolean {
   const bufferZone = 5;
 
   // get the current user
-  const currentUser = gameState.users[gameState.currentTurn][0];
-  const currentUserStats = gameState.users[gameState.currentTurn][1];
-  const currentUserPosition = gameState.users[gameState.currentTurn][1].position;
+  const currentUser = gameState.users[gameState.currentTurn].user;
+  const currentUserStats = gameState.users[gameState.currentTurn].stats;
+  const currentUserPosition = gameState.users[gameState.currentTurn].stats.position;
   const turretAngle = currentUserStats.turretAngle;
   const turretAngleInRadians = (turretAngle * Math.PI) / 180;
 
   // get the other user
-  const otherUser = gameState.users[gameState.currentTurn === 0 ? 1 : 0][0];
-  const otherUserStats = gameState.users[gameState.currentTurn === 0 ? 1 : 0][1];
+  const otherUser = gameState.users[gameState.currentTurn === 0 ? 1 : 0].user;
+  const otherUserStats = gameState.users[gameState.currentTurn === 0 ? 1 : 0].stats;
   const otherUserPosition = otherUserStats.position;
 
   const euclideanDistance = Math.sqrt(
