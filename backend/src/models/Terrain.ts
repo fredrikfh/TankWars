@@ -1,19 +1,22 @@
-import generateYValues from '../functions/TerrainGenerator';
+import generateYValues, { generateRandomNumbers } from '../functions/TerrainGenerator';
 import { ITerrain } from '../interfaces/ITerrain';
 
 export class Terrain implements ITerrain {
   yValues: number[];
-  maxY: number;
-  xPoints: number;
+  minValue: number;
+  maxValue: number;
+  n: number; // number of points to generate
 
-  constructor(maxY: number = 15, numValues: number = 1000) {
-    this.maxY = maxY;
-    this.xPoints = numValues;
+  constructor(minValue: number, maxValue: number, n: number) {
+    this.maxValue = maxValue;
+    this.minValue = minValue;
+    this.n = n;
     this.yValues = this.generate();
   }
 
   generate(): number[] {
-    return generateYValues(this.maxY, this.xPoints);
+    // return generateYValues(this.maxY, this.xPoints);
+    return generateRandomNumbers(this.n, this.minValue, this.maxValue);
   }
 
   getYValues(): number[] {

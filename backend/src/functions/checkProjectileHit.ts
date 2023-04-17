@@ -1,7 +1,14 @@
 import { IGame } from '../interfaces/IGame';
 import { log } from './console';
 
-// check if projectile hit a tank
+/**
+ * Legacy code: This function is not used in the current version of the game.
+ * It was used in the previous version of the game to check if a projectile hit a user.
+ * It is kept here for reference.
+ * Now this functionality is handled by the frontend/client.
+ * @param gameState
+ * @returns boolean
+ */
 export function checkProjectileHit(gameState: any): boolean {
   const projectileSpeed = 10; // TODO this should be included in the gameState
   const gravity = 9.81;
@@ -10,7 +17,7 @@ export function checkProjectileHit(gameState: any): boolean {
   // get the current user
   const currentUser = gameState.users[gameState.currentTurn].user;
   const currentUserStats = gameState.users[gameState.currentTurn].stats;
-  const currentUserPosition = gameState.users[gameState.currentTurn].stats.position;
+  const currentUserPosition = gameState.users[gameState.currentTurn].stats?.position;
   const turretAngle = currentUserStats.turretAngle;
   const turretAngleInRadians = (turretAngle * Math.PI) / 180;
 
