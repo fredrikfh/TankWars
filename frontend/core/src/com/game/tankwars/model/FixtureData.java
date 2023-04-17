@@ -23,4 +23,8 @@ public class FixtureData {
         return id;
     }
 
+    public void resetHit() {
+        this.collision = false;
+    }
+
 }

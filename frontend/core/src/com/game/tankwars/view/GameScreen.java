@@ -107,7 +107,6 @@ public class GameScreen implements Screen {
         verticalScaling = Gdx.graphics.getHeight() / TankWarsGame.GAMEPORT_HEIGHT;
 
         hud = new GameHud(new FitViewport(TankWarsGame.GAMEPORT_WIDTH, TankWarsGame.GAMEPORT_HEIGHT, hudCam), batch);
-
         controller = new GameController(myTank, tankWarsGame, hud);
 
         Gdx.input.setInputProcessor(hud.getStage());
@@ -166,6 +165,7 @@ public class GameScreen implements Screen {
             model.addDeadBody(body);
             System.out.println("Destroy body!");
         }
+        opponentTank.hasBeenHit();
 
         batch.begin();
         if (this.bullet != (null)) {
@@ -178,6 +178,8 @@ public class GameScreen implements Screen {
         batch.end();
 
         batch.setProjectionMatrix(hud.getStage().getCamera().combined);
+        hud.getHealthProgressBarOpponent().setValue(opponentTank.getHealth());
+        hud.getHealthProgressBarPlayer().setValue(myTank.getHealth());
         hud.getStage().draw();
     }
 
