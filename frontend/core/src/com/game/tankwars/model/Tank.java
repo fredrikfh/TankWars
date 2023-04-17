@@ -188,10 +188,6 @@ public class Tank {
         System.out.println(health);
     }
 
-    public int getHealth() {
-        return health;
-    }
-
     public float getCannonAngle(){
         return cannonAngle;
     }

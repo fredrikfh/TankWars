@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.net.HttpStatus;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -19,11 +20,13 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.badlogic.gdx.utils.SerializationException;
 import com.game.tankwars.Callback;
 import com.game.tankwars.ConfigReader;
 import com.game.tankwars.HTTPRequestHandler;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.Bullet;
+import com.game.tankwars.model.CurrentUser;
 import com.game.tankwars.model.GameState;
 import com.game.tankwars.model.Tank;
 import com.game.tankwars.model.User;
@@ -38,6 +41,7 @@ public class GameController {
     private TankWarsGame tankWarsGame;
 
     private GameHud hud;
+    private GameState gameState;
 
     private Tank tank;
 
@@ -53,17 +57,19 @@ public class GameController {
     private boolean gameStatus = false;
     private int currentTurn;
 
-    private User opponent;
+    private User currentUser, opponent;
     private Tank opponentTank;
 
     public GameController(Tank tank, TankWarsGame tankWarsGame, GameHud hud) {
+        this.currentUser = CurrentUser.getCurrentUser().getUser();
         this.hud = hud;
         this.tank = tank;
         this.tankWarsGame = tankWarsGame;
         this.touchPos = new Vector3();
 
         this.gameId = getCurrentUser().getGameId();
-        //fetchCurrentTurn();
+
+        fetchGameState();
         this.opponentTank = this.tank;
         hud.removeTurnContainer();
         hud.removeTurnInformationContainer();
@@ -193,12 +199,21 @@ public class GameController {
         // Convert the JSON object to a string
         GameState gameState = new GameState(gameId, gameStatus, currentTurn);
         Array<User> userArray = new Array<>();
-        userArray.add(currentUser);
-        userArray.add(opponent);
-
         Array<Tank> tankArray = new Array<>();
-        tankArray.add(tank);
-        tankArray.add(opponentTank);
+
+
+
+        if (CurrentUser.getCurrentUser().getTurnIndex() == 0) {
+            userArray.add(currentUser);
+            userArray.add(opponent);
+            tankArray.add(tank);
+            tankArray.add(opponentTank);
+        } else {
+            userArray.add(opponent);
+            userArray.add(currentUser);
+            tankArray.add(opponentTank);
+            tankArray.add(tank);
+        }
 
         gameState.setUsers(userArray, tankArray);
 
@@ -208,13 +223,15 @@ public class GameController {
 
         System.out.println(content);
 
-        currentTurn = currentTurn == 0 ? 1 : 0;
         new HTTPRequestHandler(new Callback() {
             @Override
             public boolean onResult(Net.HttpResponse response) {
                 if (response.getStatus().getStatusCode() == -1) return false;
                 System.out.println(response.getStatus().getStatusCode());
                 System.out.println(response.getResultAsString());
+
+
+                fetchGameState();
                 return true;
             }
 
@@ -240,13 +257,51 @@ public class GameController {
         return null;
     }
 
-    private void fetchCurrentTurn() {
+    private void fetchGameState() {
+        System.out.println("Fetch");
         new HTTPRequestHandler(new Callback() {
             @Override
             public boolean onResult(Net.HttpResponse response) {
-                if (response.getStatus().getStatusCode() == -1) return false;
-                opponent = new User();
-                return true;
+                HttpStatus status = response.getStatus();
+                String responseString = response.getResultAsString();
+
+                if (status.getStatusCode() == 200) {
+                    System.out.println("RESPONSE 200: " + responseString);
+
+                    try {
+                        GameState gs = new Json().fromJson(GameState.class, responseString);
+
+                        gameState = gs;
+                        System.out.println("Current turn: " + gameState.getCurrentTurn());
+                        currentTurn = gameState.getCurrentTurn();
+                        // TODO: Figure out of opponent is index 0 or 1
+                        User user1 = gameState.getUsers().get(0).getUser();
+                        User user2 = gameState.getUsers().get(1).getUser();
+
+                        if (user1.getUsername().equals(currentUser.getUsername())) {
+                            CurrentUser.getCurrentUser().setTurnIndex(0);
+                            opponent = user2;
+                        } else {
+                            CurrentUser.getCurrentUser().setTurnIndex(1);
+                            opponent = user1;
+                        }
+
+                        System.out.println("Opponent: " + opponent.getUsername());
+                    } catch (SerializationException e) {
+                        System.out.println(responseString);
+                        try {
+                            Thread.sleep(1000);
+                            fetchGameState();
+                        } catch (InterruptedException interruptException) {
+                            System.err.println(e.getMessage());
+                        }
+                    }
+                    return true;
+                } else if (status.getStatusCode() == 404) {
+                    System.out.println("RESPONSE 404: " + responseString);
+                }
+
+                return false;
             }
 
             @Override
@@ -255,10 +310,10 @@ public class GameController {
             }
         }, new HttpRequestBuilder()
                 .newRequest()
-                .url(ConfigReader.getProperty("backend.url") + "/" + gameId + "/currentTurn")
+                .url(ConfigReader.getProperty("backend.url") + "/game/" + gameId + "/gameState")
                 .method(Net.HttpMethods.POST)
                 .header("Content-Type", "application/json")
-                .content(String.format("{username: %s}", "getCurrentUser().getUser().username"))
+                .content(String.format("{\"username\": \"%s\"}", getCurrentUser().getUser().username))
                 .build()
         ).sendRequest();
     }

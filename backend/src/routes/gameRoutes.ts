@@ -171,7 +171,7 @@ router.post('/:gameid/move', gameController.move);
  *                             tankType:
  *                               type: string
  */
-router.get('/:gameid/gameState', gameController.currentTurn);
+router.post('/:gameid/gameState', gameController.currentTurn);
 
 /**
  * @swagger
