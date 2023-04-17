@@ -36,7 +36,7 @@ Prettier:
     - npx prettier --check .
   retry: 1
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+    - if: '($CI_PIPELINE_SOURCE == "push" || $CI_COMMIT_BRANCH == "main") && $CI_PIPELINE_SOURCE != "schedule"'
 
 Typescript-compile:
   image: node:16.10.0
@@ -47,7 +47,7 @@ Typescript-compile:
       - yarn --cache-folder ../.yarn
       - yarn tsc
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+    - if: '($CI_PIPELINE_SOURCE == "push" || $CI_COMMIT_BRANCH == "main") && $CI_PIPELINE_SOURCE != "schedule"'
 
 API-test:
   image: cypress/base:14.17.0
@@ -72,8 +72,7 @@ API-test:
       - cypress/videos/*.mp4
     expire_in: 1 week # Set the artifact expiration time according to your needs
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_VM_HEARTBEAT == "true"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
 
 
 Gradle-build:
@@ -93,7 +92,7 @@ Gradle-build:
   - ./gradlew build --refresh-dependencies
   - gradle build
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "schedule"'
+    - if: '($CI_PIPELINE_SOURCE == "push" || $CI_COMMIT_BRANCH == "main") && $CI_PIPELINE_SOURCE != "schedule"'
 
 VM Deploy:
   image: node:16.10.0
@@ -111,8 +110,7 @@ VM Deploy:
   script:
     - ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@10.212.26.72 -p 22 "bash /home/git/tdt4240-tank-wars/backend/vm.sh </dev/null >/dev/null 2>&1"
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_VM_HEARTBEAT == "true"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
 
 VM Heartbeat:
   stage: deploy
@@ -134,5 +132,4 @@ VM Heartbeat:
       echo "Server did not respond with 200 OK after 3 minutes"
       exit 1
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_VM_HEARTBEAT == "true"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "schedule"'

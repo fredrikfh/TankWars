@@ -1,8 +1,8 @@
 // class for handling game logic
 
 import { User } from '../../types/User';
-import { checkProjectileHit } from '../functions/checkProjectileHit';
 import { log } from '../functions/console';
+import validateGameState from '../functions/validateGameState';
 import { IGame } from '../interfaces/IGame';
 import { ILobby } from '../interfaces/ILobby';
 import { IStats } from '../interfaces/IStats';
@@ -23,7 +23,7 @@ export class Game implements IGame {
     this.lobby = lobby;
     this.gameStatus = false; // game not finished
     this.gameId = Math.random().toString(36);
-    this.terrain = new Terrain();
+    this.terrain = new Terrain(5, 15, 10);
     this.lastActionTimeStamp = Date.now();
 
     // insert the lobby users into the game and create a new stats object for each user
@@ -117,62 +117,15 @@ export class Game implements IGame {
   calculateNextGameState(newGameState: IGame): boolean {
     // verify that json is a valid IGame object
 
-    // compare the current game state with the new game state
-    if (newGameState.gameId !== this.gameId) {
-      log('Game ID mismatch');
+    // verify that gameStates are valid
+    if (!validateGameState(this, newGameState)) {
+      log("Game state is not valid. Can't update game state.");
       return false;
     }
 
-    if (newGameState.gameStatus !== this.gameStatus) {
-      log('Game status mismatch');
-      return false;
-    }
+    this.setGameState(newGameState);
+    this.toggleTurn();
 
-    if (newGameState.users.length !== this.users.length) {
-      log('User length mismatch');
-      return false;
-    }
-
-    // check if a projectile was fired (we assume that the projectile is always fired by the current user)
-    if (
-      true
-      // this.getUsers()[this.getCurrentTurn()][1].getAmmunition() !==
-      // newGameState.getUsers()[newGameState.getCurrentTurn()][1].getAmmunition()
-    ) {
-      // check if projectile hit a tank (use the turret angle and the tank position)
-      if (checkProjectileHit(newGameState)) {
-        // The user that was hit is the one not having the current turn
-        const hitUserIndex = newGameState.currentTurn === 0 ? 1 : 0;
-        const hitUserStats = newGameState.users[hitUserIndex].stats;
-
-        // Decrease health by 1 of the user that was hit
-        const newHealth = hitUserStats.health - 1;
-        hitUserStats.health = newHealth;
-
-        // If health is 0, set health to 0 and set tank destroyed to true
-        const tankDestroyed = newHealth <= 0;
-        hitUserStats.health = tankDestroyed ? 0 : newHealth;
-
-        // Calculate new score
-        const shooterUserIndex = newGameState.currentTurn;
-        const shooterUserStats = newGameState.users[shooterUserIndex].stats;
-        // const currentScore = shooterUserStats.getScore();
-
-        // TODO this will not be saved.
-        // If tank destroyed, add 100 points to the score
-        // If tank not destroyed, add 10 points to the score
-        // const scoreIncrease = tankDestroyed ? 100 : 10;
-        // shooterUserStats.setScore(currentScore + scoreIncrease);
-
-        // if tank is destroyed, end the game
-        if (tankDestroyed) {
-          newGameState.gameStatus = false;
-        }
-      }
-
-      this.setGameState(newGameState);
-      this.toggleTurn();
-    }
     log('Game state updated for game ' + this.gameId);
     return true;
   }

@@ -1,6 +1,14 @@
+import slopePreview from './console';
+
 const { createNoise2D } = require('simplex-noise');
 
-function generateYValues(maxY: number, numValues: number): number[] {
+/**
+ * Creates a more realistic terrain by generating a random number of points and interpolating between them.
+ * @param maxY The max height of the terrain
+ * @param numValues The number of points to generate
+ * @returns An array of y-values
+ */
+export default function generateYValues(maxY: number, numValues: number): number[] {
   const yValues: number[] = [];
   const noiseScale = 0.0025;
 
@@ -13,8 +21,25 @@ function generateYValues(maxY: number, numValues: number): number[] {
     const y = maxY * (0.5 + 0.5 * noiseValue); // Scale and shift the noise value to fit in the [0, maxY] range
     yValues.push(y);
   }
+  // slopePreview(yValues, maxY, 40, 20);
 
   return yValues;
 }
 
-export default generateYValues;
+/**
+ * Generates an array of random numbers.
+ * @param n number of points to generate
+ * @param min minumum value
+ * @param max maximum value
+ * @returns array of random numbers
+ */
+export function generateRandomNumbers(n: number, min: number, max: number): number[] {
+  const randomNumbers: number[] = [];
+
+  for (let i = 0; i < n; i++) {
+    const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    randomNumbers.push(randomNumber);
+  }
+
+  return randomNumbers;
+}

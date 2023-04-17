@@ -12,7 +12,7 @@ describe('Game Test', () => {
     cy.genericRequest('GET', `/game/${lobby}`, 200, '');
   });
 
-  it('Can get currentTurn', () => {
+  it('Can get game-id from a lobby', () => {
     cy.request({
       method: 'GET',
       url: `${Cypress.config('baseUrl')}/game/${lobby}`,
