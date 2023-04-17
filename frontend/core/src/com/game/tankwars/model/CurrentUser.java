@@ -5,6 +5,7 @@ public class CurrentUser {
     private User user;
     private static CurrentUser INSTANCE;
     private String gameId;
+    private int turnIndex;
 
     private CurrentUser() {
     }
@@ -17,6 +18,14 @@ public class CurrentUser {
     }
     public User getUser() {
         return user;
+    }
+
+    public int getTurnIndex() {
+        return turnIndex;
+    }
+
+    public void setTurnIndex(int turnIndex) {
+        this.turnIndex = turnIndex;
     }
 
     public String getGameId() { return gameId; }
