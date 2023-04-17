@@ -232,4 +232,8 @@ public class Tank {
 
     }
 
+    public int getHealth() {
+        return health;
+    }
+
 }
