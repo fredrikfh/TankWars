@@ -14,6 +14,8 @@ export interface IStats {
   setPosition(position: number): void;
   getTurretAngle(): number;
   setTurretAngle(turretAngle: number): void;
+  getPower(): number;
+  setPower(power: number): void;
   getIsMirrored(): boolean;
   setIsMirrored(isMirrored: boolean): void;
   getHealth(): number;

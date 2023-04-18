@@ -28,13 +28,14 @@ public class GameState {
 
             Tank tank = tanks.get(i);
             GameStateTank gameStateTank = new GameStateTank(
-                    tank.getPosition().x,
+                    tank.getPosInVertArr(),
                     tank.getCannonAngle(),
+                    tank.getPower(),
                     tank.getHealth(),
                     0,
                     0,
                     true,
-                    "direction",
+                    tank.directionLeft ? "left" : "right",
                     "tankType"
             );
             User user = users.get(i);

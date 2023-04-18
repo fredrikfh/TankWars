@@ -5,6 +5,7 @@ export class Stats implements IStats {
   turretAngle: number;
   isMirrored: boolean;
   health: number;
+  power: number;
   ammunition: number;
   tankDirection: string;
   tankType: string;
@@ -13,6 +14,7 @@ export class Stats implements IStats {
   constructor() {
     this.position = 0;
     this.turretAngle = 0;
+    this.power = 0;
     this.health = 100;
     this.ammunition = 100;
     this.score = 0;
@@ -36,6 +38,14 @@ export class Stats implements IStats {
 
   setTurretAngle(turretAngle: number): void {
     this.turretAngle = turretAngle;
+  }
+
+  getPower(): number {
+    return this.power;
+  }
+
+  setPower(power: number): void {
+    this.power = power;
   }
 
   getIsMirrored(): boolean {

@@ -3,125 +3,114 @@ package com.game.tankwars.controller;
 import static com.game.tankwars.model.CurrentUser.getCurrentUser;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Net;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.net.HttpRequestBuilder;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.net.HttpStatus;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.SerializationException;
 import com.game.tankwars.Callback;
 import com.game.tankwars.ConfigReader;
 import com.game.tankwars.HTTPRequestHandler;
 import com.game.tankwars.TankWarsGame;
+import com.game.tankwars.model.Box2dWorld;
 import com.game.tankwars.model.Bullet;
 import com.game.tankwars.model.CurrentUser;
 import com.game.tankwars.model.GameState;
 import com.game.tankwars.model.Tank;
+import com.game.tankwars.model.Terrain;
 import com.game.tankwars.model.User;
 import com.game.tankwars.view.GameHud;
-
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
+import com.game.tankwars.view.MainMenuScreen;
 
 public class GameController {
 
-    private TankWarsGame tankWarsGame;
+    private final TankWarsGame tankWarsGame;
 
-    private GameHud hud;
+    private final GameHud hud;
+    private final Box2dWorld model;
     private GameState gameState;
 
-    private Tank tank;
-
     private Bullet bullet;
-    private Vector3 touchPos;
 
     private boolean moveRightTouched;
     private boolean moveLeftTouched;
     private boolean aimUpTouched;
     private boolean aimDownTouched;
 
-    private String gameId;
-    private boolean gameStatus = false;
-    private int currentTurn;
+    private final String gameId;
+    private boolean gameStatus = false, hasWon = false, gameEnded = false, activeAnimation = false;
+    private int currentTurn, turnIndex;
 
-    private User currentUser, opponent;
-    private Tank opponentTank;
+    private final User currentUser;
+    private User opponent;
 
-    public GameController(Tank tank, TankWarsGame tankWarsGame, GameHud hud) {
-        this.currentUser = CurrentUser.getCurrentUser().getUser();
-        this.hud = hud;
-        this.tank = tank;
+    private final Tank tank1, tank2;
+    private ChangeListener fireChangeListener, powerSliderChangeListener;
+    private InputListener moveRightInputListener, moveLeftInputListener, aimUpInputListener, aimDownInputListener;
+
+    public GameController(TankWarsGame tankWarsGame, GameHud hud, Terrain terrain, Box2dWorld model) {
         this.tankWarsGame = tankWarsGame;
-        this.touchPos = new Vector3();
+        this.hud = hud;
+        this.model = model;
 
-        this.gameId = getCurrentUser().getGameId();
+        currentUser = CurrentUser.getCurrentUser().getUser();
+        gameId = getCurrentUser().getGameId();
+        currentTurn = -1;
+
+        tank1 = new Tank(50,
+                new Texture("camo-tank-1.png"),
+                new Texture("camo-tank-barrel.png"),
+                terrain,
+                false,
+                120,
+                "tank1");
+        tank2 = new Tank(terrain.getVertices().length - 220,
+                new Texture("camo-tank-1.png"),
+                new Texture("camo-tank-barrel.png"),
+                terrain,
+                true,
+                225,
+                "tank2");
+
+        hud.showTurnInformationContainer();
+        hud.showOpponentTurnLabel();
 
         fetchGameState();
-        this.opponentTank = this.tank;
-        hud.removeTurnContainer();
-        hud.removeTurnInformationContainer();
+
+        defineEventListeners();
     }
 
-    public void checkKeyInput(Tank tank){
-        if(aimUpTouched) {
-            tank.rotateCannonLeft();
-        }
-        else if (aimDownTouched) {
-            tank.rotateCannonRight();
-        }
-
-        if(moveRightTouched) {
-            tank.moveRight();
-        }
-        else if(moveLeftTouched) {
-            tank.moveLeft();
-        }
-
-        // TODO: remove turn container when it is your turn and have clicked screen
-        /*if(Gdx.input.isTouched() && !hud.isTurnContainerVisible()) {
-            hud.showTurnContainer();
-        }
-
-        if(Gdx.input.isTouched() && hud.isTurnContainerVisible()) {
-            hud.removeTurnContainer();
-        }*/
-    }
-
-    public void handleHudEvents() {
-        hud.getFireButton().addListener(new ChangeListener() {
+    private void defineEventListeners() {
+        /*
+         * Fire a bullet according to tank position and turret angle, and then end turn
+         */
+        fireChangeListener = new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
-                bullet = new Bullet(tank);
-                float power = hud.getPowerSlider().getValue();
-                bullet.shoot(power);
-                //actor.setTouchable(Touchable.disabled);
-                // TODO: send turn  to server + enable touchable when it is players turn
+                bullet = new Bullet(getCurrentTank());
+                bullet.shoot(getCurrentTank().getPower());
+
                 endPlayerTurn();
             }
-        });
+        };
 
-        hud.getPowerSlider().addListener(new ChangeListener() {
+        /*
+         * Set the power with which the bullet will be fired by using the HUD slider
+         */
+        powerSliderChangeListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-
-                //System.out.println(hud.getPowerSlider().getValue());
-                tank.setPower(Math.round(hud.getPowerSlider().getValue()));
+                getCurrentTank().setPower(Math.round(hud.getPowerSlider().getValue()));
             }
-        });
+        };
 
-        hud.getMoveLeft().addListener(new InputListener() {
+        moveLeftInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 moveLeftTouched = true;
@@ -132,40 +121,9 @@ public class GameController {
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 moveLeftTouched = false;
             }
-        });
+        };
 
-        hud.getAimUp().addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Aim up start");
-                aimUpTouched = true;
-                return true;
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Aim up stop");
-                aimUpTouched = false;
-            }
-        });
-
-        hud.getAimDown().addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Aim down start");
-                aimDownTouched = true;
-                return true;
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("Aim down stop");
-                aimDownTouched = false;
-            }
-        });
-
-
-        hud.getMoveRight().addListener(new InputListener() {
+        moveRightInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 moveRightTouched = true;
@@ -176,89 +134,113 @@ public class GameController {
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 moveRightTouched = false;
             }
-        });
-    }
+        };
 
-    public boolean isGameOver() {
-        if (tank.getHealth() <= 0) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-
-    public boolean endPlayerTurn() {
-        //System.out.println(tank.getPower());
-        //System.out.println(tank.getPosition());
-        // end turn for player and send data to server
-
-        User currentUser = getCurrentUser().getUser();
-
-        // Convert the JSON object to a string
-        GameState gameState = new GameState(gameId, gameStatus, currentTurn);
-        Array<User> userArray = new Array<>();
-        Array<Tank> tankArray = new Array<>();
-
-
-
-        if (CurrentUser.getCurrentUser().getTurnIndex() == 0) {
-            userArray.add(currentUser);
-            userArray.add(opponent);
-            tankArray.add(tank);
-            tankArray.add(opponentTank);
-        } else {
-            userArray.add(opponent);
-            userArray.add(currentUser);
-            tankArray.add(opponentTank);
-            tankArray.add(tank);
-        }
-
-        gameState.setUsers(userArray, tankArray);
-
-        Json json = new Json();
-        json.setOutputType(JsonWriter.OutputType.json);
-        String content = json.toJson(gameState);
-
-        System.out.println(content);
-
-        new HTTPRequestHandler(new Callback() {
+        aimUpInputListener = new InputListener() {
             @Override
-            public boolean onResult(Net.HttpResponse response) {
-                if (response.getStatus().getStatusCode() == -1) return false;
-                System.out.println(response.getStatus().getStatusCode());
-                System.out.println(response.getResultAsString());
-
-
-                fetchGameState();
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                aimUpTouched = true;
                 return true;
             }
 
             @Override
-            public void onFailed(Throwable t) {
-                System.err.println(t);
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                aimUpTouched = false;
             }
-        }, new HttpRequestBuilder()
-                .newRequest()
-                .url(ConfigReader.getProperty("backend.url") + "/game/" + gameId + "/move")
-                .method(Net.HttpMethods.POST)
-                .header("Content-Type", "application/json")
-                .content(content)
-                .build()
-        ).sendRequest();
-        return true;
+        };
+
+        aimDownInputListener = new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                aimDownTouched = true;
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                aimDownTouched = false;
+            }
+        };
     }
 
-    public Bullet getBullet() {
-        if (bullet != null) {
-            return bullet;
+
+    /**
+     * Handle input requiring polling, such as aiming, moving the tank,
+     * and checking for removal of on-screen banners.
+     */
+    public void checkKeyInput(){
+        if (aimUpTouched) getCurrentTank().rotateCannonCounterClockwise();
+        else if (aimDownTouched) getCurrentTank().rotateCannonClockwise();
+
+        if (moveRightTouched) getCurrentTank().moveRight();
+        else if (moveLeftTouched) getCurrentTank().moveLeft();
+
+        if (Gdx.input.justTouched()) {
+            if (gameStatus && !gameEnded) {
+                gameEnded = true;
+                endGame();
+            } else if (isCurrentTurn() && !activeAnimation) {
+                hud.removeTurnInformationContainer();
+                hud.removeTurnContainer();
+            }
         }
-        return null;
     }
+
+    public void setTurnListeners() {
+        hud.getFireButton().addListener(fireChangeListener);
+        hud.getPowerSlider().addListener(powerSliderChangeListener);
+
+        hud.getMoveLeft().addListener(moveLeftInputListener);
+        hud.getMoveRight().addListener(moveRightInputListener);
+
+        hud.getAimUp().addListener(aimUpInputListener);
+        hud.getAimDown().addListener(aimDownInputListener);
+    }
+
+    public void removeTurnListeners() {
+        hud.getFireButton().removeListener(fireChangeListener);
+        hud.getPowerSlider().removeListener(powerSliderChangeListener);
+
+        hud.getMoveLeft().removeListener(moveLeftInputListener);
+        hud.getMoveRight().removeListener(moveRightInputListener);
+
+        hud.getAimUp().removeListener(aimUpInputListener);
+        hud.getAimDown().removeListener(aimDownInputListener);
+    }
+
+
+    public void checkGameOver() {
+        if (!gameStatus && getCurrentTank().getHealth() <= 0) {
+            hud.showLoserBanner();
+        } else if (!gameStatus && getOpponentTank().getHealth() <= 0) {
+            hasWon = true;
+            hud.showWinBanner();
+        } else return;
+
+        gameStatus = true;
+        removeTurnListeners();
+    }
+
+    private void startNewTurn() {
+        setTurnListeners();
+        hud.showTurnInformationContainer();
+        hud.showYourTurnLabel();
+        getCurrentTank().resetFuel();
+    }
+
+    public void animateOpponentTank() {
+        if (activeAnimation) {
+            if (getOpponentTank().autoMove() || getOpponentTank().autoRotateCannon()) return;
+            if (getOpponentTank().autoFireBullet(model)) return;
+            getCurrentTank().checkBeenHit();
+
+            activeAnimation = false;
+            startNewTurn();
+        }
+    }
+
 
     private void fetchGameState() {
-        System.out.println("Fetch");
         new HTTPRequestHandler(new Callback() {
             @Override
             public boolean onResult(Net.HttpResponse response) {
@@ -269,33 +251,37 @@ public class GameController {
                     System.out.println("RESPONSE 200: " + responseString);
 
                     try {
-                        GameState gs = new Json().fromJson(GameState.class, responseString);
+                        gameState = new Json().fromJson(GameState.class, responseString);
 
-                        gameState = gs;
-                        System.out.println("Current turn: " + gameState.getCurrentTurn());
-                        currentTurn = gameState.getCurrentTurn();
-                        // TODO: Figure out of opponent is index 0 or 1
                         User user1 = gameState.getUsers().get(0).getUser();
                         User user2 = gameState.getUsers().get(1).getUser();
 
                         if (user1.getUsername().equals(currentUser.getUsername())) {
-                            CurrentUser.getCurrentUser().setTurnIndex(0);
+                            turnIndex = 0;
                             opponent = user2;
                         } else {
-                            CurrentUser.getCurrentUser().setTurnIndex(1);
+                            turnIndex = 1;
                             opponent = user1;
                         }
 
-                        System.out.println("Opponent: " + opponent.getUsername());
+                        int oldCurrentTurn = currentTurn;
+                        currentTurn = gameState.getCurrentTurn();
+
+                        if (oldCurrentTurn != -1) {
+                            getOpponentTank().update(gameState.getUsers()
+                                    .get(turnIndex == 0 ? 1 : 0).getStats());
+                            activeAnimation = isCurrentTurn();
+                        } else startNewTurn();
                     } catch (SerializationException e) {
-                        System.out.println(responseString);
                         try {
-                            Thread.sleep(1000);
-                            fetchGameState();
+                            Thread.sleep(2500);
                         } catch (InterruptedException interruptException) {
-                            System.err.println(e.getMessage());
+                            System.err.println(interruptException.getMessage());
                         }
+
+                        fetchGameState();
                     }
+
                     return true;
                 } else if (status.getStatusCode() == 404) {
                     System.out.println("RESPONSE 404: " + responseString);
@@ -316,5 +302,134 @@ public class GameController {
                 .content(String.format("{\"username\": \"%s\"}", getCurrentUser().getUser().username))
                 .build()
         ).sendRequest();
+    }
+
+    public void endPlayerTurn() {
+        GameState gameState = new GameState(gameId, gameStatus, currentTurn);
+        Array<User> userArray = new Array<>();
+        Array<Tank> tankArray = new Array<>();
+        tankArray.add(tank1);
+        tankArray.add(tank2);
+
+        if (turnIndex == 0) {
+            userArray.add(currentUser);
+            userArray.add(opponent);
+        } else {
+            userArray.add(opponent);
+            userArray.add(currentUser);
+        }
+
+        gameState.setUsers(userArray, tankArray);
+        String content = new Json(JsonWriter.OutputType.json).toJson(gameState);
+
+        currentTurn = currentTurn == 0 ? 1 : 0;
+        removeTurnListeners();
+        hud.showTurnInformationContainer();
+        hud.showOpponentTurnLabel();
+
+        new HTTPRequestHandler(new Callback() {
+            @Override
+            public boolean onResult(Net.HttpResponse response) {
+                HttpStatus status = response.getStatus();
+                String responseString = response.getResultAsString();
+
+                if (status.getStatusCode() == 200) {
+                    System.out.println(responseString); // TODO: Remove sysout
+                    fetchGameState();
+                    return true;
+                } else if (status.getStatusCode() == 400 || status.getStatusCode() == 404) {
+                    System.err.println(responseString);
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onFailed(Throwable t) {
+                System.err.println(t);
+            }
+        }, new HttpRequestBuilder()
+                .newRequest()
+                .url(ConfigReader.getProperty("backend.url") + "/game/" + gameId + "/move")
+                .method(Net.HttpMethods.POST)
+                .header("Content-Type", "application/json")
+                .content(content)
+                .build()
+        ).sendRequest();
+    }
+
+    public void endGame() {
+        System.out.println("End game");
+
+        currentUser.incrementGames();
+        if (hasWon) {
+            currentUser.incrementWins();
+            currentUser.increaseHighscore((float) getCurrentTank().getHealth());
+        } else currentUser.incrementLosses();
+
+        String content = new Json(JsonWriter.OutputType.json).toJson(currentUser, User.class);
+
+        new HTTPRequestHandler(new Callback() {
+            @Override
+            public boolean onResult(Net.HttpResponse response) {
+                HttpStatus status = response.getStatus();
+                String responseString = response.getResultAsString();
+
+                if (status.getStatusCode() == 200) {
+                    System.out.println(responseString);
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
+                        }
+                    });
+
+                    return true;
+                } else if (status.getStatusCode() == 400 && status.getStatusCode() == 404) {
+                    System.err.println(responseString);
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public void onFailed(Throwable t) {
+                System.err.println(t);
+            }
+        }, new HttpRequestBuilder()
+                .newRequest()
+                .url(ConfigReader.getProperty("backend.url") + "/user/" + currentUser.getUsername() + "/highscore")
+                .method(Net.HttpMethods.POST)
+                .header("Content-Type", "application/json")
+                .content(content)
+                .build()
+        ).sendRequest();
+    }
+
+
+    public Bullet getBullet() {
+        return bullet != null ? bullet : null;
+    }
+
+    public Tank getTank1() {
+        return tank1;
+    }
+
+    public Tank getTank2() {
+        return tank2;
+    }
+
+    public Tank getCurrentTank() {
+        return turnIndex == 0 ? tank1 : tank2;
+    }
+
+    public Tank getOpponentTank() {
+        return turnIndex == 0 ? tank2 : tank1;
+    }
+
+    public boolean isCurrentTurn() {
+        return currentTurn == turnIndex;
     }
 }
