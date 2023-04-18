@@ -26,7 +26,7 @@ public class Box2dWorld {
     public void destroyDeadBodies() {
         if (deadBodies.size > 0) {
             for (Body b : deadBodies) {
-                world.destroyBody(b);
+                if (b.isActive()) world.destroyBody(b);
             }
             deadBodies.clear();
         }

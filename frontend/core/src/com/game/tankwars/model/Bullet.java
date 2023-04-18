@@ -26,7 +26,7 @@ public class Bullet {
     private float angle;
     private boolean collision = false;
 
-    public Bullet(Tank tank) {
+    public Bullet(Tank tank, String id) {
         this.tank = tank;
         this.angle = tank.getCannonAngle();
         world = Box2dWorld.getWorld();
@@ -41,7 +41,7 @@ public class Bullet {
         fixtureDef.restitution = 0.0f;
         fixtureDef.friction = 1f;
         body.createFixture(fixtureDef);
-        body.getFixtureList().get(0).setUserData(new FixtureData("bullet"));
+        body.getFixtureList().get(0).setUserData(new FixtureData(id));
 
 
         shape.dispose();

@@ -1,6 +1,6 @@
 package com.game.tankwars.model;
 
-public class GameStateTank {
+public class Stats {
     float position;
     Integer turretAngle;
     Integer power;
@@ -11,11 +11,11 @@ public class GameStateTank {
     String tankDirection;
     String tankType;
 
-    public GameStateTank() {
+    public Stats() {
 
     }
 
-    public GameStateTank(float position, int turretAngle, int power, int health, int ammunition, int score, boolean isMirrored, String tankDirection, String tankType) {
+    public Stats(float position, int turretAngle, int power, int health, int ammunition, int score, boolean isMirrored, String tankDirection, String tankType) {
         this.position = position;
         this.turretAngle = turretAngle;
         this.power = power;
@@ -25,6 +25,18 @@ public class GameStateTank {
         this.isMirrored = isMirrored;
         this.tankDirection = tankDirection;
         this.tankType = tankType;
+    }
+
+    /**
+     * Update relevant fields from the values of a Tank instance.
+     *
+     * @param tank Tank whose data is used to update the Stats instance
+     */
+    public void update(Tank tank) {
+        position = tank.getPosInVertArr();
+        turretAngle = tank.getCannonAngle();
+        power = tank.getPower();
+        health = tank.getHealth();
     }
 
     public float getPosition() {

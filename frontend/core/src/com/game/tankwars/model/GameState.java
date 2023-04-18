@@ -2,9 +2,6 @@ package com.game.tankwars.model;
 
 import com.badlogic.gdx.utils.Array;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GameState {
     String gameId;
 
@@ -23,11 +20,11 @@ public class GameState {
         this.users = new Array<>();
     }
 
-    public void setUsers(Array<User> users, Array<Tank> tanks) {
-        for (int i = 0; i < users.size; i++) {
+    public void setUsers(User[] users, Tank[] tanks) {
+        for (int i = 0; i < users.length; i++) {
 
-            Tank tank = tanks.get(i);
-            GameStateTank gameStateTank = new GameStateTank(
+            Tank tank = tanks[i];
+            Stats stats = new Stats(
                     tank.getPosInVertArr(),
                     tank.getCannonAngle(),
                     tank.getPower(),
@@ -38,8 +35,8 @@ public class GameState {
                     tank.directionLeft ? "left" : "right",
                     "tankType"
             );
-            User user = users.get(i);
-            this.users.add(new UserTank(user, gameStateTank));
+            User user = users[i];
+            this.users.add(new UserTank(user, stats));
         }
     }
 

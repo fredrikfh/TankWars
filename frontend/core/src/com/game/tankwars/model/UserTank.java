@@ -2,15 +2,15 @@ package com.game.tankwars.model;
 
 public class UserTank {
     User user;
-    GameStateTank stats;
+    Stats stats;
 
     public UserTank() {
 
     }
 
-    public UserTank(User user, GameStateTank tank) {
+    public UserTank(User user, Stats stats) {
         this.user = user;
-        this.stats = tank;
+        this.stats = stats;
     }
 
     public User getUser() {
@@ -21,11 +21,11 @@ public class UserTank {
         this.user = user;
     }
 
-    public GameStateTank getStats() {
+    public Stats getStats() {
         return stats;
     }
 
-    public void setStats(GameStateTank stats) {
+    public void setStats(Stats stats) {
         this.stats = stats;
     }
 }
