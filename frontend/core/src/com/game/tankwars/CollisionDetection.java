@@ -25,25 +25,23 @@ public class CollisionDetection implements ContactListener {
         Fixture fixB = contact.getFixtureB();
         FixtureData dataA = (FixtureData) fixA.getUserData();
         FixtureData dataB = (FixtureData) fixB.getUserData();
-        // TODO: Error when same bullet is added twice
-        if (dataA.getId().equals("tank1") && dataB.getId().equals("bullet")) {
+
+        if (dataA.getId().equals("tank1") && dataB.getId().equals("bullet2")) {
             System.out.println("The bullet has hit tank 1");
             dataB.hasCollided();
+            dataA.hasCollided();
         }
 
-        else if (dataA.getId().equals("tank2") && dataB.getId().equals("bullet")) {
+        else if (dataA.getId().equals("tank2") && dataB.getId().equals("bullet1")) {
             System.out.println("The bullet has hit tank 2");
             dataB.hasCollided();
             dataA.hasCollided();
         }
 
-        else if (dataA.getId().equals("terrain") && dataB.getId().equals("bullet")) {
+        else if (dataA.getId().equals("terrain") && dataB.getId().startsWith("bullet")) {
             System.out.println("The bullet has hit the ground!");
             dataB.hasCollided();
 
-        }
-        else {
-            return;
         }
     }
 

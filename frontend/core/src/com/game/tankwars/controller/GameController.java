@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.SerializationException;
@@ -45,7 +44,7 @@ public class GameController {
     private boolean aimDownTouched;
 
     private final String gameId;
-    private boolean gameStatus = false, hasWon = false, gameEnded = false, activeAnimation = false;
+    private boolean gameStatus = false, hasWon = false, gameEnded = false, gameStarted = false, activeAnimation = false;
     private int currentTurn, turnIndex;
 
     private final User currentUser;
@@ -93,7 +92,8 @@ public class GameController {
          */
         fireChangeListener = new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
-                bullet = new Bullet(getCurrentTank());
+                String bulletId = getCurrentTank().getId().equals("tank1") ? "bullet1" : "bullet2";
+                bullet = new Bullet(getCurrentTank(), bulletId);
                 bullet.shoot(getCurrentTank().getPower());
 
                 endPlayerTurn();
@@ -179,7 +179,7 @@ public class GameController {
             if (gameStatus && !gameEnded) {
                 gameEnded = true;
                 endGame();
-            } else if (isCurrentTurn() && !activeAnimation) {
+            } else if (!gameStatus && isCurrentTurn() && !activeAnimation) {
                 hud.removeTurnInformationContainer();
                 hud.removeTurnContainer();
             }
@@ -208,17 +208,19 @@ public class GameController {
         hud.getAimDown().removeListener(aimDownInputListener);
     }
 
-
     public void checkGameOver() {
         if (!gameStatus && getCurrentTank().getHealth() <= 0) {
+            gameStatus = true;
+            endPlayerTurn();
+            hud.removeTurnInformationContainer();
             hud.showLoserBanner();
         } else if (!gameStatus && getOpponentTank().getHealth() <= 0) {
             hasWon = true;
+            gameStatus = true;
+            endPlayerTurn();
+            hud.removeTurnInformationContainer();
             hud.showWinBanner();
-        } else return;
-
-        gameStatus = true;
-        removeTurnListeners();
+        }
     }
 
     private void startNewTurn() {
@@ -240,21 +242,33 @@ public class GameController {
     }
 
 
+    private void initializeGameState() {
+        gameState = new GameState(gameId, gameStatus, currentTurn);
+        Tank[] tankArray = new Tank[]{tank1, tank2};
+
+        User[] userArray = new User[2];
+        userArray[turnIndex] = currentUser;
+        userArray[(turnIndex + 1) % 2] = opponent;
+
+        gameState.setUsers(userArray, tankArray);
+    }
+
     private void fetchGameState() {
         new HTTPRequestHandler(new Callback() {
             @Override
             public boolean onResult(Net.HttpResponse response) {
                 HttpStatus status = response.getStatus();
                 String responseString = response.getResultAsString();
+                if (gameStatus) return true;
 
                 if (status.getStatusCode() == 200) {
                     System.out.println("RESPONSE 200: " + responseString);
 
                     try {
-                        gameState = new Json().fromJson(GameState.class, responseString);
+                        GameState newGameState = new Json().fromJson(GameState.class, responseString);
 
-                        User user1 = gameState.getUsers().get(0).getUser();
-                        User user2 = gameState.getUsers().get(1).getUser();
+                        User user1 = newGameState.getUsers().get(0).getUser();
+                        User user2 = newGameState.getUsers().get(1).getUser();
 
                         if (user1.getUsername().equals(currentUser.getUsername())) {
                             turnIndex = 0;
@@ -265,13 +279,23 @@ public class GameController {
                         }
 
                         int oldCurrentTurn = currentTurn;
-                        currentTurn = gameState.getCurrentTurn();
+                        currentTurn = newGameState.getCurrentTurn();
 
                         if (oldCurrentTurn != -1) {
-                            getOpponentTank().update(gameState.getUsers()
+                            if (!newGameState.getGameStatus()) activeAnimation = isCurrentTurn();
+                            getOpponentTank().update(newGameState.getUsers()
                                     .get(turnIndex == 0 ? 1 : 0).getStats());
-                            activeAnimation = isCurrentTurn();
-                        } else startNewTurn();
+                        } else {
+                            initializeGameState();
+                            if (gameStarted) {
+                                activeAnimation = isCurrentTurn();
+                                getOpponentTank().update(newGameState.getUsers()
+                                        .get(turnIndex == 0 ? 1 : 0).getStats());
+                            } else {
+                                gameStarted = true;
+                                startNewTurn();
+                            }
+                        }
                     } catch (SerializationException e) {
                         try {
                             Thread.sleep(2500);
@@ -279,7 +303,8 @@ public class GameController {
                             System.err.println(interruptException.getMessage());
                         }
 
-                        fetchGameState();
+                        if (currentTurn == -1) gameStarted = true;
+                        if (!gameEnded) fetchGameState();
                     }
 
                     return true;
@@ -305,27 +330,17 @@ public class GameController {
     }
 
     public void endPlayerTurn() {
-        GameState gameState = new GameState(gameId, gameStatus, currentTurn);
-        Array<User> userArray = new Array<>();
-        Array<Tank> tankArray = new Array<>();
-        tankArray.add(tank1);
-        tankArray.add(tank2);
+        if (gameState == null) { fetchGameState(); return; }
 
-        if (turnIndex == 0) {
-            userArray.add(currentUser);
-            userArray.add(opponent);
-        } else {
-            userArray.add(opponent);
-            userArray.add(currentUser);
-        }
-
-        gameState.setUsers(userArray, tankArray);
+        gameState.setCurrentTurn(currentTurn);
+        gameState.getUsers().get(turnIndex).getStats().update(getCurrentTank());
+        gameState.getUsers().get((turnIndex + 1) % 2).getStats().update(getOpponentTank());
         String content = new Json(JsonWriter.OutputType.json).toJson(gameState);
 
         currentTurn = currentTurn == 0 ? 1 : 0;
-        removeTurnListeners();
         hud.showTurnInformationContainer();
         hud.showOpponentTurnLabel();
+        removeTurnListeners();
 
         new HTTPRequestHandler(new Callback() {
             @Override
@@ -335,7 +350,7 @@ public class GameController {
 
                 if (status.getStatusCode() == 200) {
                     System.out.println(responseString); // TODO: Remove sysout
-                    fetchGameState();
+                    if (!gameStatus) fetchGameState();
                     return true;
                 } else if (status.getStatusCode() == 400 || status.getStatusCode() == 404) {
                     System.err.println(responseString);

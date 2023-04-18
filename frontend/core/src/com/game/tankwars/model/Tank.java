@@ -84,14 +84,14 @@ public class Tank {
     /**
      * Update certain fields from a GameStateTank instance containing data for an opponent tank.
      * Deactivate fuel limit to avoid errors when max fuel levels differ between tanks.
-     * @param gameStateTank GameStateTank containing relevant update data
+     * @param stats GameStateTank containing relevant update data
      */
-    public void update(GameStateTank gameStateTank) {
+    public void update(Stats stats) {
         hasFuelLimit = false;
-        this.newPosInVertArr = (int) gameStateTank.getPosition();
-        this.newCannonAngle = gameStateTank.getTurretAngle();
-        this.power = gameStateTank.getPower();
-        this.health = gameStateTank.getHealth();
+        this.newPosInVertArr = (int) stats.getPosition();
+        this.newCannonAngle = stats.getTurretAngle();
+        this.power = stats.getPower();
+        this.health = stats.getHealth();
     }
 
     public void moveRight() { move(1); }
@@ -110,8 +110,8 @@ public class Tank {
         float angle = new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleRad();
 
         if ((!hasFuelLimit || fuel > 0) &&
-                chassis.getPosition().x <= TankWarsGame.GAMEPORT_WIDTH/TankWarsGame.SCALE - TANK_WIDTH &&
-                chassis.getPosition().x >= TANK_WIDTH) {
+                ((dirUnit > 0 && chassis.getPosition().x < TankWarsGame.GAMEPORT_WIDTH/TankWarsGame.SCALE - TANK_WIDTH) ||
+                (dirUnit < 0 && chassis.getPosition().x > TANK_WIDTH))) {
             position.set(newPos);
             chassis.setTransform(newPos.x, newPos.y + 0.11f, angle);
             chassisSprite.setRotation(angle);
@@ -174,7 +174,6 @@ public class Tank {
      *         {@code false} if done moving cannon
      */
     public boolean autoRotateCannon() {
-        System.out.println(newCannonAngle - cannonAngle);
         if (newCannonAngle != cannonAngle) {
             if (newCannonAngle - cannonAngle < 0) rotateCannonClockwise();
             else rotateCannonCounterClockwise();
@@ -193,7 +192,8 @@ public class Tank {
      */
     public boolean autoFireBullet(Box2dWorld model) {
         if (bullet == null) {
-            bullet = new Bullet(this);
+            String bulletId = getId().equals("tank1") ? "bullet1" : "bullet2";
+            bullet = new Bullet(this, bulletId);
             bullet.shoot(power);
         }
 
@@ -212,6 +212,10 @@ public class Tank {
         Vector2 curPos = vertices[posInVertArr];
         Vector2 newPos = vertices[posInVertArr + 1];
         return new Vector2(newPos.x - curPos.x, newPos.y - curPos.y).angleDeg();
+    }
+
+    public String getId() {
+        return fixtureData.getId();
     }
 
     public int getPower() { return power; }
