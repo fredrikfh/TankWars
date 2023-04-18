@@ -60,6 +60,22 @@ public class User {
         this.id = id;
     }
 
+    public void incrementGames() {
+        games += 1;
+    }
+
+    public void incrementWins() {
+        wins += 1;
+    }
+
+    public void incrementLosses() {
+        losses += 1;
+    }
+
+    public void increaseHighscore(float highscore) {
+        this.highscore += highscore;
+    }
+
     @Override
     public String toString() {
         return "User {" +

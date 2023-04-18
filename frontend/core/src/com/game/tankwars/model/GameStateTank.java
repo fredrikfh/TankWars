@@ -2,7 +2,8 @@ package com.game.tankwars.model;
 
 public class GameStateTank {
     float position;
-    float turretAngle;
+    Integer turretAngle;
+    Integer power;
     Integer health;
     Integer ammunition;
     Integer score;
@@ -14,9 +15,10 @@ public class GameStateTank {
 
     }
 
-    public GameStateTank(float position, float turretAngle, int health, int ammunition, int score, boolean isMirrored, String tankDirection, String tankType) {
+    public GameStateTank(float position, int turretAngle, int power, int health, int ammunition, int score, boolean isMirrored, String tankDirection, String tankType) {
         this.position = position;
         this.turretAngle = turretAngle;
+        this.power = power;
         this.health = health;
         this.ammunition = ammunition;
         this.score = score;
@@ -33,12 +35,20 @@ public class GameStateTank {
         this.position = position;
     }
 
-    public float getTurretAngle() {
+    public Integer getTurretAngle() {
         return turretAngle;
     }
 
-    public void setTurretAngle(float turretAngle) {
+    public void setTurretAngle(Integer turretAngle) {
         this.turretAngle = turretAngle;
+    }
+
+    public Integer getPower() {
+        return power;
+    }
+
+    public void setPower(Integer power) {
+        this.power = power;
     }
 
     public Integer getHealth() {

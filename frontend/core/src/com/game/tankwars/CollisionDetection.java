@@ -25,14 +25,14 @@ public class CollisionDetection implements ContactListener {
         Fixture fixB = contact.getFixtureB();
         FixtureData dataA = (FixtureData) fixA.getUserData();
         FixtureData dataB = (FixtureData) fixB.getUserData();
-
-        if (dataA.getId().equals("userTank") && dataB.getId().equals("bullet")) {
-            System.out.println("The bullet has hit the player's tank");
+        // TODO: Error when same bullet is added twice
+        if (dataA.getId().equals("tank1") && dataB.getId().equals("bullet")) {
+            System.out.println("The bullet has hit tank 1");
             dataB.hasCollided();
         }
 
-        else if (dataA.getId().equals("opponentTank") && dataB.getId().equals("bullet")) {
-            System.out.println("The bullet has hit the opponent's tank");
+        else if (dataA.getId().equals("tank2") && dataB.getId().equals("bullet")) {
+            System.out.println("The bullet has hit tank 2");
             dataB.hasCollided();
             dataA.hasCollided();
         }

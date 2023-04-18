@@ -16,7 +16,7 @@ public class FixtureData {
     }
 
     public boolean isHit() {
-        return collision ? true : false;
+        return collision;
     }
 
     public String getId() {

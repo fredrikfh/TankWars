@@ -1,19 +1,12 @@
 package com.game.tankwars.view;
 
-import static com.game.tankwars.model.CurrentUser.getCurrentUser;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -29,9 +22,6 @@ import com.game.tankwars.model.FixtureData;
 import com.game.tankwars.model.Tank;
 import com.game.tankwars.model.Terrain;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class GameScreen implements Screen {
     final TankWarsGame tankWarsGame;
     int VIEWPORT_WIDTH;
@@ -40,8 +30,8 @@ public class GameScreen implements Screen {
     int verticalScaling;
     SpriteBatch batch;
     ShapeRenderer shapeRender;
-    Tank myTank;
-    Tank opponentTank;
+    Tank tank1;
+    Tank tank2;
     GameHud hud;
     Box2dWorld model;
     World world;
@@ -84,33 +74,13 @@ public class GameScreen implements Screen {
 
         terrainController = new TerrainController(this);
 
-        int myPos = 50;
-        int opponentPos = terrain.getVertices().length - 220;
-
-        myTank = new Tank(myPos,
-                new Texture("camo-tank-1.png"),
-                new Texture("camo-tank-barrel.png"),
-                terrain,
-                tankWarsGame, true,
-                120,
-                "userTank");
-        opponentTank = new Tank(opponentPos,
-                new Texture("camo-tank-1.png"),
-                new Texture("camo-tank-barrel.png"),
-                terrain,
-                tankWarsGame,
-                false,
-                225,
-                "opponentTank");
-
         horizontalScaling = Gdx.graphics.getWidth() / TankWarsGame.GAMEPORT_WIDTH;
         verticalScaling = Gdx.graphics.getHeight() / TankWarsGame.GAMEPORT_HEIGHT;
 
         hud = new GameHud(new FitViewport(TankWarsGame.GAMEPORT_WIDTH, TankWarsGame.GAMEPORT_HEIGHT, hudCam), batch);
-        controller = new GameController(myTank, tankWarsGame, hud);
-
-
-        controller.handleHudEvents();
+        controller = new GameController(tankWarsGame, hud, terrain, model);
+        tank1 = controller.getTank1();
+        tank2 = controller.getTank2();
     }
     @Override
     public void render(float delta) {
@@ -121,7 +91,8 @@ public class GameScreen implements Screen {
         debugRenderer.render(world, worldCam.combined);
         shapeRender.setProjectionMatrix(worldCam.combined);
 
-        controller.checkKeyInput(myTank);
+        controller.checkKeyInput();
+        controller.animateOpponentTank();
 
         //controller.handleTouchInput(worldCam);
 
@@ -136,21 +107,21 @@ public class GameScreen implements Screen {
             if (s != null) {
                 s.setPosition(b.getPosition().x * (float) TankWarsGame.SCALE - s.getWidth() / 2,
                         (b.getPosition().y * (float) TankWarsGame.SCALE) - s.getHeight()/2);
-                if (s.equals(myTank.getChassisSprite())) {
+                if (s.equals(tank1.getChassisSprite())) {
                     s.setOrigin(s.getWidth() / 2, s.getHeight());
-                    s.setRotation(myTank.getAngle());
+                    s.setRotation(tank1.getTankAngle());
                 }
-                if (s.equals(opponentTank.getChassisSprite())) {
+                if (s.equals(tank2.getChassisSprite())) {
                     s.setOrigin(s.getWidth() / 2, s.getHeight());
-                    s.setRotation(opponentTank.getAngle());
+                    s.setRotation(tank2.getTankAngle());
                 }
-                if (s.equals(myTank.getCannonSprite())) {
+                if (s.equals(tank1.getCannonSprite())) {
                     s.setOrigin(s.getWidth() / 2, s.getHeight());
-                    s.setRotation(myTank.getCannonAngle());
+                    s.setRotation(tank1.getCannonAngle());
                 }
-                if (s.equals(opponentTank.getCannonSprite())) {
+                if (s.equals(tank2.getCannonSprite())) {
                     s.setOrigin(s.getWidth() / 2 , s.getHeight());
-                    s.setRotation(opponentTank.getCannonAngle());
+                    s.setRotation(tank2.getCannonAngle());
                 }
             }
         }
@@ -165,21 +136,23 @@ public class GameScreen implements Screen {
             model.addDeadBody(body);
             System.out.println("Destroy body!");
         }
-        opponentTank.hasBeenHit();
+        controller.getOpponentTank().checkBeenHit();
 
         batch.begin();
         if (this.bullet != (null)) {
             this.bullet.getBulletSprite().draw(batch);
         }
-        myTank.getChassisSprite().draw(batch);
-        myTank.getCannonSprite().draw(batch);
-        opponentTank.getChassisSprite().draw(batch);
-        opponentTank.getCannonSprite().draw(batch);
+        tank1.getChassisSprite().draw(batch);
+        tank1.getCannonSprite().draw(batch);
+        tank2.getChassisSprite().draw(batch);
+        tank2.getCannonSprite().draw(batch);
         batch.end();
 
+        controller.checkGameOver();
+
         batch.setProjectionMatrix(hud.getStage().getCamera().combined);
-        hud.getHealthProgressBarOpponent().setValue(opponentTank.getHealth());
-        hud.getHealthProgressBarPlayer().setValue(myTank.getHealth());
+        hud.getHealthProgressBarOpponent().setValue(tank2.getHealth());
+        hud.getHealthProgressBarPlayer().setValue(tank1.getHealth());
         hud.getStage().draw();
     }
 
@@ -209,12 +182,15 @@ public class GameScreen implements Screen {
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
+        dispose();
     }
 
     @Override
     public void dispose() {
-        myTank.getChassisTexture().dispose();
-        myTank.getCannonTexture().dispose();
+        tank1.getChassisSprite().getTexture().dispose();
+        tank1.getCannonSprite().getTexture().dispose();
+        tank2.getChassisSprite().getTexture().dispose();
+        tank2.getCannonSprite().getTexture().dispose();
         hud.getStage().dispose();
         batch.dispose();
         shapeRender.dispose();
@@ -243,4 +219,5 @@ public class GameScreen implements Screen {
         }
 
     }
+
 }
