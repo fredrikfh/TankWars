@@ -52,7 +52,7 @@ public class GameController {
 
     private final Tank tank1, tank2;
     private ChangeListener fireChangeListener, powerSliderChangeListener;
-    private InputListener moveRightInputListener, moveLeftInputListener, aimUpInputListener, aimDownInputListener;
+    private InputListener leaveInputListener, moveRightInputListener, moveLeftInputListener, aimUpInputListener, aimDownInputListener;
 
     public GameController(TankWarsGame tankWarsGame, GameHud hud, Terrain terrain, Box2dWorld model) {
         this.tankWarsGame = tankWarsGame;
@@ -81,12 +81,19 @@ public class GameController {
         hud.showTurnInformationContainer();
         hud.showOpponentTurnLabel();
 
-        fetchGameState();
+        // fetchGameState();
 
         defineEventListeners();
     }
 
     private void defineEventListeners() {
+        leaveInputListener = new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                System.out.println("asdfasdfsdfdsafasdfs");
+                return true;
+            }
+        };
+
         /*
          * Fire a bullet according to tank position and turret angle, and then end turn
          */
@@ -126,6 +133,7 @@ public class GameController {
         moveRightInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                System.out.println("asdfasfsadf");
                 moveRightTouched = true;
                 return true;
             }
@@ -187,6 +195,8 @@ public class GameController {
     }
 
     public void setTurnListeners() {
+        hud.getLeaveLabel().addListener(leaveInputListener);
+
         hud.getFireButton().addListener(fireChangeListener);
         hud.getPowerSlider().addListener(powerSliderChangeListener);
 
@@ -198,6 +208,8 @@ public class GameController {
     }
 
     public void removeTurnListeners() {
+        hud.getLeaveLabel().removeListener(leaveInputListener);
+
         hud.getFireButton().removeListener(fireChangeListener);
         hud.getPowerSlider().removeListener(powerSliderChangeListener);
 

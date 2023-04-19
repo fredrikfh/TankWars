@@ -29,6 +29,8 @@ public class GameHud {
 
     private Skin skin;
 
+    private Label leaveLabel;
+
     private ProgressBar healthProgressBarPlayer;
     private ProgressBar healthProgressBarOpponent;
 
@@ -64,6 +66,8 @@ public class GameHud {
 
         skin = ResourceManager.getInstance().loadAndGetGameplayHudAssets();
 
+        leaveLabel = new Label("X", skin.get("large-red", Label.LabelStyle.class));
+
         healthProgressBarPlayer = new ProgressBar(0, 100, 1, false, skin);
         healthProgressBarPlayer.setValue(100);
         healthProgressBarOpponent = new ProgressBar(0, 100, 1, false, skin);
@@ -74,13 +78,14 @@ public class GameHud {
         HpOpponentWrapper.setOrigin(HpOpponentWrapper.getPrefWidth() / 2, HpOpponentWrapper.getPrefHeight() / 2);
         HpOpponentWrapper.setRotation(180);
 
-        turnLabel = new Label("It's your turn!", skin.get("large-white", Label.LabelStyle.class));
-        turnInformationLabel = new Label("Touch screen to start your turn.", skin.get("regular-white", Label.LabelStyle.class));
-
-        table.add(healthProgressBarPlayer).expand().top().left().padTop(10).padLeft(10);
-        table.add(HpOpponentWrapper).colspan(2).top().right().padTop(10).padRight(10);
+        table.add(leaveLabel).expand().top().left().padTop(10).padLeft(10);
+        table.add(healthProgressBarPlayer).expand().top().left().padTop(10);
+        table.add(HpOpponentWrapper).expand().top().right().padTop(10).padRight(10);
 
         table.row();
+
+        turnLabel = new Label("It's your turn!", skin.get("large-white", Label.LabelStyle.class));
+        turnInformationLabel = new Label("Touch screen to start your turn.", skin.get("regular-white", Label.LabelStyle.class));
 
         turnContainer = new Container(turnLabel);
         turnInformationContainer = new Container(turnInformationLabel);
@@ -147,6 +152,10 @@ public class GameHud {
 
     public Skin getSkin() {
         return skin;
+    }
+
+    public Label getLeaveLabel() {
+        return leaveLabel;
     }
 
     public TextButton getFireButton() {
