@@ -40,7 +40,6 @@ public class MainMenuScreen extends InputAdapter implements Screen {
     public void show() {
         stage = new Stage(new ExtendViewport(tankWarsGame.getViewportWidth(), tankWarsGame.getViewportHeight()), new SpriteBatch());
         Gdx.input.setInputProcessor(stage);
-
         Skin skin = ResourceManager.getInstance().loadAndGetMenuAssets();
 
         Image background = new Image(skin.getDrawable("camo-background-landscape"));

@@ -97,6 +97,7 @@ public class FindGameController {
         backButtonInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetButton2Sound().play();
                 tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
                 return true;
             }
@@ -143,6 +144,7 @@ public class FindGameController {
         joinLobbyButtonInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetButton1Sound().play();
                 if (joinLobbyButton.isDisabled()) return true;
 
                 joinLobby();
@@ -157,6 +159,7 @@ public class FindGameController {
         cancelButtonInputListener = new InputListener() {
           @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              ResourceManager.getInstance().loadAndGetButton2Sound().play();
               exitLobby();
               return true;
           }

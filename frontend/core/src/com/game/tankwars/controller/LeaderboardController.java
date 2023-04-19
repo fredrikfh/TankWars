@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Json;
 import com.game.tankwars.Callback;
 import com.game.tankwars.ConfigReader;
 import com.game.tankwars.HTTPRequestHandler;
+import com.game.tankwars.ResourceManager;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.User;
 import com.game.tankwars.view.LeaderboardScreen;
@@ -38,6 +39,7 @@ public class LeaderboardController {
         backButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetButton2Sound().play();
                 tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
                 return true;
             }

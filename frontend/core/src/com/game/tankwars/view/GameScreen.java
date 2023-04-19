@@ -81,6 +81,7 @@ public class GameScreen implements Screen {
         controller = new GameController(tankWarsGame, hud, terrain, model);
         tank1 = controller.getTank1();
         tank2 = controller.getTank2();
+
     }
     @Override
     public void render(float delta) {
