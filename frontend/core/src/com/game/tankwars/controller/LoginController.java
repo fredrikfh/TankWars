@@ -61,6 +61,7 @@ public class LoginController {
         loginButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetButton1Sound().play();
                 fetchUser(usernameField.getText());
                 return true;
             }

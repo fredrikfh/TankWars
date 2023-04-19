@@ -1,7 +1,9 @@
 package com.game.tankwars;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -24,6 +26,38 @@ public class ResourceManager {
             new AssetDescriptor<>("menu-textures.json", Skin.class);
     private final AssetDescriptor<Skin> GAMEPLAY_SKIN =
             new AssetDescriptor<>("gameplay-skin.json", Skin.class);
+
+    /**
+     * Defines the sound assets used in the game, found at path: assets/sounds
+     */
+    private final AssetDescriptor<Sound> BUTTON1_SOUND =
+            new AssetDescriptor<>("sounds/button-1.mp3", Sound.class);
+    private final AssetDescriptor<Sound> BUTTON2_SOUND =
+            new AssetDescriptor<>("sounds/button-2.mp3", Sound.class);
+    private final AssetDescriptor<Sound> CANNONSHOT_SOUND =
+            new AssetDescriptor<>("sounds/cannon-shot.mp3", Sound.class);
+    private final AssetDescriptor<Sound> DRIVING_SOUND =
+            new AssetDescriptor<>("sounds/driving-tank.mp3", Sound.class);
+    private final AssetDescriptor<Sound> GAMESTART_SOUND =
+            new AssetDescriptor<>("sounds/game-start.mp3", Sound.class);
+    private final AssetDescriptor<Sound> HITGROUND_SOUND =
+            new AssetDescriptor<>("sounds/hit-ground.mp3", Sound.class);
+    private final AssetDescriptor<Sound> HITTANK_SOUND =
+            new AssetDescriptor<>("sounds/hit-tank.mp3", Sound.class);
+    private final AssetDescriptor<Sound> LOSS_SOUND =
+            new AssetDescriptor<>("sounds/loss.mp3", Sound.class);
+    private final AssetDescriptor<Sound> MENUTHEME_SOUND =
+            new AssetDescriptor<>("sounds/menu-theme.mp3", Sound.class);
+    private final AssetDescriptor<Sound> ROTATETURRET_SOUND =
+            new AssetDescriptor<>("sounds/rotate-turret.mp3", Sound.class);
+    private final AssetDescriptor<Sound> VICTORY_SOUND =
+            new AssetDescriptor<>("sounds/victory-tank.mp3", Sound.class);
+
+    /**
+     * Boolean flag checking if main theme is playing
+     */
+    private boolean menuThemeIsPlaying = false;
+
 
     public ResourceManager() {
         manager = new AssetManager();
@@ -76,6 +110,143 @@ public class ResourceManager {
         return null;
     }
 
+    /*
+    * Loads sounds used in the application, both in menus and in gameplay
+    * Returns the correct Sound-class instance
+    *
+    */
+    public Sound loadAndGetButton1Sound(){
+        if (!manager.isLoaded(BUTTON1_SOUND)) manager.load(BUTTON1_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(BUTTON1_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetButton2Sound(){
+        if (!manager.isLoaded(BUTTON2_SOUND)) manager.load(BUTTON2_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(BUTTON2_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetCannonShotSound(){
+        if (!manager.isLoaded(CANNONSHOT_SOUND)) manager.load(CANNONSHOT_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(CANNONSHOT_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetDrivingTankSound(){
+        if (!manager.isLoaded(DRIVING_SOUND)) manager.load(DRIVING_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(DRIVING_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetGameStartSound(){
+        if (!manager.isLoaded(GAMESTART_SOUND)) manager.load(GAMESTART_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(GAMESTART_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetHitGroundSound(){
+        if (!manager.isLoaded(HITGROUND_SOUND)) manager.load(HITGROUND_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(HITGROUND_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetHitTankSound(){
+        if (!manager.isLoaded(HITTANK_SOUND)) manager.load(HITTANK_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(HITTANK_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetLossSound(){
+        if (!manager.isLoaded(LOSS_SOUND)) manager.load(LOSS_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(LOSS_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetMenuTheme(){
+        this.menuThemeIsPlaying = true;
+        if (!manager.isLoaded(MENUTHEME_SOUND)) manager.load(MENUTHEME_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(MENUTHEME_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetRotateTurretSound(){
+        if (!manager.isLoaded(ROTATETURRET_SOUND)) manager.load(ROTATETURRET_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(ROTATETURRET_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    public Sound loadAndGetVictorySound(){
+        if (!manager.isLoaded(VICTORY_SOUND)) manager.load(VICTORY_SOUND);
+        try {
+            manager.finishLoading();
+            return manager.get(VICTORY_SOUND);
+        } catch(GdxRuntimeException error) {
+            System.out.println(error.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Methods for getting and setting the menuThemeIsPlaying boolean flag
+     */
+    public boolean getMenuThemeIsPlaying(){
+        return this.menuThemeIsPlaying;
+    }
+
+    public void setMenuThemeIsPlaying(boolean bool){
+        this.menuThemeIsPlaying = bool;
+    }
     /**
      * Block until all currently loaded assets are finished loading
      */

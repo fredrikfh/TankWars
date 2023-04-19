@@ -1,5 +1,6 @@
 package com.game.tankwars.controller;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -27,8 +28,10 @@ public class MainMenuController {
         this.highScoreButton = highScoreButton;
         this.settingsButton = settingsButton;
         this.logoutButton = logoutButton;
-
         setEventListeners();
+        if(!ResourceManager.getInstance().getMenuThemeIsPlaying()){
+            ResourceManager.getInstance().loadAndGetMenuTheme().loop();
+        }
     }
 
     private void setEventListeners() {
@@ -38,6 +41,7 @@ public class MainMenuController {
         findGameButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetButton1Sound().play();
                 tankWarsGame.setScreen(new FindGameScreen(tankWarsGame));
                 return true;
             }
@@ -49,6 +53,7 @@ public class MainMenuController {
         highScoreButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetButton1Sound().play();
                 tankWarsGame.setScreen(new LeaderboardScreen(tankWarsGame));
                 return true;
             }
@@ -61,6 +66,7 @@ public class MainMenuController {
         settingsButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetButton2Sound().play();
                 System.out.println("Settings screen: yet to be implemented");
                 return true;
             }
@@ -74,6 +80,8 @@ public class MainMenuController {
         logoutButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetMenuTheme().stop();
+                ResourceManager.getInstance().setMenuThemeIsPlaying(false);
                 tankWarsGame.setScreen(new LoginScreen(tankWarsGame));
                 return true;
             }

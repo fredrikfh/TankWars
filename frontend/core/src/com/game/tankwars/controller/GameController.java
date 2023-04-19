@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.SerializationException;
 import com.game.tankwars.Callback;
 import com.game.tankwars.ConfigReader;
 import com.game.tankwars.HTTPRequestHandler;
+import com.game.tankwars.ResourceManager;
 import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.Box2dWorld;
 import com.game.tankwars.model.Bullet;
