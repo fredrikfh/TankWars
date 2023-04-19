@@ -54,7 +54,7 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: default
 		fontColor: black
 	},
-	"regular-white": {
+	regular-white: {
 		font: default,
 		fontColor: white
 	},
@@ -65,6 +65,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	large-white: {
 		font: large
 		fontColor: white
+	}
+	large-red: {
+		font: large
+		fontColor: red
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
