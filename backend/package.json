@@ -26,6 +26,8 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "@types/hapi__joi": "^17.1.9",
     "express-rate-limit": "^6.7.0",
     "firebase-admin": "^11.6.0",
     "node-cache": "^5.1.2",

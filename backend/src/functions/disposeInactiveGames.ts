@@ -7,7 +7,7 @@ export function disposeInactiveGames() {
   // loop through all games
   gameHandler.getGames().forEach((game) => {
     // if game is inactive for 10 minutes
-    if (Date.now() - game.getLastActionTimeStamp() > 10 * 60 * 1000) {
+    if (Date.now() - game.lastActionTimeStamp > 10 * 60 * 1000) {
       // dispose game and lobby
       log(
         'removing inactive game in lobby:' +

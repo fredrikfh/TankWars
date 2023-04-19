@@ -11,6 +11,4 @@ export interface ILobby {
   setId(id: number): void;
   setGameId(gameId: string): void;
   getGameId(): string | undefined;
-
-  // maybe add a relation to a game?
 }

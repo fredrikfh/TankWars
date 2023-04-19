@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { Lobby } from '../models/Lobby';
 import { GameHandler } from '../gameHandler';
 import { getUserById } from '../functions/getUserById';
 import { User } from '../../types/User';

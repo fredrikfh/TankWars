@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Array;
 public class GameState {
     String gameId;
 
-    Boolean gameStatus;
+    Boolean isFinished;
     Integer currentTurn;
     Array<UserTank> users;
 
@@ -13,9 +13,9 @@ public class GameState {
 
     }
 
-    public GameState(String gameId, boolean gameStatus, int currentTurn) {
+    public GameState(String gameId, boolean isFinished, int currentTurn) {
         this.gameId = gameId;
-        this.gameStatus = gameStatus;
+        this.isFinished = isFinished;
         this.currentTurn = currentTurn;
         this.users = new Array<>();
     }
@@ -30,10 +30,7 @@ public class GameState {
                     tank.getPower(),
                     tank.getHealth(),
                     0,
-                    0,
-                    true,
-                    tank.directionLeft ? "left" : "right",
-                    "tankType"
+                    0
             );
             User user = users[i];
             this.users.add(new UserTank(user, stats));
@@ -48,12 +45,12 @@ public class GameState {
         this.gameId = gameId;
     }
 
-    public Boolean getGameStatus() {
-        return gameStatus;
+    public Boolean getIsFinished() {
+        return isFinished;
     }
 
-    public void setGameStatus(Boolean gameStatus) {
-        this.gameStatus = gameStatus;
+    public void setIsFinished(Boolean isFinished) {
+        this.isFinished = isFinished;
     }
 
     public Integer getCurrentTurn() {

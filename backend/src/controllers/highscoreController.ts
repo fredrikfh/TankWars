@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { User } from '../../types/User';
 import { getTopUsers } from '../functions/firebaseCache';
 
 export const top10 = async (req: Request, res: Response): Promise<void> => {
