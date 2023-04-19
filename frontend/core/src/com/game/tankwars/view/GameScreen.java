@@ -85,7 +85,6 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         model.logicStep(Gdx.graphics.getDeltaTime());
-        model.destroyDeadBodies();
         Gdx.gl.glClearColor(0, 0, 100, 100);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         debugRenderer.render(world, worldCam.combined);
@@ -154,6 +153,8 @@ public class GameScreen implements Screen {
         hud.getHealthProgressBarOpponent().setValue(tank2.getHealth());
         hud.getHealthProgressBarPlayer().setValue(tank1.getHealth());
         hud.getStage().draw();
+
+        model.destroyDeadBodies();
     }
 
     public void setTerrain(Terrain terrain) {

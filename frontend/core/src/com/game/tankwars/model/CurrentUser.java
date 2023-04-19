@@ -5,7 +5,7 @@ public class CurrentUser {
     private User user;
     private static CurrentUser INSTANCE;
     private String gameId;
-
+    private String lobbyId;
     private CurrentUser() {
     }
 
@@ -25,6 +25,14 @@ public class CurrentUser {
     }
 
     public void setGameId(String gameId) { this.gameId = gameId; }
+
+    public void setLobbyId(String lobbyId) {
+        this.lobbyId = lobbyId;
+    }
+
+    public String getLobbyId() {
+        return lobbyId;
+    }
 
     @Override
     public String toString() {

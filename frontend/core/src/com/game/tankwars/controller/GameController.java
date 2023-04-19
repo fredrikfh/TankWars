@@ -83,12 +83,14 @@ public class GameController {
         fetchGameState();
 
         defineEventListeners();
+        setLeaveInputListener();
     }
 
     private void defineEventListeners() {
         leaveInputListener = new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("asdfasdfsdfdsafasdfs");
+                System.out.println("leave");
+                leaveLobby();
                 return true;
             }
         };
@@ -196,7 +198,7 @@ public class GameController {
     }
 
     public void setTurnListeners() {
-        hud.getLeaveLabel().addListener(leaveInputListener);
+        setLeaveInputListener();
 
         hud.getFireButton().addListener(fireChangeListener);
         hud.getPowerSlider().addListener(powerSliderChangeListener);
@@ -208,8 +210,11 @@ public class GameController {
         hud.getAimDown().addListener(aimDownInputListener);
     }
 
+    public void setLeaveInputListener() {
+        hud.getLeaveLabel().addListener(leaveInputListener);
+    }
+
     public void removeTurnListeners() {
-        hud.getLeaveLabel().removeListener(leaveInputListener);
 
         hud.getFireButton().removeListener(fireChangeListener);
         hud.getPowerSlider().removeListener(powerSliderChangeListener);
@@ -324,6 +329,9 @@ public class GameController {
                     return true;
                 } else if (status.getStatusCode() == 404) {
                     System.out.println("RESPONSE 404: " + responseString);
+                } else if (status.getStatusCode() == 206) {
+                    gameEnded = true;
+                    hud.showOpponentLeftBanner();
                 }
 
                 return false;
@@ -434,6 +442,36 @@ public class GameController {
                 .header("Content-Type", "application/json")
                 .content(content)
                 .build()).sendRequest();
+    }
+
+    public void leaveLobby() {
+        new HTTPRequestHandler(new Callback() {
+            @Override
+            public boolean onResult(Net.HttpResponse result) {
+                System.out.println(String.format("RESPONSE %s: %s",result.getStatus().getStatusCode(), result.getResultAsString()));
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
+                    }
+                });
+                return true;
+            }
+
+            @Override
+            public void onFailed(Throwable t) {
+                System.err.println(t);
+            }
+        },
+                new HttpRequestBuilder()
+                        .newRequest()
+                        .url(ConfigReader.getProperty("backend.url") + "/lobby/" + getCurrentUser().getLobbyId() + "/leave")
+                        .method(Net.HttpMethods.POST)
+                        .header("Content-Type", "application/json")
+                        .content(String.format("{\"username\": \"%s\"}", getCurrentUser().getUser().username))
+                        .build()
+        ).sendRequest();
+
     }
 
     public Bullet getBullet() {
