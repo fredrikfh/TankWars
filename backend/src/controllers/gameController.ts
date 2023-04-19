@@ -3,7 +3,6 @@ import { GameHandler } from '../gameHandler';
 import { gameSchema } from '../schemas/gameSchema';
 import { validateSchema } from '../schemas/validate';
 import { IStats } from '../interfaces/IStats';
-import { log } from '../functions/console';
 
 const gameHandler = GameHandler.getInstance();
 
@@ -47,6 +46,10 @@ export const currentTurn = async (req: Request, res: Response): Promise<void> =>
   const game = gameHandler.getGameById(req.params.gameid);
   const username = req.body.username || req.body.userName;
   if (game) {
+    if (game.lobby.getUsers().length == 1) {
+      res.status(206).send('Opponent left');
+      return;
+    }
     if (game.isFinished) {
       res.status(200).send('Game is finished');
       return;

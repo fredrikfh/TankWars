@@ -20,7 +20,9 @@ public class Box2dWorld {
     }
 
     public void addDeadBody(Body body) {
-        deadBodies.add(body);
+        if (!deadBodies.contains(body, true)) {
+            deadBodies.add(body);
+        }
     }
 
     public void destroyDeadBodies() {

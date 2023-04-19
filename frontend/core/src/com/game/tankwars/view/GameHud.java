@@ -251,4 +251,10 @@ public class GameHud {
         turnLabel.setText("Game Over!");
         removeTurnInformationContainer();
     }
+
+    public void showOpponentLeftBanner() {
+        turnLabel.setText("Opponent Left");
+        showTurnContainer();
+        removeTurnInformationContainer();
+    }
 }

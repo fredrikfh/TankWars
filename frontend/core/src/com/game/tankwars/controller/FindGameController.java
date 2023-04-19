@@ -251,6 +251,7 @@ public class FindGameController {
                 String gameIdResponse = response.getResultAsString();
                 if (status.getStatusCode() == 200 && !gameIdResponse.isEmpty()) {
                     CurrentUser.getCurrentUser().setGameId(gameIdResponse);
+                    CurrentUser.getCurrentUser().setLobbyId(lobbyId);
                     Gdx.app.postRunnable(gameScreenTransition);
                     return true;
                 } else if (status.getStatusCode() == 404) {
