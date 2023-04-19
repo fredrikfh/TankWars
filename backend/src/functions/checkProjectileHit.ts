@@ -1,4 +1,3 @@
-import { IGame } from '../interfaces/IGame';
 import { log } from './console';
 
 /**

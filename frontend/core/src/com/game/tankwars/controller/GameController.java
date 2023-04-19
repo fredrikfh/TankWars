@@ -44,9 +44,8 @@ public class GameController {
     private boolean aimDownTouched;
 
     private final String gameId;
-    private boolean gameStatus = false, hasWon = false, gameEnded = false, gameStarted = false, activeAnimation = false;
+    private boolean isFinished = false, hasWon = false, gameEnded = false, gameStarted = false, activeAnimation = false;
     private int currentTurn, turnIndex;
-
     private final User currentUser;
     private User opponent;
 
@@ -81,7 +80,7 @@ public class GameController {
         hud.showTurnInformationContainer();
         hud.showOpponentTurnLabel();
 
-        // fetchGameState();
+        fetchGameState();
 
         defineEventListeners();
     }
@@ -133,7 +132,6 @@ public class GameController {
         moveRightInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("asdfasfsadf");
                 moveRightTouched = true;
                 return true;
             }
@@ -171,23 +169,26 @@ public class GameController {
         };
     }
 
-
     /**
      * Handle input requiring polling, such as aiming, moving the tank,
      * and checking for removal of on-screen banners.
      */
-    public void checkKeyInput(){
-        if (aimUpTouched) getCurrentTank().rotateCannonCounterClockwise();
-        else if (aimDownTouched) getCurrentTank().rotateCannonClockwise();
+    public void checkKeyInput() {
+        if (aimUpTouched)
+            getCurrentTank().rotateCannonCounterClockwise();
+        else if (aimDownTouched)
+            getCurrentTank().rotateCannonClockwise();
 
-        if (moveRightTouched) getCurrentTank().moveRight();
-        else if (moveLeftTouched) getCurrentTank().moveLeft();
+        if (moveRightTouched)
+            getCurrentTank().moveRight();
+        else if (moveLeftTouched)
+            getCurrentTank().moveLeft();
 
         if (Gdx.input.justTouched()) {
-            if (gameStatus && !gameEnded) {
+            if (isFinished && !gameEnded) {
                 gameEnded = true;
                 endGame();
-            } else if (!gameStatus && isCurrentTurn() && !activeAnimation) {
+            } else if (!isFinished && isCurrentTurn() && !activeAnimation) {
                 hud.removeTurnInformationContainer();
                 hud.removeTurnContainer();
             }
@@ -221,14 +222,14 @@ public class GameController {
     }
 
     public void checkGameOver() {
-        if (!gameStatus && getCurrentTank().getHealth() <= 0) {
-            gameStatus = true;
+        if (!isFinished && getCurrentTank().getHealth() <= 0) {
+            isFinished = true;
             endPlayerTurn();
             hud.removeTurnInformationContainer();
             hud.showLoserBanner();
-        } else if (!gameStatus && getOpponentTank().getHealth() <= 0) {
+        } else if (!isFinished && getOpponentTank().getHealth() <= 0) {
             hasWon = true;
-            gameStatus = true;
+            isFinished = true;
             endPlayerTurn();
             hud.removeTurnInformationContainer();
             hud.showWinBanner();
@@ -244,8 +245,10 @@ public class GameController {
 
     public void animateOpponentTank() {
         if (activeAnimation) {
-            if (getOpponentTank().autoMove() || getOpponentTank().autoRotateCannon()) return;
-            if (getOpponentTank().autoFireBullet(model)) return;
+            if (getOpponentTank().autoMove() || getOpponentTank().autoRotateCannon())
+                return;
+            if (getOpponentTank().autoFireBullet(model))
+                return;
             getCurrentTank().checkBeenHit();
 
             activeAnimation = false;
@@ -253,9 +256,8 @@ public class GameController {
         }
     }
 
-
     private void initializeGameState() {
-        gameState = new GameState(gameId, gameStatus, currentTurn);
+        gameState = new GameState(gameId, isFinished, currentTurn);
         Tank[] tankArray = new Tank[]{tank1, tank2};
 
         User[] userArray = new User[2];
@@ -271,7 +273,7 @@ public class GameController {
             public boolean onResult(Net.HttpResponse response) {
                 HttpStatus status = response.getStatus();
                 String responseString = response.getResultAsString();
-                if (gameStatus) return true;
+                if (isFinished) return true;
 
                 if (status.getStatusCode() == 200) {
                     System.out.println("RESPONSE 200: " + responseString);
@@ -294,7 +296,7 @@ public class GameController {
                         currentTurn = newGameState.getCurrentTurn();
 
                         if (oldCurrentTurn != -1) {
-                            if (!newGameState.getGameStatus()) activeAnimation = isCurrentTurn();
+                            if (!newGameState.getIsFinished()) activeAnimation = isCurrentTurn();
                             getOpponentTank().update(newGameState.getUsers()
                                     .get(turnIndex == 0 ? 1 : 0).getStats());
                         } else {
@@ -337,8 +339,7 @@ public class GameController {
                 .method(Net.HttpMethods.POST)
                 .header("Content-Type", "application/json")
                 .content(String.format("{\"username\": \"%s\"}", getCurrentUser().getUser().username))
-                .build()
-        ).sendRequest();
+                .build()).sendRequest();
     }
 
     public void endPlayerTurn() {
@@ -348,6 +349,7 @@ public class GameController {
         gameState.getUsers().get(turnIndex).getStats().update(getCurrentTank());
         gameState.getUsers().get((turnIndex + 1) % 2).getStats().update(getOpponentTank());
         String content = new Json(JsonWriter.OutputType.json).toJson(gameState);
+        System.out.println("Request body: " + content);
 
         currentTurn = currentTurn == 0 ? 1 : 0;
         hud.showTurnInformationContainer();
@@ -362,7 +364,7 @@ public class GameController {
 
                 if (status.getStatusCode() == 200) {
                     System.out.println(responseString); // TODO: Remove sysout
-                    if (!gameStatus) fetchGameState();
+                    if (!isFinished) fetchGameState();
                     return true;
                 } else if (status.getStatusCode() == 400 || status.getStatusCode() == 404) {
                     System.err.println(responseString);
@@ -382,8 +384,7 @@ public class GameController {
                 .method(Net.HttpMethods.POST)
                 .header("Content-Type", "application/json")
                 .content(content)
-                .build()
-        ).sendRequest();
+                .build()).sendRequest();
     }
 
     public void endGame() {
@@ -393,7 +394,8 @@ public class GameController {
         if (hasWon) {
             currentUser.incrementWins();
             currentUser.increaseHighscore((float) getCurrentTank().getHealth());
-        } else currentUser.incrementLosses();
+        } else
+            currentUser.incrementLosses();
 
         String content = new Json(JsonWriter.OutputType.json).toJson(currentUser, User.class);
 
@@ -428,13 +430,11 @@ public class GameController {
         }, new HttpRequestBuilder()
                 .newRequest()
                 .url(ConfigReader.getProperty("backend.url") + "/user/" + currentUser.getUsername() + "/highscore")
-                .method(Net.HttpMethods.POST)
+                .method(Net.HttpMethods.PUT)
                 .header("Content-Type", "application/json")
                 .content(content)
-                .build()
-        ).sendRequest();
+                .build()).sendRequest();
     }
-
 
     public Bullet getBullet() {
         return bullet != null ? bullet : null;

@@ -116,7 +116,7 @@ router.delete('/:username', userController.deleteUser);
 /**
  * @swagger
  * /user/{username}/highscore:
- *   post:
+ *   put:
  *     tags: [User]
  *     summary: Update the users stats.
  *     description: Update the users stats.
@@ -152,6 +152,6 @@ router.delete('/:username', userController.deleteUser);
  *       404:
  *         description: User not found.
  */
-router.post('/:username/highscore', userController.updateHighscore);
+router.put('/:username/highscore', userController.updateHighscore);
 
 export default router;

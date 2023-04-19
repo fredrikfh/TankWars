@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
-import { Lobby } from '../models/Lobby';
 import { GameHandler } from '../gameHandler';
-import { getUserById } from '../functions/getUserById';
-import { User } from '../../types/User';
-import admin from '../functions/firebaseAdmin';
-import { IGame } from '../interfaces/IGame';
-import { validateGameStateJSON } from '../functions/validateGameStateJSON';
+import { gameSchema } from '../schemas/gameSchema';
+import { validateSchema } from '../schemas/validate';
+import { IStats } from '../interfaces/IStats';
+import { log } from '../functions/console';
 
 const gameHandler = GameHandler.getInstance();
 
@@ -21,14 +19,21 @@ export const gameId = async (req: Request, res: Response): Promise<void> => {
 
 export const move = async (req: Request, res: Response): Promise<void> => {
   const game = gameHandler.getGameById(req.params.gameid);
-  // const newGameState = JSON.parse(req.body) as Game;
-  if (game) {
-    // if (!validateGameStateJSON(req.body)) {
-    //   res.status(400).send('Invalid gamestate');
-    //   return;
-    // }
 
-    if (game.calculateNextGameState(req.body as IGame)) {
+  if (game) {
+    if (!validateSchema(gameSchema, req.body)) {
+      res.status(400).send('Invalid request body');
+      return;
+    }
+
+    if (game.isFinished) {
+      res.status(400).send('Game is finished');
+      return;
+    }
+
+    // only the users stats element in the request body is needed to calculate the next game state
+    const newStats: IStats[] = [req.body.users[0].stats, req.body.users[1].stats];
+    if (game.calculateNextGameState(newStats)) {
       res.status(200).send('Move made');
     } else {
       res.status(400).send('Invalid move');
@@ -40,9 +45,13 @@ export const move = async (req: Request, res: Response): Promise<void> => {
 
 export const currentTurn = async (req: Request, res: Response): Promise<void> => {
   const game = gameHandler.getGameById(req.params.gameid);
-  const user = req.body.username || req.body.userName;
+  const username = req.body.username || req.body.userName;
   if (game) {
-    if (user === game.getCurrentTurnUser().username) {
+    if (game.isFinished) {
+      res.status(200).send('Game is finished');
+      return;
+    }
+    if (username === game.getCurrentTurnUser().username) {
       // send the gamestate to the client
       res.status(200).send(game.getGameStateJSON());
     } else {
@@ -56,7 +65,7 @@ export const currentTurn = async (req: Request, res: Response): Promise<void> =>
 export const getTerrain = async (req: Request, res: Response): Promise<void> => {
   const game = gameHandler.getGameById(req.params.gameid);
   if (game) {
-    res.status(200).send(game.getTerrain().getYValues());
+    res.status(200).send(game.terrain.getYValues());
   } else {
     res.status(404).send('Game not found');
   }

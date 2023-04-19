@@ -3,7 +3,7 @@ import { GameHandler } from '../gameHandler';
 import { getUserById } from '../functions/getUserById';
 import { User } from '../../types/User';
 import admin from '../functions/firebaseAdmin';
-import { getUsers, getUsersIds } from '../functions/firebaseCache';
+import { getUsersIds } from '../functions/firebaseCache';
 import { log } from '../functions/console';
 
 const gameHandler = GameHandler.getInstance();

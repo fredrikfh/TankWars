@@ -1,12 +1,9 @@
-// this module is responsible for handling the ongoing games.
-
 import { Game } from './models/Game';
 import { IGame } from './interfaces/IGame';
 import { ILobby } from './interfaces/ILobby';
 import { Lobby } from './models/Lobby';
 
 // this class is responsible for handling the ongoing games. and the lobbies.
-
 export class GameHandler {
   private static instance: GameHandler;
 

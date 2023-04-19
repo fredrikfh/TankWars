@@ -1,4 +1,4 @@
-import generateYValues, { generateRandomNumbers } from '../functions/TerrainGenerator';
+import { generateRandomNumbers } from '../functions/TerrainGenerator';
 import { ITerrain } from '../interfaces/ITerrain';
 
 export class Terrain implements ITerrain {
@@ -15,7 +15,7 @@ export class Terrain implements ITerrain {
   }
 
   generate(): number[] {
-    // return generateYValues(this.maxY, this.xPoints);
+    // legacy: return generateYValues(this.maxY, this.xPoints);
     return generateRandomNumbers(this.n, this.minValue, this.maxValue);
   }
 

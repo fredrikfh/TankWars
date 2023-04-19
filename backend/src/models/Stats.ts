@@ -3,27 +3,20 @@ import { IStats } from '../interfaces/IStats';
 export class Stats implements IStats {
   position: number;
   turretAngle: number;
-  isMirrored: boolean;
   health: number;
   power: number;
   ammunition: number;
-  tankDirection: string;
-  tankType: string;
   score: number;
 
   constructor() {
     this.position = 0;
     this.turretAngle = 0;
-    this.power = 0;
     this.health = 100;
+    this.power = 0;
     this.ammunition = 100;
     this.score = 0;
-    this.isMirrored = false;
-    this.tankDirection = 'left';
-    this.tankType = 'M107';
   }
 
-  // create getters and setters
   getPosition(): number {
     return this.position;
   }
@@ -40,22 +33,6 @@ export class Stats implements IStats {
     this.turretAngle = turretAngle;
   }
 
-  getPower(): number {
-    return this.power;
-  }
-
-  setPower(power: number): void {
-    this.power = power;
-  }
-
-  getIsMirrored(): boolean {
-    return this.isMirrored;
-  }
-
-  setIsMirrored(isMirrored: boolean): void {
-    this.isMirrored = isMirrored;
-  }
-
   getHealth(): number {
     return this.health;
   }
@@ -70,22 +47,6 @@ export class Stats implements IStats {
 
   setAmmunition(ammunition: number): void {
     this.ammunition = ammunition;
-  }
-
-  getTankDirection(): string {
-    return this.tankDirection;
-  }
-
-  setTankDirection(tankDirection: string): void {
-    this.tankDirection = tankDirection;
-  }
-
-  getTankType(): string {
-    return this.tankType;
-  }
-
-  setTankType(tankType: string): void {
-    this.tankType = tankType;
   }
 
   getScore(): number {
