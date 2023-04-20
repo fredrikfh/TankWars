@@ -15,6 +15,7 @@ cache:
     - android-sdk/
     - .gradle/wrapper
     - .gradle/caches
+    - vm-state/
 
 variables:
   # Specify the SDK tools version and build tools version to use
@@ -36,7 +37,10 @@ Prettier:
     - npx prettier --check .
   retry: 1
   rules:
-    - if: '($CI_PIPELINE_SOURCE == "push" || $CI_COMMIT_BRANCH == "main") && $CI_PIPELINE_SOURCE != "schedule"'
+    - changes:
+        - backend/**/*.*
+      if: '$CI_PIPELINE_SOURCE == "push" && $CI_PIPELINE_SOURCE != "schedule"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
 
 Typescript-compile:
   image: node:16.10.0
@@ -46,8 +50,15 @@ Typescript-compile:
       - cd backend
       - yarn --cache-folder ../.yarn
       - yarn tsc
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-vm
+    paths:
+      - vm-state/
   rules:
-    - if: '($CI_PIPELINE_SOURCE == "push" || $CI_COMMIT_BRANCH == "main") && $CI_PIPELINE_SOURCE != "schedule"'
+    - changes:
+        - backend/**/*.*
+      if: '$CI_PIPELINE_SOURCE == "push" && $CI_PIPELINE_SOURCE != "schedule"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
 
 API-test:
   image: cypress/base:14.17.0
@@ -56,11 +67,11 @@ API-test:
   variables:
     DISPLAY: ":99"
   script:
+      - if [ -d vm-state/ ]; then rsync -avm --exclude vm-state/ vm-state/ /; fi
       - apt-get update && apt-get install -y xvfb
       - Xvfb :99 -screen 0 1920x1080x24 &
       - cd backend
       - echo "FB_PRIV_KEY_JSON_ENCODED=$FB_PRIV_KEY_JSON_ENCODED" >> .env
-      # - echo "export FB_PRIV_KEY_JSON_ENCODED=$FB_PRIV_KEY_JSON_ENCODED"
       - node keys/decode.js
       - chmod 400 keys/fb-key.json
       - yarn --cache-folder ../.yarn
@@ -72,6 +83,9 @@ API-test:
       - cypress/videos/*.mp4
     expire_in: 1 week # Set the artifact expiration time according to your needs
   rules:
+    - changes:
+        - backend/**/*.*
+      if: '$CI_PIPELINE_SOURCE == "push" && $CI_PIPELINE_SOURCE != "schedule"'
     - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
 
 
@@ -80,8 +94,6 @@ Gradle-build:
   stage: frontend test
   needs: []
   script:
-      # Restore Android SDK from cache
-  #- if [ -d android-sdk ]; then mv android-sdk/* $ANDROID_HOME/; fi
   # Download and install Android SDK
   - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
   - unzip -q -o android-sdk.zip -d android-sdk
@@ -92,13 +104,18 @@ Gradle-build:
   - ./gradlew build --refresh-dependencies
   - gradle build
   rules:
-    - if: '($CI_PIPELINE_SOURCE == "push" || $CI_COMMIT_BRANCH == "main") && $CI_PIPELINE_SOURCE != "schedule"'
+    - changes:
+        - frontend/**/*.*
+      if: '$CI_PIPELINE_SOURCE == "push" && $CI_PIPELINE_SOURCE != "schedule"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
+
 
 VM Deploy:
   image: node:16.10.0
   stage: deploy
   needs: [Typescript-compile, API-test]
   before_script:
+    - if [ -d vm-state/ ]; then rsync -avm --exclude vm-state/ vm-state/ /; fi
     - mkdir -p ~/.ssh
     - echo "$NTNU_VM_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
@@ -108,7 +125,7 @@ VM Deploy:
     name: production
     url: http://10.212.26.72/
   script:
-    - ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@10.212.26.72 -p 22 "bash /home/git/tdt4240-tank-wars/backend/vm.sh </dev/null >/dev/null 2>&1"
+    - ssh -v -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@10.212.26.72 -p 22 "bash /home/git/tdt4240-tank-wars/backend/vm-startup.sh"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
 
@@ -132,4 +149,4 @@ VM Heartbeat:
       echo "Server did not respond with 200 OK after 3 minutes"
       exit 1
   rules:
-    - if: '($CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "schedule") || $RUN_VM_HEARTBEAT == "true"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "schedule" || $RUN_VM_HEARTBEAT == "true"'
