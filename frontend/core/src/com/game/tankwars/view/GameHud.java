@@ -31,8 +31,15 @@ public class GameHud {
 
     private Label leaveLabel;
 
+    private Label playerNameLabel;
+    private Label opponentNameLabel;
+
     private ProgressBar healthProgressBarPlayer;
     private ProgressBar healthProgressBarOpponent;
+
+    private Table playerInfoContainer;
+    private Table opponentInfoContainer;
+
 
     private Label turnLabel;
     private Label turnInformationLabel;
@@ -42,7 +49,11 @@ public class GameHud {
 
     private TextButton fireButton;
 
-    private HorizontalGroup powerContainer;
+    private Table fuelContainer;
+    private Label fuelLabel;
+    private ProgressBar fuelBar;
+
+    private Table powerContainer;
     private Label powerLabel;
     private Slider powerSlider;
 
@@ -78,9 +89,23 @@ public class GameHud {
         HpOpponentWrapper.setOrigin(HpOpponentWrapper.getPrefWidth() / 2, HpOpponentWrapper.getPrefHeight() / 2);
         HpOpponentWrapper.setRotation(180);
 
+        playerNameLabel = new Label("Player 1", skin.get("large-white", Label.LabelStyle.class));
+        opponentNameLabel = new Label("Player 2", skin.get("large-white", Label.LabelStyle.class));
+
+        playerInfoContainer = new Table();
+        opponentInfoContainer = new Table();
+
+        playerInfoContainer.add(playerNameLabel);
+        playerInfoContainer.row();
+        playerInfoContainer.add(healthProgressBarPlayer);
+
+        opponentInfoContainer.add(opponentNameLabel);
+        opponentInfoContainer.row();
+        opponentInfoContainer.add(HpOpponentWrapper);
+
         table.add(leaveLabel).expand().top().left().padTop(10).padLeft(10);
-        table.add(healthProgressBarPlayer).expand().top().left().padTop(10);
-        table.add(HpOpponentWrapper).expand().top().right().padTop(10).padRight(10);
+        table.add(playerInfoContainer).colspan(2).expand().top().right().padTop(10);
+        table.add(opponentInfoContainer).expand().top().right().padTop(10).padLeft(10);
 
         table.row();
 
@@ -101,19 +126,31 @@ public class GameHud {
         turnTable.row();
         turnTable.add(turnInformationContainer).padTop(20);
 
-        table.add(turnTable).prefWidth(1000).height(300).colspan(3);
+        table.add(turnTable).prefWidth(1000).height(300).colspan(4);
 
         table.row();
 
         fireButton = new TextButton("Fire!", skin);
         table.add(fireButton).expand().bottom().left().padLeft(10).padBottom(10);
 
+        fuelLabel = new Label("Fuel", skin.get("large-white", Label.LabelStyle.class));
+        fuelBar = new ProgressBar(0, 150, 1, false, skin);
+        fuelBar.setValue(150);
+
+        fuelContainer = new Table();
+        fuelContainer.add(fuelLabel).left();
+        fuelContainer.row();
+        fuelContainer.add(fuelBar);
+
+        table.add(fuelContainer).expand().bottom().padBottom(10);
+
         powerLabel = new Label("Power", skin.get("large-white", Label.LabelStyle.class));
         powerSlider = new Slider(0, 100, 1, false, skin);
 
-        powerContainer = new HorizontalGroup().space(10);
-        powerContainer.addActor(powerLabel);
-        powerContainer.addActor(powerSlider);
+        powerContainer = new Table();
+        powerContainer.add(powerLabel).left();
+        powerContainer.row();
+        powerContainer.add(powerSlider);
 
         table.add(powerContainer).expand().bottom().padBottom(10);
 
@@ -162,6 +199,10 @@ public class GameHud {
         return fireButton;
     }
 
+    public ProgressBar getFuelBar() {
+        return fuelBar;
+    }
+
     public Slider getPowerSlider() {
         return powerSlider;
     }
@@ -184,6 +225,40 @@ public class GameHud {
 
     public ProgressBar getHealthProgressBarPlayer() {
         return healthProgressBarPlayer;
+    }
+
+    /**
+     * Set visible name of player 1
+     * @param name name to be displayed
+     */
+    public void setPlayerName(String name) {
+        if (name.length() > 16) {
+            playerNameLabel.setText(cutString(name));
+            return;
+        }
+        playerNameLabel.setText(name);
+    }
+
+    /**
+     * Set visible name of player 2
+     * @param name name to be displayed
+     */
+    public void setOpponentName(String name) {
+        if (name.length() > 16) {
+            opponentNameLabel.setText(cutString(name));
+            return;
+        }
+        opponentNameLabel.setText(name);
+    }
+
+    /**
+     * Cut a string at length 16
+     * @param string string to cut
+     * @return cut string
+     */
+    private String cutString(String string) {
+        String cutString = string.substring(0, 16);
+        return cutString + "..";
     }
 
     /**

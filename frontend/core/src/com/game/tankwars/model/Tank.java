@@ -220,6 +220,10 @@ public class Tank {
 
     public int getPower() { return power; }
 
+    public int getFuel() {
+        return fuel;
+    }
+
     public int getCannonAngle() { return cannonAngle; }
 
     public Vector2 getCannonPosition() { return new Vector2(cannonPosition); }
