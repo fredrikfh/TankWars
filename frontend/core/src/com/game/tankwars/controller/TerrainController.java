@@ -69,6 +69,6 @@ public class TerrainController {
         this.terrainArray = json.fromJson(
                 ArrayList.class,
                 Integer.class,
-                Gdx.files.internal("mockTerrain.json").readString());
+                Gdx.files.internal("terrain-seed.json").readString());
     }
 }

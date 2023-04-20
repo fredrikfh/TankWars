@@ -66,6 +66,7 @@ public class FindGameController {
         gameScreenTransition = new Runnable() {
             @Override
             public void run() {
+                ResourceManager.getInstance().setMenuThemeIsPlaying(false);
                 ResourceManager.getInstance().clear();
                 tankWarsGame.setScreen(new GameScreen(tankWarsGame));
             }

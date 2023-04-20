@@ -27,18 +27,21 @@ public class CollisionDetection implements ContactListener {
         FixtureData dataB = (FixtureData) fixB.getUserData();
 
         if (dataA.getId().equals("tank1") && dataB.getId().equals("bullet2")) {
+            ResourceManager.getInstance().loadAndGetHitTankSound().play();
             System.out.println("The bullet has hit tank 1");
             dataB.hasCollided();
             dataA.hasCollided();
         }
 
         else if (dataA.getId().equals("tank2") && dataB.getId().equals("bullet1")) {
+            ResourceManager.getInstance().loadAndGetHitTankSound().play();
             System.out.println("The bullet has hit tank 2");
             dataB.hasCollided();
             dataA.hasCollided();
         }
 
         else if (dataA.getId().equals("terrain") && dataB.getId().startsWith("bullet")) {
+            ResourceManager.getInstance().loadAndGetHitGroundSound().play();
             System.out.println("The bullet has hit the ground!");
             dataB.hasCollided();
 
