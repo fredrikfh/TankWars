@@ -23,7 +23,7 @@ Run the following commands in your terminal:
 
 ## CD: Deployment to virtual machine
 
-The backend is automatically deployed to a virtual machine when a commit is pushed to the main branch. The deployment is done by a Gitlab CI server that connects to the VM with SSH and runs the `vm.sh` script.
+The backend is automatically deployed to a virtual machine when a commit is pushed to the main branch. The deployment is done by a Gitlab CI server that connects to the VM with SSH and runs the `vm-startup.sh` script.
 
 The VM is hosted on NTNU (requires VPN) and can be accessed on the following address:
 IP: 10.212.26.72
@@ -39,4 +39,4 @@ e2e tests: `yarn test`
 
 ## Restrictions
 
-The backend will only allow 30 requests per minute from the same IP address. This is to prevent abuse of the API.
+The backend will only allow 30 requests per minute from the same IP address. This is to prevent abuse of the API..

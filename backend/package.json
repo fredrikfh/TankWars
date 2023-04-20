@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "cypress run",
-    "start:local": "concurrently \"tsc -w\" \"cross-env NODE_ENV=development yarn run server\"",
-    "start:prod": "tsc && cross-env NODE_ENV=production yarn run server",
-    "server": "node dist/src/index.js || yarn run server",
+    "start:local": "tsc && cross-env NODE_ENV=development node dist/src/index.js",
+    "start:prod": "tsc && pm2 startOrRestart ./config/ecosystem.config.js --env production",
     "prettier": "prettier --write \"**/*.{js,ts,tsx,jsx,css,md,scss,html,json}\""
   },
   "author": "",

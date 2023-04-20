@@ -43,7 +43,6 @@ export async function getUsers(): Promise<any> {
  */
 export async function getUsersIds(): Promise<any> {
   const usersRef = admin.firestore().collection('users');
-  const test = 'test';
   const cacheKey = 'userIds';
   const responseMapper = (firestoreResponse: QueryDocumentSnapshot[]) => {
     return firestoreResponse.map((doc) => {
@@ -116,7 +115,7 @@ export async function sendFirestoreRequest<T>(
   ref: CollectionReference<T> | Query<T> | DocumentReference<T>
 ): Promise<Array<{ id: string; data: T }> | { id: string; data: T | null } | null> {
   try {
-    log('firebase: sending request to firestore...');
+    log('firebase: sending request to firestore...', 'warning');
     let data = null;
 
     if (ref instanceof CollectionReference || ref instanceof Query) {
