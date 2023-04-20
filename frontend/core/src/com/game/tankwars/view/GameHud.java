@@ -115,18 +115,18 @@ public class GameHud {
         turnContainer = new Container(turnLabel);
         turnInformationContainer = new Container(turnInformationLabel);
 
-        Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGB565);
-        bgPixmap.setColor(Color.GRAY);
+        Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGB888);
+        bgPixmap.setColor(Color.valueOf("#2C2D2F"));
         bgPixmap.fill();
         TextureRegionDrawable textureRegionDrawableBg = new TextureRegionDrawable(new TextureRegion(new Texture(bgPixmap)));
         turnContainer.setBackground(textureRegionDrawableBg);
 
         turnTable = new Table();
-        turnTable.add(turnContainer).prefWidth(1000).height(100);
+        turnTable.add(turnContainer).prefWidth(1000).height(50).top();
         turnTable.row();
         turnTable.add(turnInformationContainer).padTop(20);
 
-        table.add(turnTable).prefWidth(1000).height(300).colspan(4);
+        table.add(turnTable).prefWidth(1000).height(200).colspan(4);
 
         table.row();
 

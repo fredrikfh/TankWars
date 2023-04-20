@@ -22,6 +22,7 @@ import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.model.Box2dWorld;
 import com.game.tankwars.model.Bullet;
 import com.game.tankwars.model.CurrentUser;
+import com.game.tankwars.model.FixtureData;
 import com.game.tankwars.model.GameState;
 import com.game.tankwars.model.Tank;
 import com.game.tankwars.model.Terrain;
@@ -34,10 +35,7 @@ public class GameController {
     private final TankWarsGame tankWarsGame;
 
     private final GameHud hud;
-    private final Box2dWorld model;
     private GameState gameState;
-
-    private Bullet bullet;
 
     private boolean moveRightTouched;
     private boolean moveLeftTouched;
@@ -54,10 +52,9 @@ public class GameController {
     private ChangeListener fireChangeListener, powerSliderChangeListener;
     private InputListener leaveInputListener, moveRightInputListener, moveLeftInputListener, aimUpInputListener, aimDownInputListener;
 
-    public GameController(TankWarsGame tankWarsGame, GameHud hud, Terrain terrain, Box2dWorld model) {
+    public GameController(TankWarsGame tankWarsGame, GameHud hud, Terrain terrain) {
         this.tankWarsGame = tankWarsGame;
         this.hud = hud;
-        this.model = model;
 
         currentUser = CurrentUser.getCurrentUser().getUser();
         gameId = getCurrentUser().getGameId();
@@ -110,9 +107,7 @@ public class GameController {
         fireChangeListener = new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
                 ResourceManager.getInstance().loadAndGetCannonShotSound();
-                String bulletId = getCurrentTank().getId().equals("tank1") ? "bullet1" : "bullet2";
-                bullet = new Bullet(getCurrentTank(), bulletId);
-                bullet.shoot(getCurrentTank().getPower());
+                getCurrentTank().fireBullet();
 
                 endPlayerTurn();
             }
@@ -233,7 +228,6 @@ public class GameController {
     }
 
     public void removeTurnListeners() {
-
         hud.getFireButton().removeListener(fireChangeListener);
         hud.getPowerSlider().removeListener(powerSliderChangeListener);
 
@@ -260,6 +254,7 @@ public class GameController {
     }
 
     private void startNewTurn() {
+        if (isFinished) return;
         setTurnListeners();
         hud.showTurnInformationContainer();
         hud.showYourTurnLabel();
@@ -271,12 +266,23 @@ public class GameController {
         if (activeAnimation) {
             if (getOpponentTank().autoMove() || getOpponentTank().autoRotateCannon())
                 return;
-            if (getOpponentTank().autoFireBullet(model))
+            if (getOpponentTank().autoFireBullet())
                 return;
-            getCurrentTank().checkBeenHit();
 
             activeAnimation = false;
             startNewTurn();
+        }
+    }
+
+    public void handleBulletDisposal(Box2dWorld model, Tank tank) {
+        if (tank.getBullet() != null) {
+            if (((FixtureData) tank.getBullet().getBody().getFixtureList().get(0).getUserData()).isHit() ||
+                    tank.getBullet().getBody().getPosition().x < 0 ||
+                    tank.getBullet().getBody().getPosition().x > TankWarsGame.VIEWPORT_WIDTH) {
+                tank.getBullet().getBulletSprite().getTexture().dispose();
+                model.addDeadBody(tank.getBullet().getBody());
+                tank.setBullet(null);
+            }
         }
     }
 
@@ -384,7 +390,6 @@ public class GameController {
         gameState.getUsers().get(turnIndex).getStats().update(getCurrentTank());
         gameState.getUsers().get((turnIndex + 1) % 2).getStats().update(getOpponentTank());
         String content = new Json(JsonWriter.OutputType.json).toJson(gameState);
-        System.out.println("Request body: " + content);
 
         currentTurn = currentTurn == 0 ? 1 : 0;
         hud.showTurnInformationContainer();
@@ -500,10 +505,6 @@ public class GameController {
                         .build()
         ).sendRequest();
 
-    }
-
-    public Bullet getBullet() {
-        return bullet != null ? bullet : null;
     }
 
     public Tank getTank1() {

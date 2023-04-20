@@ -51,7 +51,7 @@ public class ResourceManager {
     private final AssetDescriptor<Sound> ROTATETURRET_SOUND =
             new AssetDescriptor<>("sounds/rotate-turret.mp3", Sound.class);
     private final AssetDescriptor<Sound> VICTORY_SOUND =
-            new AssetDescriptor<>("sounds/victory-tank.mp3", Sound.class);
+            new AssetDescriptor<>("sounds/victory.mp3", Sound.class);
 
     /**
      * Boolean flag checking if main theme is playing
