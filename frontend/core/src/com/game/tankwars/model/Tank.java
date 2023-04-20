@@ -9,8 +9,6 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.game.tankwars.TankWarsGame;
 
-import java.util.Random;
-
 public class Tank {
     public static final int TANK_WIDTH = 2;
     public static final int TANK_HEIGHT = 1;
@@ -26,7 +24,7 @@ public class Tank {
     private final Vector2[] vertices;
     int posInVertArr, newPosInVertArr;
     int cannonAngle, newCannonAngle;
-    boolean directionLeft, hasFuelLimit;
+    boolean directionLeft, hasFuelLimit, blockFiring;
     private int power, fuel, health;
 
     public Tank(int posInVertArr, Texture chassisTexture, Texture cannonTexture,
@@ -142,12 +140,20 @@ public class Tank {
     }
 
 
+    public void fireBullet() {
+        if (bullet == null) {
+            String bulletId = getId().equals("tank1") ? "bullet1" : "bullet2";
+            bullet = new Bullet(this, bulletId);
+            bullet.shoot(power);
+        }
+    }
+
     /**
      * If tank is hit by a bullet, reduce tank's health by a random, bounded amount
      */
     public void checkBeenHit() {
         if (fixtureData.isHit()) {
-            health -= new Random().nextInt(31) + 10;
+            health -= 25;
             fixtureData.resetHit();
         }
     }
@@ -184,28 +190,19 @@ public class Tank {
 
     /**
      * Create a bullet and fire it from the tank.
-     * Dispose of the bullet when it hits something or leaves the screen.
      *
-     * @param model Box2dWorld instance that handles the world and bodies
      * @return {@code true} if bullet is still in the air
      *         {@code false} if bullet has hit something or left the screen
      */
-    public boolean autoFireBullet(Box2dWorld model) {
-        if (bullet == null) {
-            String bulletId = getId().equals("tank1") ? "bullet1" : "bullet2";
-            bullet = new Bullet(this, bulletId);
-            bullet.shoot(power);
+    public boolean autoFireBullet() {
+        if (!blockFiring) {
+            fireBullet();
+            blockFiring = true;
         }
 
-        if (((FixtureData) bullet.getBody().getFixtureList().get(0).getUserData()).isHit() ||
-                bullet.getBody().getPosition().x < 0 ||
-                bullet.getBody().getPosition().x > TankWarsGame.VIEWPORT_WIDTH) {
-            bullet.getBulletSprite().getTexture().dispose();
-            model.addDeadBody(bullet.getBody());
-            bullet = null;
-            return false;
-        }
-        return true;
+        if (bullet != null) return true;
+        blockFiring = false;
+        return false;
     }
 
     public float getTankAngle() {
@@ -239,4 +236,8 @@ public class Tank {
     public void setPower(int power) { this.power = power; }
 
     public void resetFuel() { fuel = MAX_FUEL; }
+
+    public Bullet getBullet() { return bullet; }
+
+    public void setBullet(Bullet bullet) { this.bullet = bullet; }
 }

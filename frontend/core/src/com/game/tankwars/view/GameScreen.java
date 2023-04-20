@@ -17,8 +17,6 @@ import com.game.tankwars.TankWarsGame;
 import com.game.tankwars.controller.GameController;
 import com.game.tankwars.controller.TerrainController;
 import com.game.tankwars.model.Box2dWorld;
-import com.game.tankwars.model.Bullet;
-import com.game.tankwars.model.FixtureData;
 import com.game.tankwars.model.Tank;
 import com.game.tankwars.model.Terrain;
 
@@ -43,8 +41,6 @@ public class GameScreen implements Screen {
     CollisionDetection collisionDetection;
     TerrainController terrainController;
 
-    private Bullet bullet;
-    private boolean bulletToDestroy = false;
 
     public GameScreen(final TankWarsGame tankWarsGame){
         this.tankWarsGame = tankWarsGame;
@@ -78,17 +74,15 @@ public class GameScreen implements Screen {
         verticalScaling = Gdx.graphics.getHeight() / TankWarsGame.GAMEPORT_HEIGHT;
 
         hud = new GameHud(new FitViewport(TankWarsGame.GAMEPORT_WIDTH, TankWarsGame.GAMEPORT_HEIGHT, hudCam), batch);
-        controller = new GameController(tankWarsGame, hud, terrain, model);
+        controller = new GameController(tankWarsGame, hud, terrain);
         tank1 = controller.getTank1();
         tank2 = controller.getTank2();
-
     }
     @Override
     public void render(float delta) {
         model.logicStep(Gdx.graphics.getDeltaTime());
-        Gdx.gl.glClearColor(0, 0, 100, 100);
+        Gdx.gl.glClearColor(83/255f, 109/255f, 175/255f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        debugRenderer.render(world, worldCam.combined);
         shapeRender.setProjectionMatrix(worldCam.combined);
 
         controller.checkKeyInput();
@@ -100,7 +94,6 @@ public class GameScreen implements Screen {
         world.getBodies(bodies);
 
 
-        //Rendering Bullet bodies
         for (Body b : bodies) {
             Sprite s = (Sprite) b.getUserData();
 
@@ -128,19 +121,18 @@ public class GameScreen implements Screen {
         shapeRender.begin(ShapeRenderer.ShapeType.Filled);
         terrain.draw(shapeRender);
         shapeRender.end();
-        updateBullet();
-        if (checkBulletCollision()) {
-            Body body = this.bullet.getBody();
-            bullet.getBulletSprite().getTexture().dispose();
-            this.bullet = null;
-            model.addDeadBody(body);
-            System.out.println("Destroy body!");
-        }
-        controller.getOpponentTank().checkBeenHit();
+
+        tank1.checkBeenHit();
+        tank2.checkBeenHit();
+        controller.handleBulletDisposal(model, tank1);
+        controller.handleBulletDisposal(model, tank2);
 
         batch.begin();
-        if (this.bullet != (null)) {
-            this.bullet.getBulletSprite().draw(batch);
+        if (tank1.getBullet() != null) {
+            tank1.getBullet().getBulletSprite().draw(batch);
+        }
+        if (tank2.getBullet() != null) {
+            tank2.getBullet().getBulletSprite().draw(batch);
         }
         tank1.getChassisSprite().draw(batch);
         tank1.getCannonSprite().draw(batch);
@@ -200,26 +192,6 @@ public class GameScreen implements Screen {
 
     private float scale(float value) {
         return value / TankWarsGame.SCALE;
-    }
-
-    private void updateBullet() {
-        Bullet bullet = controller.getBullet();
-        if (bullet != (null)) {
-            this.bullet = bullet;
-        }
-    }
-
-    private boolean checkBulletCollision() {
-        if (this.bullet == null) {
-            return false;
-        }
-        try {
-            FixtureData data = (FixtureData) bullet.getBody().getFixtureList().get(0).getUserData();
-            return data.isHit();
-        } catch (IndexOutOfBoundsException e){
-            return false;
-        }
-
     }
 
 }

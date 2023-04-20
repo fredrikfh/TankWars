@@ -57,7 +57,7 @@ public class Terrain {
     }
 
     public void draw(ShapeRenderer sp) {
-        sp.setColor(Color.GREEN);
+        sp.setColor(Color.valueOf("#5f9a61"));
 
         for (int i = 0; i < vertices.length-1; i++) {
                 sp.triangle(vertices[i].x, vertices[i].y,
