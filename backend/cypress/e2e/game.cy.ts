@@ -35,47 +35,43 @@ describe('Game Test', () => {
         url: `${Cypress.config('baseUrl')}/game/${gameId}/move`,
         body: {
           gameId: gameId,
-          gameStatus: false,
+          isFinished: false,
           currentTurn: 0,
           users: [
-            [
-              {
+            {
+              user: {
                 wins: 0,
-                highscore: 0,
-                games: 0,
-                losses: 0,
                 username: user1,
+                highscore: 2,
+                games: 3,
+                losses: 2,
               },
-              {
-                position: 110,
+              stats: {
+                position: 100,
                 turretAngle: 0,
                 health: 100,
+                power: 0,
                 ammunition: 100,
                 score: 0,
-                isMirrored: true,
-                tankDirection: 'left',
-                tankType: 'M107',
               },
-            ],
-            [
-              {
+            },
+            {
+              user: {
                 wins: 0,
                 highscore: 0,
                 games: 0,
                 losses: 0,
                 username: user2,
               },
-              {
-                position: 910,
-                turretAngle: 30,
+              stats: {
+                position: 900,
+                turretAngle: 0,
                 health: 100,
+                power: 0,
                 ammunition: 100,
                 score: 0,
-                isMirrored: false,
-                tankDirection: 'right',
-                tankType: 'M1A2',
               },
-            ],
+            },
           ],
         },
         failOnStatusCode: false,
