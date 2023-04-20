@@ -85,6 +85,8 @@ public class GameController {
 
         defineEventListeners();
         setLeaveInputListener();
+
+        ResourceManager.getInstance().loadAndGetGameStartSound().play();
     }
 
     private void defineEventListeners() {
@@ -92,6 +94,12 @@ public class GameController {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 System.out.println("leave");
                 leaveLobby();
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        tankWarsGame.setScreen(new MainMenuScreen(tankWarsGame));
+                    }
+                });
                 return true;
             }
         };
@@ -101,6 +109,7 @@ public class GameController {
          */
         fireChangeListener = new ChangeListener() {
             public void changed (ChangeEvent event, Actor actor) {
+                ResourceManager.getInstance().loadAndGetCannonShotSound();
                 String bulletId = getCurrentTank().getId().equals("tank1") ? "bullet1" : "bullet2";
                 bullet = new Bullet(getCurrentTank(), bulletId);
                 bullet.shoot(getCurrentTank().getPower());
@@ -122,6 +131,7 @@ public class GameController {
         moveLeftInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetDrivingTankSound().play();
                 moveLeftTouched = true;
                 return true;
             }
@@ -135,6 +145,7 @@ public class GameController {
         moveRightInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetDrivingTankSound().play();
                 moveRightTouched = true;
                 return true;
             }
@@ -148,6 +159,7 @@ public class GameController {
         aimUpInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetRotateTurretSound().play();
                 aimUpTouched = true;
                 return true;
             }
@@ -161,6 +173,7 @@ public class GameController {
         aimDownInputListener = new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                ResourceManager.getInstance().loadAndGetRotateTurretSound().play();
                 aimDownTouched = true;
                 return true;
             }
@@ -329,18 +342,23 @@ public class GameController {
 
                     return true;
                 } else if (status.getStatusCode() == 404) {
+                    hud.showSomethingWentWrong();
                     System.out.println("RESPONSE 404: " + responseString);
+                    return true;
                 } else if (status.getStatusCode() == 206) {
                     gameEnded = true;
                     hud.showOpponentLeftBanner();
+                    return true;
                 }
-
+                System.out.println("Something went wrong");
+                hud.showSomethingWentWrong();
                 return false;
             }
 
             @Override
             public void onFailed(Throwable t) {
                 System.err.println(t);
+                hud.showSomethingWentWrong();
             }
         }, new HttpRequestBuilder()
                 .newRequest()
@@ -379,7 +397,6 @@ public class GameController {
                     System.err.println(responseString);
                     return true;
                 }
-
                 return false;
             }
 
@@ -401,10 +418,13 @@ public class GameController {
 
         currentUser.incrementGames();
         if (hasWon) {
+            ResourceManager.getInstance().loadAndGetVictorySound().play();
             currentUser.incrementWins();
             currentUser.increaseHighscore((float) getCurrentTank().getHealth());
-        } else
+        } else{
+            ResourceManager.getInstance().loadAndGetLossSound().play();
             currentUser.incrementLosses();
+        }
 
         String content = new Json(JsonWriter.OutputType.json).toJson(currentUser, User.class);
 
@@ -428,7 +448,6 @@ public class GameController {
                     System.err.println(responseString);
                     return true;
                 }
-
                 return false;
             }
 

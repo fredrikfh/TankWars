@@ -257,4 +257,10 @@ public class GameHud {
         showTurnContainer();
         removeTurnInformationContainer();
     }
+
+    public void showSomethingWentWrong() {
+        turnLabel.setText("Something went wrong");
+        showTurnContainer();
+        removeTurnInformationContainer();
+    }
 }

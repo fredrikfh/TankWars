@@ -258,6 +258,7 @@ public class ResourceManager {
      * Unload all currently loaded assets
      */
     public void clear() {
+        this.menuThemeIsPlaying = false;
         manager.clear();
     }
 
