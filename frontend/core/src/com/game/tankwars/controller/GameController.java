@@ -195,10 +195,14 @@ public class GameController {
         else if (aimDownTouched)
             getCurrentTank().rotateCannonClockwise();
 
-        if (moveRightTouched)
+        if (moveRightTouched) {
             getCurrentTank().moveRight();
-        else if (moveLeftTouched)
+            hud.getFuelBar().setValue(getCurrentTank().getFuel());
+        }
+        else if (moveLeftTouched) {
             getCurrentTank().moveLeft();
+            hud.getFuelBar().setValue(getCurrentTank().getFuel());
+        }
 
         if (Gdx.input.justTouched()) {
             if (isFinished && !gameEnded) {
@@ -260,6 +264,7 @@ public class GameController {
         hud.showTurnInformationContainer();
         hud.showYourTurnLabel();
         getCurrentTank().resetFuel();
+        hud.getFuelBar().setValue(getCurrentTank().getFuel());
     }
 
     public void animateOpponentTank() {
@@ -302,6 +307,9 @@ public class GameController {
 
                         User user1 = newGameState.getUsers().get(0).getUser();
                         User user2 = newGameState.getUsers().get(1).getUser();
+
+                        hud.setPlayerName(user1.getUsername());
+                        hud.setOpponentName(user2.getUsername());
 
                         if (user1.getUsername().equals(currentUser.getUsername())) {
                             turnIndex = 0;
