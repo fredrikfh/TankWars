@@ -132,4 +132,4 @@ VM Heartbeat:
       echo "Server did not respond with 200 OK after 3 minutes"
       exit 1
   rules:
-    - if: '($CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "schedule") && $RUN_VM_HEARTBEAT == "true"'
+    - if: '($CI_COMMIT_BRANCH == "main" || $CI_PIPELINE_SOURCE == "schedule") || $RUN_VM_HEARTBEAT == "true"'
