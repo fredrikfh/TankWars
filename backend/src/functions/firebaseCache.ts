@@ -11,6 +11,7 @@ import {
   QuerySnapshot,
 } from 'firebase-admin/firestore';
 import { User } from '../../types/User';
+import { setExhausted } from './firebaseExhaustion';
 
 /**
  * This is a cache and firebaseHandler for the firestore database
@@ -148,6 +149,7 @@ export async function sendFirestoreRequest<T>(
   } catch (err: any) {
     if (err?.code === 8) {
       log('error: firestore max-limit reached', 'danger');
+      setExhausted();
     } else {
       log('error: firestore error code ' + err?.code, 'danger');
     }

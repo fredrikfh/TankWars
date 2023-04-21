@@ -4,6 +4,7 @@ module.exports = {
     {
       name: 'backend',
       script: 'dist/src/index.js',
+      max_memory_restart: '1000M',
       env: {
         NODE_ENV: 'development',
       },

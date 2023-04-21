@@ -13,6 +13,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import path from 'path';
 import { firebaseLogger } from './middleware/firebaseLogger';
 import { rateLimiter } from './middleware/rateLimiter';
+import { verifyExhaustion } from './middleware/verifyExhaustion';
 
 new GameHandler(); // singleton ;)
 
@@ -25,6 +26,7 @@ app.use(express.json()); // for parsing application/json
 app.use(expressLogger); // for request logging
 app.set('trust proxy', 1); // required for rate limiting testing
 app.use(rateLimiter); // for rate limiting
+app.use(verifyExhaustion); // for firebase exhaustion
 
 // routes
 app.use('/lobby', lobbyRoutes);
