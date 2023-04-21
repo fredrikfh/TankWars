@@ -67,14 +67,15 @@ API-test:
   variables:
     DISPLAY: ":99"
   script:
-      # - if [ -d vm-state/ ]; then rsync -avm --exclude vm-state/ vm-state/ /; fi
+      - if [ -d vm-state/ ]; then rsync -avm --exclude vm-state/ vm-state/ /; fi
       - apt-get update && apt-get install -y xvfb
       - Xvfb :99 -screen 0 1920x1080x24 &
       - cd backend
       - echo "FB_PRIV_KEY_JSON_ENCODED=$FB_PRIV_KEY_JSON_ENCODED" >> .env
       - node keys/decode.js
       - chmod 400 keys/fb-key.json
-      - yarn --cache-folder ../.yarn
+      # - yarn --cache-folder ../.yarn
+      - yarn
       - yarn start:local & sleep 10
       - yarn test
   retry: 1
