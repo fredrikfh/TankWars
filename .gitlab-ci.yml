@@ -67,7 +67,7 @@ API-test:
   variables:
     DISPLAY: ":99"
   script:
-      - if [ -d vm-state/ ]; then rsync -avm --exclude vm-state/ vm-state/ /; fi
+      # - if [ -d vm-state/ ]; then rsync -avm --exclude vm-state/ vm-state/ /; fi
       - apt-get update && apt-get install -y xvfb
       - Xvfb :99 -screen 0 1920x1080x24 &
       - cd backend
