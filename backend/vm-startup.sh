@@ -6,7 +6,7 @@ if ! command -v pm2 &> /dev/null; then
 fi
 
 # Start the Express.js app
-cd /home/git/tdt4240-tank-wars/backend && sudo git pull && sudo npx yarn && sudo yarn start:prod
+cd /home/git/tdt4240-tank-wars/backend && sudo git pull && sudo npx yarn && sudo npx yarn start:prod
 
 
 # Wait for the app to start and check the status
