@@ -5,6 +5,11 @@ It is written in Java an utilizes the Libgdx-framework.
 The Box2D-framework is used as the 2D-physics-engine. 
 Scene2D is used to display menu graphics and game HUD.
 
+## How to run the frontend
+The frontend can be run in two ways:
+- Open an Android emulator, for instance in Android Studio, and install the `android-tankWars.apk` file on the emulator. In Android Studio the installation can be done by pulling the .apk file over the emulator and dropping it.
+- Clone the repository from Gitlab, and open the `/frontend/build.gradle` file in Android studio. Click the green run button on the top of the IDE to run the code on the emulator.
+
 ## Frontend repository structure
 
 The frontend repo is structured into models, views and controllers, with the exception of a few helper classes.
@@ -42,12 +47,6 @@ A singleton that holds a User object, the game ID and the lobby ID. Ensures that
 
 ### FixtureData
 Provides a standard way of identification and collision monitoring for the Box2D bodies. Created for each body in their constructors with an id and collision set to false.
-
-### MenuButton
-Unused - replaced by scene2D TextButton
-
-### MenuHeader
-Unused - replaced by scene2D Table.background
 
 ### GameState
 Eases JSON serialization and deserialization of the game state data during gameplay. Contains the game ID, the current turn, if the game is finished or not, the two users and their tanks's stats. When a player makes a move, the GameState object is serialized and sent to the backend. Then, the opponent fetches the new game state from the backend and deserializes it into a GameState object.
