@@ -13,3 +13,10 @@ A description of the backend modules, functions and classes is found [here](/bac
 The frontend is written in Java using the LibGDX framework. The frontend handles the game logic, rendering and user interaction.
 
 A description of the frontend modules and classes is found [here](/frontend/README.md).
+
+### Diagrams
+
+In the diagrams you will find class diagrams for both frontend and backend. 
+
+- [frontend](/diagrams/frontend)
+- [backend](/diagrams/backend)

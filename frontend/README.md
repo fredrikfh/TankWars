@@ -5,10 +5,13 @@ It is written in Java an utilizes the Libgdx-framework.
 The Box2D-framework is used as the 2D-physics-engine. 
 Scene2D is used to display menu graphics and game HUD.
 
+
 ## How to run the frontend
 The frontend can be run in two ways:
 - Open an Android emulator, for instance in Android Studio, and install the `android-tankWars.apk` file on the emulator. In Android Studio the installation can be done by pulling the .apk file over the emulator and dropping it.
 - Clone the repository from Gitlab, and open the `/frontend/build.gradle` file in Android studio. Click the green run button on the top of the IDE to run the code on the emulator.
+
+[[_TOC_]]
 
 ## Frontend repository structure
 

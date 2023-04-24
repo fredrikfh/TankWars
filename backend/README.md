@@ -45,6 +45,8 @@ The backend will only allow 30 requests per minute from the same IP address. Thi
 # Backend repository structure
 Under follows a listing of the files in the backend/src directory, each file with a short description.
 
+[[_TOC_]]
+
 ## controllers
 Controller part of the MVC pattern. Each file contains a collection of functions that process the requests coming in through the endpoints in the Routes module, and returns a response.
 
